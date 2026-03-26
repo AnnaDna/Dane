@@ -21,22 +21,60 @@
     padding: 32px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.10);
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
   }
-  .header { margin-bottom: 20px; }
+  .header { margin-bottom: 16px; }
   .header h1 { font-size: 20px; font-weight: 700; color: #1a202c; }
   .header p { font-size: 13px; color: #718096; margin-top: 4px; }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
   .legend {
     display: flex;
-    gap: 24px;
-    margin-bottom: 20px;
-    padding: 12px 16px;
+    gap: 20px;
+    padding: 10px 16px;
     background: #f7fafc;
     border-radius: 8px;
     flex-wrap: wrap;
+    flex: 1;
   }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; font-weight: 500; }
-  .legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #4a5568; font-weight: 500; }
+  .legend-dot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; }
+  .legend-line { width: 22px; height: 2px; flex-shrink: 0; }
+  .btn-remove {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1.5px solid #e53e3e;
+    background: white;
+    color: #e53e3e;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-remove:hover { background: #fff5f5; }
+  .btn-remove:disabled { border-color: #cbd5e0; color: #a0aec0; cursor: not-allowed; background: white; }
+  .btn-reset {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e0;
+    background: white;
+    color: #718096;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: none;
+  }
+  .btn-reset:hover { background: #f7fafc; }
   .chart-area { position: relative; }
   .tooltip {
     position: fixed;
@@ -50,9 +88,8 @@
     z-index: 100;
     line-height: 1.7;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    min-width: 160px;
+    min-width: 170px;
   }
-  .tooltip strong { font-size: 13px; }
   .t-size {
     display: inline-block;
     padding: 1px 8px;
@@ -61,6 +98,33 @@
     font-weight: 600;
     margin-left: 4px;
   }
+  .outlier-badge {
+    display: inline-block;
+    background: #fed7d7;
+    color: #c53030;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .p85-table {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .p85-card {
+    flex: 1;
+    min-width: 120px;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 1.5px solid;
+  }
+  .p85-card .p85-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .p85-card .p85-value { font-size: 22px; font-weight: 700; }
+  .p85-card .p85-sub { font-size: 11px; margin-top: 2px; opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -69,12 +133,20 @@
     <h1>Lead Times — 2024/25</h1>
     <p>Completion date vs. lead time in days &nbsp;·&nbsp; hover over a point for details</p>
   </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Small (S)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#eab308;"></div>Medium (M)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Large (L)</div>
-    <div class="legend-item" style="margin-left:auto;color:#a0aec0;font-weight:400;font-style:italic;">╌ ╌ trend line</div>
+
+  <div class="p85-table" id="p85-table"></div>
+
+  <div class="controls">
+    <div class="legend" id="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Small (S)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#eab308;"></div>Medium (M)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Large (L)</div>
+      <div class="legend-item"><div class="legend-line" style="background:#22c55e;opacity:0.6;border-top:2px dashed #22c55e;height:0;"></div>P85 lines</div>
+    </div>
+    <button class="btn-remove" id="btn-remove">✕ Remove top outlier</button>
+    <button class="btn-reset" id="btn-reset">↺ Reset</button>
   </div>
+
   <div class="chart-area">
     <div class="tooltip" id="tooltip"></div>
     <svg id="scatter" width="100%" height="480"></svg>
@@ -82,7 +154,7 @@
 </div>
 
 <script>
-const data = [
+const ALL_DATA = [
   { date:"2024-07-15", label:"15 Jul 2024",  size:"S", days:49  },
   { date:"2024-08-22", label:"22 Aug 2024",  size:"S", days:48  },
   { date:"2024-09-10", label:"10 Sep 2024",  size:"S", days:87  },
@@ -125,14 +197,74 @@ const COLOR    = { S:"#22c55e", M:"#eab308", L:"#ef4444" };
 const LABEL    = { S:"Small",   M:"Medium",  L:"Large"   };
 const SIZE_BG  = { S:"#dcfce7", M:"#fef9c3", L:"#fee2e2" };
 const SIZE_COL = { S:"#166534", M:"#713f12", L:"#991b1b" };
-const DOT_R    = { S:7,         M:9,         L:11        };
+const P85_BG   = { S:"#f0fdf4", M:"#fefce8", L:"#fff5f5" };
+const P85_BORDER={ S:"#86efac", M:"#fde047", L:"#fca5a5" };
+const DOT_R    = { S:7, M:9, L:11 };
 
-const parsed = data.map(d => ({ ...d, ts: new Date(d.date).getTime() }));
 const margin = { top:24, right:36, bottom:64, left:68 };
 
+let removed = [];  // indices into ALL_DATA that have been removed
+
+function percentile85(arr) {
+  if (!arr.length) return 0;
+  const sorted = [...arr].sort((a,b)=>a-b);
+  const idx = 0.85 * (sorted.length - 1);
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+
+function activeData() {
+  return ALL_DATA.map((d, i) => ({ ...d, idx: i }))
+                 .filter(d => !removed.includes(d.idx))
+                 .map(d => ({ ...d, ts: new Date(d.date).getTime() }));
+}
+
+function topOutlier(data) {
+  return data.reduce((max, d) => d.days > max.days ? d : max, data[0]);
+}
+
+function computeP85s(data) {
+  const result = {};
+  ['S','M','L'].forEach(s => {
+    const vals = data.filter(d => d.size === s).map(d => d.days);
+    result[s] = vals.length ? percentile85(vals) : null;
+  });
+  return result;
+}
+
+function updateP85Cards(p85s, data) {
+  const table = document.getElementById("p85-table");
+  table.innerHTML = '';
+  ['S','M','L'].forEach(s => {
+    const v = p85s[s];
+    const count = data.filter(d => d.size === s).length;
+    const card = document.createElement('div');
+    card.className = 'p85-card';
+    card.style.borderColor = P85_BORDER[s];
+    card.style.background = P85_BG[s];
+    card.innerHTML = `
+      <div class="p85-label" style="color:${SIZE_COL[s]}">${LABEL[s]} (${s})</div>
+      <div class="p85-value" style="color:${SIZE_COL[s]}">${v !== null ? Math.round(v) : '—'} <span style="font-size:14px;font-weight:500">days</span></div>
+      <div class="p85-sub" style="color:${SIZE_COL[s]}">85th percentile · n=${count}</div>
+    `;
+    table.appendChild(card);
+  });
+}
+
 function draw() {
+  const data = activeData();
+  const p85s = computeP85s(data);
+  updateP85Cards(p85s, data);
+
+  const outlier = topOutlier(data);
+  const btn = document.getElementById("btn-remove");
+  const reset = document.getElementById("btn-reset");
+  btn.textContent = `✕ Remove top outlier (${outlier ? outlier.label + ', ' + outlier.days + ' d' : '—'})`;
+  btn.disabled = data.length === 0;
+  reset.style.display = removed.length > 0 ? 'inline-block' : 'none';
+
   const svgEl = document.getElementById("scatter");
-  const W = svgEl.clientWidth || 836;
+  const W = svgEl.clientWidth || 896;
   const H = 480;
   svgEl.setAttribute("height", H);
   svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -141,9 +273,10 @@ function draw() {
   const iW = W - margin.left - margin.right;
   const iH = H - margin.top - margin.bottom;
 
-  const minTs = Math.min(...parsed.map(d => d.ts));
-  const maxTs = Math.max(...parsed.map(d => d.ts));
-  const maxDays = 460;
+  const allTs  = data.map(d => d.ts);
+  const minTs  = Math.min(...allTs);
+  const maxTs  = Math.max(...allTs);
+  const maxDays = Math.max(460, Math.max(...data.map(d => d.days)) * 1.08);
 
   const xS = ts => margin.left + ((ts - minTs) / (maxTs - minTs)) * iW;
   const yS = v  => margin.top  + iH - (v / maxDays) * iH;
@@ -159,17 +292,23 @@ function draw() {
   // Background
   svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"#fafafa", rx:4 }));
 
-  // Grid lines + y labels
-  [0,50,100,150,200,250,300,350,400,450].forEach(v => {
+  // Determine nice y-ticks
+  const tickStep = maxDays > 400 ? 50 : 50;
+  const yTicks = [];
+  for (let v = 0; v <= maxDays; v += tickStep) yTicks.push(v);
+
+  // Grid + y labels
+  yTicks.forEach(v => {
     const y = yS(v);
-    svgEl.appendChild(mk("line", { x1:margin.left, x2:margin.left+iW, y1:y, y2:y, stroke: v===0?"#cbd5e0":"#e2e8f0", "stroke-width":1 }));
+    if (y < margin.top || y > margin.top + iH + 1) return;
+    svgEl.appendChild(mk("line", { x1:margin.left, x2:margin.left+iW, y1:y, y2:y, stroke:v===0?"#cbd5e0":"#e2e8f0", "stroke-width":1 }));
     svgEl.appendChild(mk("text", { x:margin.left-10, y:y+4, "text-anchor":"end", "font-size":11, fill:"#94a3b8" }, v));
   });
 
   // X-axis ticks (every 2 months)
   const cur = new Date("2024-07-01");
-  const end = new Date("2026-01-01");
-  while (cur < end) {
+  const endDate = new Date("2026-01-01");
+  while (cur < endDate) {
     const x = xS(cur.getTime());
     if (x >= margin.left && x <= margin.left+iW) {
       svgEl.appendChild(mk("line", { x1:x, x2:x, y1:margin.top+iH, y2:margin.top+iH+6, stroke:"#cbd5e0" }));
@@ -187,43 +326,99 @@ function draw() {
   svgEl.appendChild(yLbl);
   svgEl.appendChild(mk("text", { x:margin.left+iW/2, y:H-10, "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Completion Date"));
 
+  // ── 85th percentile lines ────────────────────────────────────
+  ['S','M','L'].forEach(s => {
+    const v = p85s[s];
+    if (v === null) return;
+    const y = yS(v);
+    if (y < margin.top || y > margin.top + iH) return;
+
+    // Dashed line
+    svgEl.appendChild(mk("line", {
+      x1:margin.left, x2:margin.left+iW,
+      y1:y, y2:y,
+      stroke:COLOR[s], "stroke-width":1.5, "stroke-dasharray":"6,4", opacity:0.75
+    }));
+
+    // Right-side label
+    const labelText = `P85(${s}) = ${Math.round(v)}d`;
+    const labelW = labelText.length * 6.5 + 8;
+    const labelX = margin.left + iW + 4;
+    svgEl.appendChild(mk("text", {
+      x:labelX, y:y+4,
+      "font-size":9.5, fill:COLOR[s], "font-weight":700, opacity:0.9
+    }, labelText));
+  });
+
   // Trend line
-  const n = parsed.length;
-  const xs = parsed.map(d => d.ts), ys = parsed.map(d => d.days);
-  const xm = xs.reduce((a,b)=>a+b,0)/n, ym = ys.reduce((a,b)=>a+b,0)/n;
-  const slope = xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0) / xs.reduce((acc,x)=>acc+(x-xm)**2,0);
-  const ic = ym - slope*xm;
-  svgEl.appendChild(mk("line", {
-    x1:xS(minTs), x2:xS(maxTs),
-    y1:yS(slope*minTs+ic), y2:yS(slope*maxTs+ic),
-    stroke:"#94a3b8", "stroke-width":1.5, "stroke-dasharray":"6,4", opacity:0.7
-  }));
+  if (data.length > 1) {
+    const n = data.length;
+    const xs = data.map(d => d.ts), ys = data.map(d => d.days);
+    const xm = xs.reduce((a,b)=>a+b,0)/n, ym = ys.reduce((a,b)=>a+b,0)/n;
+    const slope = xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0) / xs.reduce((acc,x)=>acc+(x-xm)**2,0);
+    const ic = ym - slope*xm;
+    svgEl.appendChild(mk("line", {
+      x1:xS(minTs), x2:xS(maxTs),
+      y1:yS(slope*minTs+ic), y2:yS(slope*maxTs+ic),
+      stroke:"#94a3b8", "stroke-width":1.5, "stroke-dasharray":"5,4", opacity:0.6
+    }));
+  }
 
-  // Dots
+  // ── Dots ─────────────────────────────────────────────────────
   const tooltip = document.getElementById("tooltip");
+  const isOutlier = d => outlier && d.idx === outlier.idx;
 
-  parsed.forEach(d => {
+  data.forEach(d => {
     const cx = xS(d.ts), cy = yS(d.days);
     const r = DOT_R[d.size];
+    const outlierFlag = isOutlier(d);
+
+    // Glow for outlier
+    if (outlierFlag) {
+      svgEl.appendChild(mk("circle", { cx, cy, r:r+7, fill:"rgba(229,62,62,0.12)" }));
+      svgEl.appendChild(mk("circle", { cx, cy, r:r+4, fill:"rgba(229,62,62,0.18)" }));
+    }
 
     const shadow = mk("circle", { cx, cy:cy+2, r:r+1, fill:"rgba(0,0,0,0.07)" });
     svgEl.appendChild(shadow);
 
-    const c = mk("circle", { cx, cy, r, fill:COLOR[d.size], stroke:"white", "stroke-width":2, opacity:0.92, style:"cursor:pointer" });
+    const c = mk("circle", {
+      cx, cy, r,
+      fill:COLOR[d.size],
+      stroke: outlierFlag ? "#c53030" : "white",
+      "stroke-width": outlierFlag ? 2.5 : 2,
+      opacity: 0.92,
+      style:"cursor:pointer"
+    });
+
+    // Outlier marker (×)
+    if (outlierFlag) {
+      const x1 = mk("line", { x1:cx-4, y1:cy-4, x2:cx+4, y2:cy+4, stroke:"white", "stroke-width":1.5, "stroke-linecap":"round" });
+      const x2 = mk("line", { x1:cx+4, y1:cy-4, x2:cx-4, y2:cy+4, stroke:"white", "stroke-width":1.5, "stroke-linecap":"round" });
+      svgEl.appendChild(c);
+      svgEl.appendChild(x1);
+      svgEl.appendChild(x2);
+    } else {
+      svgEl.appendChild(c);
+    }
 
     c.addEventListener("mouseenter", () => {
       c.setAttribute("r", r+3);
       c.setAttribute("opacity", 1);
+      const above85 = ['S','M','L'].filter(s => s === d.size && p85s[s] !== null && d.days > p85s[s]);
       tooltip.innerHTML = `
-        <strong>${d.label}</strong><br>
+        <strong>${d.label}</strong>
+        ${outlierFlag ? '<span class="outlier-badge">TOP OUTLIER</span>' : ''}<br>
         Size: <span class="t-size" style="background:${SIZE_BG[d.size]};color:${SIZE_COL[d.size]}">${LABEL[d.size]}</span><br>
-        Lead time: <strong>${d.days} days</strong>
+        Lead time: <strong>${d.days} days</strong><br>
+        P85 (${d.size}): ${p85s[d.size] !== null ? Math.round(p85s[d.size]) + ' days' : '—'}
+        ${above85.length ? '<br><span style="color:#fc8181;font-size:11px">▲ above 85th percentile</span>' : ''}
       `;
       tooltip.style.display = "block";
     });
     c.addEventListener("mousemove", e => {
-      let l = e.clientX+14, t = e.clientY-48;
-      if (l+180 > window.innerWidth) l = e.clientX-190;
+      let l = e.clientX+14, t = e.clientY-52;
+      if (l+200 > window.innerWidth) l = e.clientX-210;
       if (t < 0) t = e.clientY+10;
       tooltip.style.left = l+"px";
       tooltip.style.top  = t+"px";
@@ -233,10 +428,24 @@ function draw() {
       c.setAttribute("opacity", 0.92);
       tooltip.style.display = "none";
     });
-
-    svgEl.appendChild(c);
   });
 }
+
+// ── Button handlers ──────────────────────────────────────────
+document.getElementById("btn-remove").addEventListener("click", () => {
+  const data = activeData();
+  if (!data.length) return;
+  const outlier = topOutlier(data);
+  if (outlier) {
+    removed.push(outlier.idx);
+    draw();
+  }
+});
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  removed = [];
+  draw();
+});
 
 draw();
 window.addEventListener("resize", draw);
