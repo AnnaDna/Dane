@@ -1,1 +1,245 @@
-Pierwsza wersja
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Times 2024–25</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    width: 100%;
+    max-width: 900px;
+  }
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 20px; font-weight: 700; color: #1a202c; }
+  .header p { font-size: 13px; color: #718096; margin-top: 4px; }
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: #f7fafc;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; font-weight: 500; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); }
+  .chart-area { position: relative; }
+  .tooltip {
+    position: fixed;
+    background: #1a202c;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+    line-height: 1.7;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    min-width: 160px;
+  }
+  .tooltip strong { font-size: 13px; }
+  .t-size {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>Lead Times — 2024/25</h1>
+    <p>Completion date vs. lead time in days &nbsp;·&nbsp; hover over a point for details</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Small (S)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#eab308;"></div>Medium (M)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Large (L)</div>
+    <div class="legend-item" style="margin-left:auto;color:#a0aec0;font-weight:400;font-style:italic;">╌ ╌ trend line</div>
+  </div>
+  <div class="chart-area">
+    <div class="tooltip" id="tooltip"></div>
+    <svg id="scatter" width="100%" height="480"></svg>
+  </div>
+</div>
+
+<script>
+const data = [
+  { date:"2024-07-15", label:"15 Jul 2024",  size:"S", days:49  },
+  { date:"2024-08-22", label:"22 Aug 2024",  size:"S", days:48  },
+  { date:"2024-09-10", label:"10 Sep 2024",  size:"S", days:87  },
+  { date:"2024-09-25", label:"25 Sep 2024",  size:"M", days:57  },
+  { date:"2024-10-05", label:"5 Oct 2024",   size:"M", days:148 },
+  { date:"2024-10-14", label:"14 Oct 2024",  size:"S", days:53  },
+  { date:"2024-10-28", label:"28 Oct 2024",  size:"S", days:45  },
+  { date:"2024-11-18", label:"18 Nov 2024",  size:"M", days:145 },
+  { date:"2024-12-04", label:"4 Dec 2024",   size:"L", days:105 },
+  { date:"2025-01-08", label:"8 Jan 2025",   size:"S", days:5   },
+  { date:"2025-01-20", label:"20 Jan 2025",  size:"L", days:163 },
+  { date:"2025-02-14", label:"14 Feb 2025",  size:"S", days:43  },
+  { date:"2025-02-26", label:"26 Feb 2025",  size:"M", days:415 },
+  { date:"2025-03-15", label:"15 Mar 2025",  size:"L", days:123 },
+  { date:"2025-04-10", label:"10 Apr 2025",  size:"M", days:103 },
+  { date:"2025-05-05", label:"5 May 2025",   size:"L", days:104 },
+  { date:"2025-06-12", label:"12 Jun 2025",  size:"L", days:302 },
+  { date:"2025-06-25", label:"25 Jun 2025",  size:"L", days:158 },
+  { date:"2025-07-02", label:"2 Jul 2025",   size:"L", days:98  },
+  { date:"2025-07-11", label:"11 Jul 2025",  size:"S", days:52  },
+  { date:"2025-07-18", label:"18 Jul 2025",  size:"M", days:95  },
+  { date:"2025-07-29", label:"29 Jul 2025",  size:"S", days:70  },
+  { date:"2025-08-03", label:"3 Aug 2025",   size:"M", days:95  },
+  { date:"2025-08-14", label:"14 Aug 2025",  size:"M", days:101 },
+  { date:"2025-08-21", label:"21 Aug 2025",  size:"M", days:57  },
+  { date:"2025-08-29", label:"29 Aug 2025",  size:"M", days:57  },
+  { date:"2025-09-08", label:"8 Sep 2025",   size:"S", days:53  },
+  { date:"2025-09-22", label:"22 Sep 2025",  size:"L", days:137 },
+  { date:"2025-10-04", label:"4 Oct 2025",   size:"S", days:73  },
+  { date:"2025-10-12", label:"12 Oct 2025",  size:"M", days:60  },
+  { date:"2025-10-19", label:"19 Oct 2025",  size:"S", days:126 },
+  { date:"2025-10-27", label:"27 Oct 2025",  size:"M", days:57  },
+  { date:"2025-11-05", label:"5 Nov 2025",   size:"L", days:124 },
+  { date:"2025-11-15", label:"15 Nov 2025",  size:"M", days:75  },
+  { date:"2025-11-25", label:"25 Nov 2025",  size:"M", days:89  },
+  { date:"2025-12-10", label:"10 Dec 2025",  size:"S", days:44  },
+];
+
+const COLOR    = { S:"#22c55e", M:"#eab308", L:"#ef4444" };
+const LABEL    = { S:"Small",   M:"Medium",  L:"Large"   };
+const SIZE_BG  = { S:"#dcfce7", M:"#fef9c3", L:"#fee2e2" };
+const SIZE_COL = { S:"#166534", M:"#713f12", L:"#991b1b" };
+const DOT_R    = { S:7,         M:9,         L:11        };
+
+const parsed = data.map(d => ({ ...d, ts: new Date(d.date).getTime() }));
+const margin = { top:24, right:36, bottom:64, left:68 };
+
+function draw() {
+  const svgEl = document.getElementById("scatter");
+  const W = svgEl.clientWidth || 836;
+  const H = 480;
+  svgEl.setAttribute("height", H);
+  svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svgEl.innerHTML = "";
+
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
+
+  const minTs = Math.min(...parsed.map(d => d.ts));
+  const maxTs = Math.max(...parsed.map(d => d.ts));
+  const maxDays = 460;
+
+  const xS = ts => margin.left + ((ts - minTs) / (maxTs - minTs)) * iW;
+  const yS = v  => margin.top  + iH - (v / maxDays) * iH;
+
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, txt) => {
+    const el = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    if (txt !== undefined) el.textContent = txt;
+    return el;
+  };
+
+  // Background
+  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"#fafafa", rx:4 }));
+
+  // Grid lines + y labels
+  [0,50,100,150,200,250,300,350,400,450].forEach(v => {
+    const y = yS(v);
+    svgEl.appendChild(mk("line", { x1:margin.left, x2:margin.left+iW, y1:y, y2:y, stroke: v===0?"#cbd5e0":"#e2e8f0", "stroke-width":1 }));
+    svgEl.appendChild(mk("text", { x:margin.left-10, y:y+4, "text-anchor":"end", "font-size":11, fill:"#94a3b8" }, v));
+  });
+
+  // X-axis ticks (every 2 months)
+  const cur = new Date("2024-07-01");
+  const end = new Date("2026-01-01");
+  while (cur < end) {
+    const x = xS(cur.getTime());
+    if (x >= margin.left && x <= margin.left+iW) {
+      svgEl.appendChild(mk("line", { x1:x, x2:x, y1:margin.top+iH, y2:margin.top+iH+6, stroke:"#cbd5e0" }));
+      const lbl = cur.toLocaleString("en",{month:"short"}) + " '" + cur.getFullYear().toString().slice(2);
+      svgEl.appendChild(mk("text", { x, y:margin.top+iH+20, "text-anchor":"middle", "font-size":10, fill:"#94a3b8" }, lbl));
+    }
+    cur.setMonth(cur.getMonth() + 2);
+  }
+
+  // Chart border
+  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"none", stroke:"#cbd5e0", "stroke-width":1, rx:4 }));
+
+  // Axis labels
+  const yLbl = mk("text", { x:-(margin.top+iH/2), y:16, transform:"rotate(-90)", "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Lead Time (days)");
+  svgEl.appendChild(yLbl);
+  svgEl.appendChild(mk("text", { x:margin.left+iW/2, y:H-10, "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Completion Date"));
+
+  // Trend line
+  const n = parsed.length;
+  const xs = parsed.map(d => d.ts), ys = parsed.map(d => d.days);
+  const xm = xs.reduce((a,b)=>a+b,0)/n, ym = ys.reduce((a,b)=>a+b,0)/n;
+  const slope = xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0) / xs.reduce((acc,x)=>acc+(x-xm)**2,0);
+  const ic = ym - slope*xm;
+  svgEl.appendChild(mk("line", {
+    x1:xS(minTs), x2:xS(maxTs),
+    y1:yS(slope*minTs+ic), y2:yS(slope*maxTs+ic),
+    stroke:"#94a3b8", "stroke-width":1.5, "stroke-dasharray":"6,4", opacity:0.7
+  }));
+
+  // Dots
+  const tooltip = document.getElementById("tooltip");
+
+  parsed.forEach(d => {
+    const cx = xS(d.ts), cy = yS(d.days);
+    const r = DOT_R[d.size];
+
+    const shadow = mk("circle", { cx, cy:cy+2, r:r+1, fill:"rgba(0,0,0,0.07)" });
+    svgEl.appendChild(shadow);
+
+    const c = mk("circle", { cx, cy, r, fill:COLOR[d.size], stroke:"white", "stroke-width":2, opacity:0.92, style:"cursor:pointer" });
+
+    c.addEventListener("mouseenter", () => {
+      c.setAttribute("r", r+3);
+      c.setAttribute("opacity", 1);
+      tooltip.innerHTML = `
+        <strong>${d.label}</strong><br>
+        Size: <span class="t-size" style="background:${SIZE_BG[d.size]};color:${SIZE_COL[d.size]}">${LABEL[d.size]}</span><br>
+        Lead time: <strong>${d.days} days</strong>
+      `;
+      tooltip.style.display = "block";
+    });
+    c.addEventListener("mousemove", e => {
+      let l = e.clientX+14, t = e.clientY-48;
+      if (l+180 > window.innerWidth) l = e.clientX-190;
+      if (t < 0) t = e.clientY+10;
+      tooltip.style.left = l+"px";
+      tooltip.style.top  = t+"px";
+    });
+    c.addEventListener("mouseleave", () => {
+      c.setAttribute("r", r);
+      c.setAttribute("opacity", 0.92);
+      tooltip.style.display = "none";
+    });
+
+    svgEl.appendChild(c);
+  });
+}
+
+draw();
+window.addEventListener("resize", draw);
+</script>
+</body>
+</html>
