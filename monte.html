@@ -3,831 +3,573 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprint Forecast · Delivery Planner</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Sprint Forecast · Risk-Adjusted</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --ink:       #111318;
-  --ink-2:     #3d4352;
-  --ink-3:     #6b7385;
-  --ink-4:     #9ba3b2;
-  --paper:     #fafaf8;
-  --paper-2:   #f3f2ef;
-  --paper-3:   #eae9e4;
-  --line:      #dddbd4;
-  --line-2:    #ccc9c0;
-
-  --amber:     #c97a10;
-  --amber-bg:  #fef6e4;
-  --amber-mid: #f5c842;
-  --green:     #217a4a;
-  --green-bg:  #edf7f1;
-  --red:       #b93232;
-  --red-bg:    #fdf0f0;
-  --blue:      #1e4fa8;
-  --blue-bg:   #eef2fc;
-  --teal:      #1a7a72;
-  --teal-bg:   #e8f6f5;
-
-  --p50-color: #1a7a72;
-  --p85-color: #c97a10;
-  --p95-color: #b93232;
-
-  --font:  'DM Sans', sans-serif;
-  --serif: 'Fraunces', Georgia, serif;
-  --mono:  'DM Mono', monospace;
-
-  --r: 10px;
-  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.06);
-  --shadow-lg: 0 2px 4px rgba(0,0,0,.05), 0 8px 28px rgba(0,0,0,.1);
+  --ink:      #111318; --ink2: #374151; --ink3: #6b7280; --ink4: #9ca3af;
+  --bg:       #f4f5f7; --surface: #fff; --s2: #f8f9fb; --border: #e3e6eb; --border2: #cdd2da;
+  --amber:    #b45309; --amber-bg: #fffbeb; --amber-mid: #f59e0b;
+  --teal:     #0f766e; --teal-bg: #f0fdfa;
+  --blue:     #1d4ed8; --blue-bg: #eff6ff;
+  --red:      #b91c1c; --red-bg: #fef2f2;
+  --green:    #15803d; --green-bg: #f0fdf4;
+  --purple:   #7c3aed; --purple-bg: #f5f3ff;
+  --orange:   #c2410c; --orange-bg: #fff7ed;
+  --p50: #0f766e; --p85: #b45309; --p95: #b91c1c;
+  --font: 'DM Sans',sans-serif; --serif: 'Fraunces',Georgia,serif; --mono: 'DM Mono',monospace;
+  --r: 10px; --shadow: 0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
 }
 
-html { font-size: 15px; }
-body {
-  font-family: var(--font);
-  background: var(--paper);
-  color: var(--ink);
-  min-height: 100vh;
-  line-height: 1.5;
-}
+body { font-family:var(--font); background:var(--bg); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased; }
 
-/* ── HEADER ─────────────────────────────────── */
+/* ── HEADER ── */
 header {
-  background: var(--ink);
-  color: #fff;
-  padding: 28px 36px 24px;
-  border-bottom: 3px solid var(--amber-mid);
+  background:var(--ink); padding:26px 36px 22px;
+  border-bottom:3px solid var(--amber-mid);
 }
-.header-row { display: flex; align-items: flex-start; gap: 20px; justify-content: space-between; flex-wrap: wrap; }
-.header-left h1 {
-  font-family: var(--serif);
-  font-size: 1.75rem;
-  font-weight: 500;
-  letter-spacing: -.02em;
-  line-height: 1.2;
-  color: #fff;
-}
-.header-left h1 em { font-style: italic; color: var(--amber-mid); }
-.header-sub {
-  font-size: .8rem; color: rgba(255,255,255,.55);
-  margin-top: 5px; letter-spacing: .04em; text-transform: uppercase;
-}
-.header-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-.chip {
-  font-family: var(--mono); font-size: .72rem;
-  padding: 3px 10px; border-radius: 20px;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
-  color: rgba(255,255,255,.8);
-}
-.chip.hi { background: rgba(245,200,66,.18); border-color: rgba(245,200,66,.4); color: var(--amber-mid); }
+.hdr-inner { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; }
+.hdr-title { font-family:var(--serif); font-size:1.65rem; font-weight:500; color:#fff; line-height:1.2; letter-spacing:-.02em; }
+.hdr-title em { font-style:italic; color:var(--amber-mid); }
+.hdr-sub { font-size:.75rem; color:rgba(255,255,255,.45); margin-top:5px; letter-spacing:.05em; text-transform:uppercase; }
+.hdr-chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:6px; }
+.chip { font-family:var(--mono); font-size:.7rem; padding:3px 9px; border-radius:20px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.75); white-space:nowrap; }
+.chip.warn { background:rgba(245,158,11,.18); border-color:rgba(245,158,11,.4); color:var(--amber-mid); }
 
-/* ── MAIN GRID ──────────────────────────────── */
-.page { padding: 28px 36px 60px; max-width: 1280px; margin: 0 auto; }
+/* ── PAGE ── */
+.page { padding:24px 36px 60px; max-width:1360px; margin:0 auto; }
 
-.two-col { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
+/* ── RISK FACTORS ── */
+.risk-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-bottom:22px; }
+.risk-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--rc); border-radius:var(--r); padding:13px 15px; box-shadow:var(--shadow); }
+.risk-icon { font-size:1.1rem; margin-bottom:6px; }
+.risk-name { font-size:.7rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--rc); margin-bottom:4px; }
+.risk-desc { font-size:.8rem; color:var(--ink2); line-height:1.55; }
+.risk-detail { font-size:.72rem; color:var(--ink3); margin-top:5px; font-family:var(--mono); }
 
-/* ── PANEL ─────────────────────────────────── */
-.panel {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+/* ── SCENARIO TOGGLE ── */
+.scenario-bar {
+  display:flex; gap:0; background:var(--s2); border:1px solid var(--border);
+  border-radius:9px; padding:4px; margin-bottom:22px; width:fit-content; box-shadow:var(--shadow);
 }
-.panel-head {
-  padding: 13px 18px 11px;
-  border-bottom: 1px solid var(--line);
-  background: var(--paper-2);
-  display: flex; align-items: center; gap: 10px;
+.scenario-btn {
+  font-family:var(--font); font-size:.8rem; font-weight:600;
+  padding:7px 20px; border-radius:7px; border:none; cursor:pointer;
+  color:var(--ink3); background:transparent; transition:all .18s;
 }
-.panel-head .icon { font-size: 1rem; opacity: .8; }
-.panel-head h2 { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
-.panel-body { padding: 18px; }
+.scenario-btn.active { background:var(--surface); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.1); }
 
-/* ── INPUT FIELDS ───────────────────────────── */
-.field-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-.field-row:last-child { margin-bottom: 0; }
-.field-row label { font-size: .75rem; font-weight: 600; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
-.field-row input, .field-row textarea, .field-row select {
-  font-family: var(--mono); font-size: .85rem;
-  border: 1.5px solid var(--line-2); border-radius: 7px;
-  padding: 8px 12px; background: var(--paper);
-  color: var(--ink); outline: none;
-  transition: border-color .15s, box-shadow .15s;
-  resize: vertical;
+/* ── ANSWER CARDS ── */
+.answer-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; }
+.acard {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r);
+  padding:18px 18px 16px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+  transition:all .3s ease;
 }
-.field-row input:focus, .field-row textarea:focus, .field-row select:focus {
-  border-color: var(--blue); box-shadow: 0 0 0 3px rgba(30,79,168,.1);
-}
-.field-note { font-size: .72rem; color: var(--ink-4); margin-top: 3px; }
+.acard::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--ac); }
+.acard .qlabel { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ac); margin-bottom:5px; }
+.acard .qtext  { font-size:.77rem; color:var(--ink3); margin-bottom:12px; line-height:1.5; }
+.acard .amain  { font-family:var(--serif); font-size:1.65rem; font-weight:700; letter-spacing:-.02em; color:var(--ink); line-height:1.15; margin-bottom:3px; transition:all .3s ease; }
+.acard .asub   { font-size:.73rem; color:var(--ink3); margin-bottom:10px; }
+.conf-row { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.conf-item { background:var(--s2); border-radius:6px; padding:7px 8px; text-align:center; }
+.conf-item .cpct { font-size:.65rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink4); }
+.conf-item .cval { font-family:var(--mono); font-size:.77rem; font-weight:600; margin-top:2px; color:var(--ink2); transition:all .3s ease; }
+.conf-item.p50 .cval { color:var(--p50); } .conf-item.p85 .cval { color:var(--p85); } .conf-item.p95 .cval { color:var(--p95); }
 
-/* ── RUN BUTTON ─────────────────────────────── */
-.run-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 11px 0; margin-top: 16px;
-  font-family: var(--font); font-size: .9rem; font-weight: 600;
-  background: var(--ink); color: #fff;
-  border: none; border-radius: 8px; cursor: pointer;
-  transition: background .15s, transform .1s;
-  letter-spacing: -.01em;
-}
-.run-btn:hover { background: #2a2f3e; }
-.run-btn:active { transform: scale(.98); }
-.run-btn .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ── DELTA BADGE ── */
+.delta { display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:20px; margin-left:6px; vertical-align:middle; }
+.delta.worse { background:var(--red-bg); color:var(--red); border:1px solid #fca5a5; }
+.delta.same  { background:var(--s2); color:var(--ink3); border:1px solid var(--border); }
 
-/* ── ANSWER CARDS ───────────────────────────── */
-.answer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+/* ── CHARTS GRID ── */
+.charts-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.ccard {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 20px 14px; box-shadow:var(--shadow);
+}
+.ctitle { font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.ctitle .csub { font-size:.68rem; font-weight:400; color:var(--ink4); letter-spacing:.02em; text-transform:none; }
+svg { display:block; overflow:visible; }
 
-.answer-card {
-  border-radius: var(--r);
-  border: 1.5px solid var(--line);
-  padding: 18px 18px 16px;
-  background: #fff;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity .4s ease, transform .4s ease;
-}
-.answer-card.visible { opacity: 1; transform: translateY(0); }
-.answer-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--accent);
-}
-.answer-card .q-label {
-  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 6px;
-}
-.answer-card .q-text {
-  font-size: .78rem; color: var(--ink-3); margin-bottom: 14px; line-height: 1.5;
-}
-.answer-card .answer-main {
-  font-family: var(--serif); font-size: 1.7rem; font-weight: 700;
-  line-height: 1.15; letter-spacing: -.02em; color: var(--ink);
-  margin-bottom: 4px;
-}
-.answer-card .answer-sub {
-  font-size: .75rem; color: var(--ink-3); margin-bottom: 12px;
-}
-.conf-row {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px;
-}
-.conf-item {
-  background: var(--paper-2); border-radius: 6px; padding: 7px 9px;
-  text-align: center;
-}
-.conf-item .conf-pct { font-size: .67rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-4); }
-.conf-item .conf-val { font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
-.conf-item.p50 .conf-val { color: var(--p50-color); }
-.conf-item.p85 .conf-val { color: var(--p85-color); }
-.conf-item.p95 .conf-val { color: var(--p95-color); }
+/* ── TIMELINE VIS ── */
+.timeline-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:20px; box-shadow:var(--shadow); margin-bottom:16px; }
+.timeline-inner { position:relative; }
 
-/* ── CHARTS SECTION ─────────────────────────── */
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+/* ── SPRINT TABLE ── */
+.tbl-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; margin-bottom:0; }
+.tbl-head { padding:13px 18px 11px; background:var(--s2); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.tbl-head h2 { font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); }
+.tbl-scroll { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+thead th { font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink4); padding:9px 14px; text-align:left; background:var(--s2); border-bottom:1px solid var(--border); white-space:nowrap; }
+tbody tr { border-bottom:1px solid #f3f4f6; transition:background .1s; }
+tbody tr:hover { background:var(--s2); }
+tbody tr.vac-row { background:#fff7ed; }
+tbody tr.seasonal-row { background:#faf5ff; }
+tbody tr.holiday-row { background:#f0fdf4; }
+tbody td { font-size:.78rem; padding:9px 14px; color:var(--ink2); font-family:var(--mono); }
+td.sprint-lbl { font-family:var(--font); font-weight:500; color:var(--ink); }
+.badge { display:inline-flex; align-items:center; font-size:.6rem; font-weight:700; padding:1px 7px; border-radius:20px; border:1px solid; margin-left:5px; vertical-align:middle; white-space:nowrap; }
+.b-vac  { background:#fff7ed; color:var(--orange); border-color:#fed7aa; }
+.b-sea  { background:var(--purple-bg); color:var(--purple); border-color:#c4b5fd; }
+.b-tgt  { background:var(--teal-bg); color:var(--teal); border-color:#99f6e4; }
+.b-p85  { background:var(--amber-bg); color:var(--amber); border-color:#fcd34d; }
+.b-p50  { background:var(--teal-bg); color:var(--teal); border-color:#99f6e4; }
+.b-p95  { background:var(--red-bg); color:var(--red); border-color:#fca5a5; }
+.pval-p50 { color:var(--p50); font-weight:600; } .pval-p85 { color:var(--p85); font-weight:600; } .pval-p95 { color:var(--p95); font-weight:600; }
 
-.chart-wrap {
-  background: #fff; border: 1px solid var(--line);
-  border-radius: var(--r); padding: 18px; box-shadow: var(--shadow);
-  opacity: 0; transform: translateY(8px);
-  transition: opacity .5s ease .1s, transform .5s ease .1s;
-}
-.chart-wrap.visible { opacity: 1; transform: translateY(0); }
-.chart-title {
-  font-size: .72rem; font-weight: 700; letter-spacing: .06em;
-  text-transform: uppercase; color: var(--ink-3);
-  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-}
-svg { display: block; overflow: visible; }
+/* ── TOOLTIP ── */
+.ttip { position:fixed; background:var(--ink); color:#fff; border-radius:9px; padding:9px 13px; font-size:.75rem; line-height:1.65; pointer-events:none; display:none; z-index:999; box-shadow:0 6px 24px rgba(0,0,0,.22); min-width:165px; }
 
-/* ── SPRINT TABLE ───────────────────────────── */
-.sprint-table-wrap {
-  background: #fff; border: 1px solid var(--line);
-  border-radius: var(--r); box-shadow: var(--shadow);
-  overflow: hidden; margin-bottom: 0;
-  opacity: 0; transform: translateY(8px);
-  transition: opacity .5s ease .2s, transform .5s ease .2s;
-}
-.sprint-table-wrap.visible { opacity: 1; transform: translateY(0); }
-.sprint-table-head { padding: 13px 18px 11px; background: var(--paper-2); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
-.sprint-table-head h2 { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
-.tbl-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-thead th {
-  font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--ink-4); padding: 9px 14px; text-align: left;
-  background: var(--paper-2); border-bottom: 1px solid var(--line);
-}
-tbody tr { border-bottom: 1px solid var(--paper-3); }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--paper-2); }
-tbody td {
-  font-size: .8rem; padding: 9px 14px; color: var(--ink-2);
-  font-family: var(--mono);
-}
-td.sprint-label { font-family: var(--font); font-weight: 500; color: var(--ink); }
-td.highlight-row { background: var(--amber-bg); }
-.band-p50 { color: var(--p50-color); font-weight: 600; }
-.band-p85 { color: var(--p85-color); font-weight: 600; }
-.band-p95 { color: var(--p95-color); font-weight: 600; }
-.marker-badge {
-  display: inline-flex; align-items: center;
-  font-size: .65rem; font-weight: 700; padding: 1px 7px;
-  border-radius: 20px; border: 1px solid;
-  vertical-align: middle; margin-left: 5px;
-}
-.m-p50 { background: var(--teal-bg); color: var(--teal); border-color: #9ed8d4; }
-.m-p85 { background: var(--amber-bg); color: var(--amber); border-color: #f5c842; }
-.m-p95 { background: var(--red-bg); color: var(--red); border-color: #f5a0a0; }
-
-/* ── TOOLTIP ─────────────────────────────────── */
-.ttip {
-  position: fixed; background: var(--ink); color: #fff;
-  border-radius: 8px; padding: 9px 13px; font-size: .75rem;
-  line-height: 1.65; pointer-events: none; display: none;
-  z-index: 999; box-shadow: var(--shadow-lg); min-width: 170px;
-}
-
-/* ── PLACEHOLDER ─────────────────────────────── */
-.placeholder {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 48px 24px; color: var(--ink-4); text-align: center;
-  border: 2px dashed var(--line); border-radius: var(--r);
-  background: var(--paper-2);
-}
-.placeholder .icon { font-size: 2.2rem; margin-bottom: 10px; opacity: .5; }
-.placeholder p { font-size: .85rem; }
-
-/* ── RESPONSIVE ──────────────────────────────── */
-@media (max-width: 900px) {
-  .two-col { grid-template-columns: 1fr; }
-  .answer-grid { grid-template-columns: 1fr; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .page { padding: 18px 16px 48px; }
-  header { padding: 20px 18px 18px; }
+@media (max-width:900px) {
+  .answer-grid,.charts-2col { grid-template-columns:1fr; }
+  .page { padding:18px 16px 48px; } header { padding:20px 18px; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-row">
-    <div class="header-left">
-      <h1>Sprint Forecast<br><em>Delivery Planner</em></h1>
-      <div class="header-sub">Monte Carlo · 100 000 simulations · confidence-based</div>
-    </div>
+  <div class="hdr-inner">
     <div>
-      <div class="header-chips">
-        <span class="chip hi">62 items in backlog</span>
-        <span class="chip">Start: May 2026</span>
-        <span class="chip">2-week sprints</span>
-        <span class="chip">11 historical sprints</span>
-      </div>
+      <div class="hdr-title">Sprint Forecast<br><em>Risk-Adjusted Delivery Planner</em></div>
+      <div class="hdr-sub">Monte Carlo · 100 000 simulations · 3 compounding risk factors</div>
+    </div>
+    <div class="hdr-chips">
+      <span class="chip">62 items baseline</span>
+      <span class="chip warn">+20–30% scope growth → 75–81 items</span>
+      <span class="chip">Vacations Jul–Aug ↓ 40–55% capacity</span>
+      <span class="chip">Seasonal fixes Sep: 50% for 6–8 wks</span>
     </div>
   </div>
 </header>
 
 <div class="page">
 
-  <div class="two-col">
-
-    <!-- INPUTS -->
-    <div class="panel">
-      <div class="panel-head"><span class="icon">⚙️</span><h2>Inputs</h2></div>
-      <div class="panel-body">
-        <div class="field-row">
-          <label>Backlog size (items)</label>
-          <input type="number" id="inp-backlog" value="62" min="1" max="9999">
-        </div>
-        <div class="field-row">
-          <label>Sprint start date</label>
-          <input type="date" id="inp-start" value="2026-05-04">
-          <span class="field-note">First day of Sprint 1 (typically a Monday)</span>
-        </div>
-        <div class="field-row">
-          <label>Sprint length (days)</label>
-          <input type="number" id="inp-sprint-len" value="14" min="1" max="42">
-        </div>
-        <div class="field-row">
-          <label>Historical throughput (items per sprint)</label>
-          <textarea id="inp-throughput" rows="3">5, 4, 4, 5, 6, 4, 2, 3, 2, 5, 6</textarea>
-          <span class="field-note">Comma-separated. Each value = one sprint's delivery.</span>
-        </div>
-        <div class="field-row">
-          <label>Target date (for "how many by…" question)</label>
-          <input type="date" id="inp-target-date" value="2026-08-31">
-        </div>
-        <div class="field-row">
-          <label>Simulations</label>
-          <select id="inp-sims">
-            <option value="10000">10 000 (fast)</option>
-            <option value="50000">50 000</option>
-            <option value="100000" selected>100 000 (precise)</option>
-          </select>
-        </div>
-        <button class="run-btn" id="run-btn" onclick="runSim()">
-          <div class="spinner" id="spinner"></div>
-          <span id="btn-label">▶ Run Forecast</span>
-        </button>
-      </div>
+  <!-- RISK FACTORS -->
+  <div class="risk-strip">
+    <div class="risk-card" style="--rc:#b45309">
+      <div class="risk-icon">📋</div>
+      <div class="risk-name">Scope Growth</div>
+      <div class="risk-desc">Incomplete requirements understanding — new items will be added during delivery.</div>
+      <div class="risk-detail">+20–30% of 62 = 75–81 total items</div>
     </div>
-
-    <!-- ANSWERS -->
-    <div>
-      <div id="results-area">
-        <div class="placeholder">
-          <div class="icon">📊</div>
-          <p>Configure inputs on the left and click <strong>Run Forecast</strong> to see results.</p>
-        </div>
-      </div>
+    <div class="risk-card" style="--rc:#c2410c">
+      <div class="risk-icon">🏖️</div>
+      <div class="risk-name">Summer Vacations</div>
+      <div class="risk-desc">Team significantly reduced in July and August. Sprints 5–8 affected.</div>
+      <div class="risk-detail">~40–55% of normal capacity · 4 sprints</div>
     </div>
-
+    <div class="risk-card" style="--rc:#7c3aed">
+      <div class="risk-icon">🔧</div>
+      <div class="risk-name">Seasonal Fixes</div>
+      <div class="risk-desc">From September, 50% of team time redirected to fixing products being released.</div>
+      <div class="risk-detail">6–8 weeks (3–4 sprints) · from Sprint 10</div>
+    </div>
   </div>
 
-  <!-- CHARTS + TABLE -->
-  <div id="charts-area"></div>
+  <!-- SCENARIO TOGGLE -->
+  <div class="scenario-bar">
+    <button class="scenario-btn active" id="btn-base" onclick="setScenario('base')">📊 Baseline (no risks)</button>
+    <button class="scenario-btn" id="btn-adj"  onclick="setScenario('adj')">⚠️ Risk-Adjusted</button>
+  </div>
+
+  <!-- ANSWER CARDS -->
+  <div class="answer-grid">
+    <div class="acard" id="ac1" style="--ac:var(--amber)">
+      <div class="qlabel">Q1 · 85% of backlog</div>
+      <div class="qtext">When will <strong id="q1-target">53 of 62 items</strong> be delivered?</div>
+      <div class="amain" id="q1-main">—</div>
+      <div class="asub" id="q1-sub">at 85% confidence</div>
+      <div class="conf-row">
+        <div class="conf-item p50"><div class="cpct">P50</div><div class="cval" id="q1-p50">—</div></div>
+        <div class="conf-item p85"><div class="cpct">P85</div><div class="cval" id="q1-p85">—</div></div>
+        <div class="conf-item p95"><div class="cpct">P95</div><div class="cval" id="q1-p95">—</div></div>
+      </div>
+    </div>
+    <div class="acard" id="ac2" style="--ac:var(--blue)">
+      <div class="qlabel">Q2 · All items</div>
+      <div class="qtext">When will <strong id="q2-target">all 62 items</strong> be delivered?</div>
+      <div class="amain" id="q2-main">—</div>
+      <div class="asub" id="q2-sub">at 85% confidence</div>
+      <div class="conf-row">
+        <div class="conf-item p50"><div class="cpct">P50</div><div class="cval" id="q2-p50">—</div></div>
+        <div class="conf-item p85"><div class="cpct">P85</div><div class="cval" id="q2-p85">—</div></div>
+        <div class="conf-item p95"><div class="cpct">P95</div><div class="cval" id="q2-p95">—</div></div>
+      </div>
+    </div>
+    <div class="acard" id="ac3" style="--ac:var(--teal)">
+      <div class="qlabel">Q3 · By end of August</div>
+      <div class="qtext">How many items will be done <strong>by Aug 31, 2026</strong>?</div>
+      <div class="amain" id="q3-main">—</div>
+      <div class="asub" id="q3-sub">at 50% confidence (8 sprints)</div>
+      <div class="conf-row">
+        <div class="conf-item p50"><div class="cpct">P50</div><div class="cval" id="q3-p50">—</div></div>
+        <div class="conf-item p85"><div class="cpct">Likely ≥</div><div class="cval" id="q3-p85">—</div></div>
+        <div class="conf-item p95"><div class="cpct">Optimistic</div><div class="cval" id="q3-p95">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON BANNER (only in adjusted mode) -->
+  <div id="compare-banner" style="display:none;margin-bottom:18px">
+    <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--r);padding:14px 18px;font-size:.82rem;color:#7f1d1d;line-height:1.7">
+      <strong style="font-size:.85rem">⚠️ Impact of risk factors on original forecast:</strong><br>
+      <span id="compare-text"></span>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-2col">
+    <div class="ccard">
+      <div class="ctitle">📅 Delivery distribution — 85% of backlog <span class="csub">· sprint #</span></div>
+      <svg id="chart85" width="100%" height="230"></svg>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">📅 Delivery distribution — all items <span class="csub">· sprint #</span></div>
+      <svg id="chartAll" width="100%" height="230"></svg>
+    </div>
+  </div>
+
+  <div class="charts-2col" style="margin-bottom:16px">
+    <div class="ccard">
+      <div class="ctitle">📦 Items by end of August distribution</div>
+      <svg id="chartAug" width="100%" height="230"></svg>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">⚡ Historical throughput + capacity modifiers</div>
+      <svg id="chartMod" width="100%" height="230"></svg>
+    </div>
+  </div>
+
+  <!-- SPRINT TABLE -->
+  <div class="tbl-card">
+    <div class="tbl-head"><span>📋</span><h2>Sprint-by-sprint cumulative delivery (risk-adjusted)</h2></div>
+    <div class="tbl-scroll"><table id="main-table">
+      <thead><tr>
+        <th>Sprint</th><th>End Date</th><th>Phase</th>
+        <th style="color:var(--p50)">P50 Delivered</th>
+        <th style="color:var(--p85)">P85 Delivered</th>
+        <th style="color:var(--p95)">P95 Delivered</th>
+        <th>Notes</th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table></div>
+  </div>
 
 </div>
-
 <div class="ttip" id="ttip"></div>
 
 <script>
-/* ═══════════════════════════════════════════
-   CORE SIMULATION
-═══════════════════════════════════════════ */
-function parseInputs(){
-  const backlog    = parseInt(document.getElementById('inp-backlog').value)      || 62;
-  const startStr   = document.getElementById('inp-start').value                  || '2026-05-04';
-  const sprintLen  = parseInt(document.getElementById('inp-sprint-len').value)   || 14;
-  const tpRaw      = document.getElementById('inp-throughput').value;
-  const targetStr  = document.getElementById('inp-target-date').value            || '2026-08-31';
-  const numSims    = parseInt(document.getElementById('inp-sims').value)         || 100000;
+/* ═══════════ PRE-COMPUTED DATA ═══════════ */
+const DATA = {"baseline":{"q1":{"p50":13,"p85":14,"p95":15},"q2":{"p50":15,"p85":17,"p95":17},"q3":{"p50":34,"p85":30},"dist85":[{"val":10,"pct":0.36},{"val":11,"pct":6.53},{"val":12,"pct":24.66},{"val":13,"pct":33.96},{"val":14,"pct":23.12},{"val":15,"pct":8.86},{"val":16,"pct":2.13},{"val":17,"pct":0.35},{"val":18,"pct":0.04}],"distAll":[{"val":11,"pct":0.0},{"val":12,"pct":0.49},{"val":13,"pct":6.27},{"val":14,"pct":21.52},{"val":15,"pct":31.64},{"val":16,"pct":24.41},{"val":17,"pct":11.43},{"val":18,"pct":3.44},{"val":19,"pct":0.68},{"val":20,"pct":0.1},{"val":21,"pct":0.01}],"distAug":[{"val":24,"pct":0.52},{"val":25,"pct":0.94},{"val":26,"pct":1.64},{"val":27,"pct":2.48},{"val":28,"pct":3.64},{"val":29,"pct":5.17},{"val":30,"pct":6.66},{"val":31,"pct":8.22},{"val":32,"pct":9.37},{"val":33,"pct":10.19},{"val":34,"pct":10.4},{"val":35,"pct":9.94},{"val":36,"pct":8.65},{"val":37,"pct":7.28},{"val":38,"pct":5.42},{"val":39,"pct":3.82},{"val":40,"pct":2.46},{"val":41,"pct":1.52},{"val":42,"pct":0.73},{"val":43,"pct":0.33}]},"adjusted":{"q1":{"p50":21,"p85":22,"p95":23},"q2":{"p50":24,"p85":25,"p95":26},"q3":{"p50":24,"p85":27,"p95":21},"dist85":[{"val":16,"pct":0.0},{"val":17,"pct":0.08},{"val":18,"pct":1.85},{"val":19,"pct":10.76},{"val":20,"pct":25.55},{"val":21,"pct":29.96},{"val":22,"pct":20.35},{"val":23,"pct":8.52},{"val":24,"pct":2.42},{"val":25,"pct":0.43},{"val":26,"pct":0.07},{"val":27,"pct":0.01}],"distAll":[{"val":19,"pct":0.02},{"val":20,"pct":0.65},{"val":21,"pct":4.94},{"val":22,"pct":15.88},{"val":23,"pct":26.58},{"val":24,"pct":25.99},{"val":25,"pct":16.29},{"val":26,"pct":7.04},{"val":27,"pct":2.07},{"val":28,"pct":0.44},{"val":29,"pct":0.09}],"distAug":[{"val":15,"pct":0.13},{"val":16,"pct":0.31},{"val":17,"pct":0.73},{"val":18,"pct":1.62},{"val":19,"pct":2.86},{"val":20,"pct":4.78},{"val":21,"pct":6.95},{"val":22,"pct":9.43},{"val":23,"pct":11.5},{"val":24,"pct":12.73},{"val":25,"pct":12.63},{"val":26,"pct":11.66},{"val":27,"pct":9.67},{"val":28,"pct":6.89},{"val":29,"pct":4.21},{"val":30,"pct":2.37},{"val":31,"pct":1.01}],"sprintTable":[{"s":1,"end":"17 May 2026","p50":4,"p85":6,"p95":6},{"s":2,"end":"31 May 2026","p50":8,"p85":10,"p95":11},{"s":3,"end":"14 Jun 2026","p50":13,"p85":15,"p95":16},{"s":4,"end":"28 Jun 2026","p50":17,"p85":20,"p95":21},{"s":5,"end":"12 Jul 2026","p50":19,"p85":22,"p95":23},{"s":6,"end":"26 Jul 2026","p50":21,"p85":24,"p95":25},{"s":7,"end":"09 Aug 2026","p50":23,"p85":26,"p95":27},{"s":8,"end":"23 Aug 2026","p50":24,"p85":28,"p95":29},{"s":9,"end":"06 Sep 2026","p50":26,"p85":29,"p95":31},{"s":10,"end":"20 Sep 2026","p50":28,"p85":32,"p95":33},{"s":11,"end":"04 Oct 2026","p50":30,"p85":34,"p95":35},{"s":12,"end":"18 Oct 2026","p50":32,"p85":36,"p95":38},{"s":13,"end":"01 Nov 2026","p50":35,"p85":39,"p95":41},{"s":14,"end":"15 Nov 2026","p50":40,"p85":44,"p95":46},{"s":15,"end":"29 Nov 2026","p50":44,"p85":48,"p95":50},{"s":16,"end":"13 Dec 2026","p50":48,"p85":52,"p95":55},{"s":17,"end":"27 Dec 2026","p50":52,"p85":57,"p95":59},{"s":18,"end":"10 Jan 2027","p50":56,"p85":61,"p95":64},{"s":19,"end":"24 Jan 2027","p50":61,"p85":66,"p95":68},{"s":20,"end":"07 Feb 2027","p50":65,"p85":70,"p95":73},{"s":21,"end":"21 Feb 2027","p50":69,"p85":74,"p95":77},{"s":22,"end":"07 Mar 2027","p50":73,"p85":77,"p95":79},{"s":23,"end":"21 Mar 2027","p50":76,"p85":79,"p95":80},{"s":24,"end":"04 Apr 2027","p50":77,"p85":80,"p95":81},{"s":25,"end":"18 Apr 2027","p50":78,"p85":80,"p95":81}]}};
 
-  const throughput = tpRaw.split(/[,\s]+/).map(v => parseInt(v.trim())).filter(v => !isNaN(v) && v >= 0);
-  const startDate  = new Date(startStr + 'T00:00:00');
-  const targetDate = new Date(targetStr + 'T00:00:00');
+const SPRINT_START = new Date('2026-05-04T00:00:00');
+const SPRINT_LEN   = 14;
+const BASE_THROUGHPUT = [5,4,4,5,6,4,2,3,2,5,6];
+const VAC_SPRINTS  = new Set([5,6,7,8]);
+const SEA_SPRINTS  = new Set([10,11,12,13]);  // 3–4 sprints from S10
 
-  return { backlog, startDate, sprintLen, throughput, targetDate, numSims };
-}
-
-function sprintEndDate(startDate, sprintLen, sprintNum){
-  const d = new Date(startDate);
-  d.setDate(d.getDate() + sprintLen * sprintNum - 1);
+function sprintEndDate(n){
+  const d = new Date(SPRINT_START);
+  d.setDate(d.getDate() + SPRINT_LEN*n - 1);
   return d;
 }
+function fmtD(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtShort(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 
-function fmtDate(d){
-  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-}
-function fmtShort(d){
-  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-}
+/* ═══════════ STATE ═══════════ */
+let scenario = 'base';
 
-function percentile(sortedArr, p){
-  return sortedArr[Math.max(0, Math.floor(p * sortedArr.length) - 1)];
-}
-
-function runSim(){
-  const { backlog, startDate, sprintLen, throughput, targetDate, numSims } = parseInputs();
-  if(!throughput.length){ alert('Enter at least one throughput value.'); return; }
-
-  // UI: loading
-  document.getElementById('btn-label').textContent = 'Running…';
-  document.getElementById('spinner').style.display = 'block';
-  document.getElementById('run-btn').disabled = true;
-
-  setTimeout(() => {
-    const target85 = Math.ceil(backlog * 0.85);
-
-    // Arrays to collect results
-    const comp85   = [];  // sprint# to deliver 85% of items
-    const compAll  = [];  // sprint# to deliver all items
-    const augItems = [];  // items delivered by target date
-
-    // Pre-compute: how many complete sprints fit before target date?
-    let sprintsByTarget = 0;
-    for(let s = 1; s <= 200; s++){
-      if(sprintEndDate(startDate, sprintLen, s) <= targetDate) sprintsByTarget = s;
-      else break;
-    }
-
-    for(let sim = 0; sim < numSims; sim++){
-      let delivered = 0;
-      let sprint = 0;
-      let s85 = null;
-      let sAll = null;
-      let itemsAtTarget = 0;
-
-      while(delivered < backlog){
-        sprint++;
-        const tp = throughput[Math.floor(Math.random() * throughput.length)];
-        delivered = Math.min(delivered + tp, backlog);
-
-        if(sprint <= sprintsByTarget) itemsAtTarget = delivered;
-
-        if(s85 === null && delivered >= target85) s85 = sprint;
-        if(delivered >= backlog){ sAll = sprint; break; }
-      }
-      comp85.push(s85);
-      compAll.push(sAll);
-      augItems.push(itemsAtTarget);
-    }
-
-    comp85.sort((a,b)=>a-b);
-    compAll.sort((a,b)=>a-b);
-    augItems.sort((a,b)=>a-b);
-
-    // Key percentiles
-    const r = {
-      target85,
-      throughput,
-      backlog, sprintLen, numSims,
-      startDate, targetDate, sprintsByTarget,
-
-      q1: {
-        p50: percentile(comp85, .50),
-        p85: percentile(comp85, .85),
-        p95: percentile(comp85, .95),
-      },
-      q2: {
-        p50: percentile(compAll, .50),
-        p85: percentile(compAll, .85),
-        p95: percentile(compAll, .95),
-      },
-      q3: {
-        p50: percentile(augItems, .50),
-        p85: percentile(augItems, .85),
-        p95: percentile(augItems, .95),  // 85% probability AT LEAST this many
-        sprintsByTarget,
-      },
-
-      // Full distributions for charts
-      dist85:  buildDist(comp85),
-      distAll: buildDist(compAll),
-      distAug: buildDist(augItems),
-    };
-
-    renderResults(r);
-
-    document.getElementById('btn-label').textContent = '▶ Run Forecast';
-    document.getElementById('spinner').style.display = 'none';
-    document.getElementById('run-btn').disabled = false;
-  }, 30);
+function setScenario(s){
+  scenario = s;
+  document.getElementById('btn-base').classList.toggle('active', s==='base');
+  document.getElementById('btn-adj').classList.toggle('active',  s==='adj');
+  document.getElementById('compare-banner').style.display = s==='adj' ? 'block' : 'none';
+  render();
 }
 
-function buildDist(sortedArr){
-  const counts = {};
-  sortedArr.forEach(v => counts[v] = (counts[v]||0) + 1);
-  const total = sortedArr.length;
-  return Object.entries(counts)
-    .map(([k,c]) => ({ val: +k, count: c, pct: c/total*100 }))
-    .sort((a,b) => a.val - b.val);
+/* ═══════════ RENDER ═══════════ */
+function render(){
+  const d = scenario==='base' ? DATA.baseline : DATA.adjusted;
+  const isAdj = scenario==='adj';
+
+  // Q1
+  const q1p85s = d.q1.p85;
+  const q1target = isAdj ? '~66 of ~78 items' : '53 of 62 items';
+  document.getElementById('q1-target').textContent = q1target;
+  document.getElementById('q1-main').innerHTML = fmtD(sprintEndDate(q1p85s)) + (isAdj ? deltaTag(14,q1p85s,'sprint') : '');
+  document.getElementById('q1-sub').textContent = `at 85% confidence · Sprint ${q1p85s}`;
+  document.getElementById('q1-p50').textContent = fmtD(sprintEndDate(d.q1.p50));
+  document.getElementById('q1-p85').textContent = fmtD(sprintEndDate(d.q1.p85));
+  document.getElementById('q1-p95').textContent = fmtD(sprintEndDate(d.q1.p95));
+
+  // Q2
+  const q2p85s = d.q2.p85;
+  document.getElementById('q2-target').textContent = isAdj ? 'all ~75–81 items' : 'all 62 items';
+  document.getElementById('q2-main').innerHTML = fmtD(sprintEndDate(q2p85s)) + (isAdj ? deltaTag(17,q2p85s,'sprint') : '');
+  document.getElementById('q2-sub').textContent = `at 85% confidence · Sprint ${q2p85s}`;
+  document.getElementById('q2-p50').textContent = fmtD(sprintEndDate(d.q2.p50));
+  document.getElementById('q2-p85').textContent = fmtD(sprintEndDate(d.q2.p85));
+  document.getElementById('q2-p95').textContent = fmtD(sprintEndDate(d.q2.p95));
+
+  // Q3
+  document.getElementById('q3-main').innerHTML = d.q3.p50 + ' items' + (isAdj ? deltaTag(34,d.q3.p50,'item') : '');
+  document.getElementById('q3-sub').textContent = '50% confidence · 8 full sprints by Aug 23';
+  document.getElementById('q3-p50').textContent = d.q3.p50 + ' items';
+  document.getElementById('q3-p85').textContent = (isAdj ? d.q3.p85 : 30) + ' items';
+  document.getElementById('q3-p95').textContent = isAdj ? (DATA.adjusted.q3.p95||21)+' items' : '37 items';
+
+  // Compare banner
+  if(isAdj){
+    const s1 = sprintEndDate(DATA.baseline.q1.p85);
+    const s2 = sprintEndDate(DATA.adjusted.q1.p85);
+    const diff1 = Math.round((s2-s1)/(1000*60*60*24*7));
+    const s3 = sprintEndDate(DATA.baseline.q2.p85);
+    const s4 = sprintEndDate(DATA.adjusted.q2.p85);
+    const diff2 = Math.round((s4-s3)/(1000*60*60*24*7));
+    document.getElementById('compare-text').innerHTML =
+      `<b>85% of backlog:</b> ${fmtD(s1)} → <b>${fmtD(s2)}</b> (+${diff1} weeks) &nbsp;|&nbsp; ` +
+      `<b>All items:</b> ${fmtD(s3)} → <b>${fmtD(s4)}</b> (+${diff2} weeks) &nbsp;|&nbsp; ` +
+      `<b>Items by Aug 31:</b> ~34 → <b>~${DATA.adjusted.q3.p50}</b> items (−${34-DATA.adjusted.q3.p50} items)`;
+  }
+
+  drawChart85(d);
+  drawChartAll(d);
+  drawChartAug(d);
+  drawChartMod();
+  buildTable();
 }
 
-/* ═══════════════════════════════════════════
-   RENDER
-═══════════════════════════════════════════ */
-function renderResults(r){
-  const { startDate, sprintLen } = r;
-
-  // ── ANSWER CARDS ──
-  const q1p50date = fmtDate(sprintEndDate(startDate, sprintLen, r.q1.p50));
-  const q1p85date = fmtDate(sprintEndDate(startDate, sprintLen, r.q1.p85));
-  const q1p95date = fmtDate(sprintEndDate(startDate, sprintLen, r.q1.p95));
-  const q2p50date = fmtDate(sprintEndDate(startDate, sprintLen, r.q2.p50));
-  const q2p85date = fmtDate(sprintEndDate(startDate, sprintLen, r.q2.p85));
-  const q2p95date = fmtDate(sprintEndDate(startDate, sprintLen, r.q2.p95));
-
-  document.getElementById('results-area').innerHTML = `
-    <div class="answer-grid">
-
-      <div class="answer-card" id="ac1" style="--accent:var(--amber)">
-        <div class="q-label">Q1 · 85% of backlog</div>
-        <div class="q-text">When will <strong>${r.target85} of ${r.backlog} items</strong> be delivered?</div>
-        <div class="answer-main">${q1p85date}</div>
-        <div class="answer-sub">at 85% confidence · Sprint ${r.q1.p85}</div>
-        <div class="conf-row">
-          <div class="conf-item p50"><div class="conf-pct">P50</div><div class="conf-val">${q1p50date}</div></div>
-          <div class="conf-item p85"><div class="conf-pct">P85</div><div class="conf-val">${q1p85date}</div></div>
-          <div class="conf-item p95"><div class="conf-pct">P95</div><div class="conf-val">${q1p95date}</div></div>
-        </div>
-      </div>
-
-      <div class="answer-card" id="ac2" style="--accent:var(--blue)">
-        <div class="q-label">Q2 · All ${r.backlog} items</div>
-        <div class="q-text">When will <strong>all items</strong> in the backlog be delivered?</div>
-        <div class="answer-main">${q2p85date}</div>
-        <div class="answer-sub">at 85% confidence · Sprint ${r.q2.p85}</div>
-        <div class="conf-row">
-          <div class="conf-item p50"><div class="conf-pct">P50</div><div class="conf-val">${q2p50date}</div></div>
-          <div class="conf-item p85"><div class="conf-pct">P85</div><div class="conf-val">${q2p85date}</div></div>
-          <div class="conf-item p95"><div class="conf-pct">P95</div><div class="conf-val">${q2p95date}</div></div>
-        </div>
-      </div>
-
-      <div class="answer-card" id="ac3" style="--accent:var(--teal)">
-        <div class="q-label">Q3 · By ${fmtDate(r.targetDate)}</div>
-        <div class="q-text">How many items will be completed <strong>by the target date</strong>? (${r.sprintsByTarget} full sprints)</div>
-        <div class="answer-main">${r.q3.p50} items</div>
-        <div class="answer-sub">50% confidence · ${r.sprintsByTarget} sprints completed</div>
-        <div class="conf-row">
-          <div class="conf-item p50"><div class="conf-pct">P50</div><div class="conf-val">${r.q3.p50} items</div></div>
-          <div class="conf-item p85"><div class="conf-pct">P85</div><div class="conf-val">≥ ${r.q3.p85} items</div></div>
-          <div class="conf-item p95"><div class="conf-pct">P95</div><div class="conf-val">≥ ${r.q3.p95} items</div></div>
-        </div>
-      </div>
-
-    </div>
-  `;
-
-  // Animate in
-  setTimeout(()=>{
-    ['ac1','ac2','ac3'].forEach((id,i) => {
-      setTimeout(()=> document.getElementById(id)?.classList.add('visible'), i * 80);
-    });
-  }, 20);
-
-  // ── CHARTS + TABLE ──
-  document.getElementById('charts-area').innerHTML = `
-    <div class="charts-grid">
-      <div class="chart-wrap" id="cw1">
-        <div class="chart-title">📅 Completion distribution — 85% of items (${r.target85})</div>
-        <svg id="chart85" width="100%" height="220"></svg>
-      </div>
-      <div class="chart-wrap" id="cw2">
-        <div class="chart-title">📅 Completion distribution — all ${r.backlog} items</div>
-        <svg id="chartAll" width="100%" height="220"></svg>
-      </div>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-wrap" id="cw3">
-        <div class="chart-title">📦 Items delivered by target date distribution</div>
-        <svg id="chartAug" width="100%" height="220"></svg>
-      </div>
-      <div class="chart-wrap" id="cw4">
-        <div class="chart-title">⚡ Historical throughput</div>
-        <svg id="chartTp" width="100%" height="220"></svg>
-      </div>
-    </div>
-    <div class="sprint-table-wrap" id="sprint-table-wrap">
-      <div class="sprint-table-head"><span>📋</span><h2>Sprint-by-sprint delivery forecast (cumulative)</h2></div>
-      <div class="tbl-scroll" id="tbl-body"></div>
-    </div>
-  `;
-
-  setTimeout(()=>{
-    ['cw1','cw2','cw3','cw4','sprint-table-wrap'].forEach((id,i) => {
-      setTimeout(()=> document.getElementById(id)?.classList.add('visible'), i*80);
-    });
-    drawBarChart('chart85', r.dist85, r.q1, startDate, sprintLen, 'sprint', 'Sprint #');
-    drawBarChart('chartAll', r.distAll, r.q2, startDate, sprintLen, 'sprint', 'Sprint #');
-    drawItemsDist('chartAug', r.distAug, r.q3);
-    drawThroughput('chartTp', r.throughput);
-    buildTable(r);
-  }, 40);
+function deltaTag(base, current, unit){
+  const diff = current - base;
+  if(diff <= 0) return '';
+  const sprWeeks = diff * 2;
+  const label = unit==='sprint' ? `+${sprWeeks} wks` : `−${Math.abs(current-base)}`;
+  return `<span class="delta worse">▲ ${label}</span>`;
 }
 
-/* ── SVG helpers ── */
-const NS = 'http://www.w3.org/2000/svg';
-function mkEl(tag, attrs, txt){
-  const e = document.createElementNS(NS, tag);
-  if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  if(txt !== undefined) e.textContent = txt;
+/* ═══════════ SVG HELPERS ═══════════ */
+const NS='http://www.w3.org/2000/svg';
+function mk(tag,a,t){
+  const e=document.createElementNS(NS,tag);
+  if(a) Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));
+  if(t!==undefined) e.textContent=t;
   return e;
 }
 
-/* ── BAR CHART (sprint distribution) ── */
-function drawBarChart(id, dist, pcts, startDate, sprintLen, xMode, xLabel){
+function setupSVG(id, H){
   const svg = document.getElementById(id);
-  if(!svg) return;
-  const W = svg.parentElement.clientWidth || 500;
-  const H = 220;
-  svg.setAttribute('width', W); svg.setAttribute('height', H);
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = '';
-
-  const M = {top:14, right:16, bottom:52, left:38};
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-
-  const maxPct = Math.max(...dist.map(d=>d.pct));
-  const ys = v => M.top + iH - (v/maxPct)*iH;
-  const n  = dist.length;
-  const bw = Math.min(40, (iW/n)*0.72);
-
-  // Grid
-  [0, maxPct/2, maxPct].forEach(v => {
-    const y = ys(v);
-    svg.appendChild(mkEl('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#e8e6e1','stroke-width':.8}));
-    svg.appendChild(mkEl('text',{x:M.left-4,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ba3b2'},`${v.toFixed(0)}%`));
-  });
-
-  // Bars
-  dist.forEach((d, idx) => {
-    const x = M.left + (idx+.5)*(iW/n) - bw/2;
-    const barH = (d.pct/maxPct)*iH;
-    const isP50 = d.val === pcts.p50;
-    const isP85 = d.val === pcts.p85;
-    const isP95 = d.val === pcts.p95;
-    const col = isP85 ? '#c97a10' : isP50 ? '#1a7a72' : isP95 ? '#b93232' : '#3b82f6';
-    const opacity = (isP50||isP85||isP95) ? 1 : 0.45;
-
-    svg.appendChild(mkEl('rect',{x,y:ys(d.pct),width:bw,height:barH,fill:col,rx:3,opacity}));
-
-    if(d.pct >= maxPct * 0.08){
-      svg.appendChild(mkEl('text',{x:x+bw/2,y:ys(d.pct)-4,'text-anchor':'middle','font-size':8,
-        fill:col,'font-weight':700,'font-family':'DM Mono,monospace'},`${d.pct.toFixed(0)}%`));
-    }
-
-    // x label
-    const endD = sprintEndDate(startDate, sprintLen, d.val);
-    svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+14,'text-anchor':'middle','font-size':8,
-      fill:'#6b7385','font-weight':600},`S${d.val}`));
-    svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+26,'text-anchor':'middle','font-size':7,
-      fill:'#9ba3b2'},fmtShort(endD)));
-
-    // markers
-    if(isP50) svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#1a7a72','font-weight':700},'P50'));
-    if(isP85) svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#c97a10','font-weight':700},'P85'));
-    if(isP95 && !isP85) svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#b93232','font-weight':700},'P95'));
-  });
-
-  svg.appendChild(mkEl('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e8e6e1',rx:4}));
+  const W = svg.parentElement.clientWidth||500;
+  svg.setAttribute('width',W); svg.setAttribute('height',H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML='';
+  return {svg,W,H};
 }
 
-/* ── ITEMS DIST CHART ── */
-function drawItemsDist(id, dist, q3){
-  const svg = document.getElementById(id);
-  if(!svg) return;
-  const W = svg.parentElement.clientWidth || 500;
-  const H = 220;
-  svg.setAttribute('width', W); svg.setAttribute('height', H);
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = '';
+function drawBarDist(id, dist, pcts, labelFn){
+  const {svg,W,H} = setupSVG(id, 230);
+  const M={top:16,right:14,bottom:56,left:36};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const n=dist.length;
+  const maxPct=Math.max(...dist.map(d=>d.pct));
+  const ys=v=>M.top+iH-(v/maxPct)*iH;
+  const bw=Math.min(36,(iW/n)*0.7);
 
-  const M = {top:14, right:16, bottom:40, left:38};
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-
-  const maxPct = Math.max(...dist.map(d=>d.pct));
-  const ys = v => M.top + iH - (v/maxPct)*iH;
-  const n  = dist.length;
-  const bw = Math.min(28, (iW/n)*0.72);
-
-  [0, maxPct/2, maxPct].forEach(v => {
-    const y = ys(v);
-    svg.appendChild(mkEl('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#e8e6e1','stroke-width':.8}));
-    svg.appendChild(mkEl('text',{x:M.left-4,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ba3b2'},`${v.toFixed(0)}%`));
-  });
-
-  // cumulative line points
-  let cumPct = 0;
-  const cPoints = [];
-
-  dist.forEach((d, idx) => {
-    cumPct += d.pct;
-    const x = M.left + (idx+.5)*(iW/n);
-    cPoints.push([x, M.top + iH - (Math.min(cumPct,100)/100)*iH]);
-    const isP50 = d.val === q3.p50;
-    const isP85 = d.val === q3.p85;
-    const col = isP85 ? '#c97a10' : isP50 ? '#1a7a72' : '#3b82f6';
-    const op  = (isP50||isP85) ? 1 : 0.4;
-
-    svg.appendChild(mkEl('rect',{
-      x:x-bw/2, y:ys(d.pct), width:bw, height:(d.pct/maxPct)*iH,
-      fill:col, rx:2, opacity:op,
-    }));
-
-    if(idx%3===0||isP50||isP85){
-      svg.appendChild(mkEl('text',{x,y:M.top+iH+13,'text-anchor':'middle','font-size':8,
-        fill:isP50?'#1a7a72':isP85?'#c97a10':'#9ba3b2','font-weight':(isP50||isP85)?700:400},d.val));
-    }
-  });
-
-  svg.appendChild(mkEl('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e8e6e1',rx:4}));
-  svg.appendChild(mkEl('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle','font-size':9,fill:'#6b7385'},'Items delivered'));
-}
-
-/* ── THROUGHPUT CHART ── */
-function drawThroughput(id, throughput){
-  const svg = document.getElementById(id);
-  if(!svg) return;
-  const W = svg.parentElement.clientWidth || 500;
-  const H = 220;
-  svg.setAttribute('width', W); svg.setAttribute('height', H);
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = '';
-
-  const M = {top:14, right:16, bottom:36, left:38};
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-  const n = throughput.length;
-  const maxV = Math.max(...throughput) + 1;
-  const mean = throughput.reduce((a,b)=>a+b,0)/n;
-  const ys = v => M.top + iH - (v/maxV)*iH;
-  const bw = Math.min(40, (iW/n)*0.65);
-
-  // Mean line
-  const ym = ys(mean);
-  svg.appendChild(mkEl('line',{x1:M.left,x2:M.left+iW,y1:ym,y2:ym,stroke:'#c97a10','stroke-width':1.5,'stroke-dasharray':'5,3',opacity:.8}));
-  svg.appendChild(mkEl('text',{x:M.left+iW+4,y:ym+4,'font-size':8.5,fill:'#c97a10','font-weight':600,'font-family':'DM Mono,monospace'},`avg ${mean.toFixed(1)}`));
-
-  // Y grid
-  for(let v=0;v<=maxV;v+=2){
+  // bg
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fafafa',rx:4}));
+  // grid
+  [0,maxPct/2,maxPct].forEach(v=>{
     const y=ys(v);
-    svg.appendChild(mkEl('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#e8e6e1','stroke-width':.7}));
-    if(v%2===0) svg.appendChild(mkEl('text',{x:M.left-5,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ba3b2'},v));
-  }
-
-  throughput.forEach((v,i) => {
-    const x = M.left + (i+.5)*(iW/n) - bw/2;
-    const barH = (v/maxV)*iH;
-    svg.appendChild(mkEl('rect',{x,y:ys(v),width:bw,height:barH,fill:'#2563eb',rx:3,opacity:.65}));
-    svg.appendChild(mkEl('text',{x:x+bw/2,y:ys(v)-4,'text-anchor':'middle','font-size':9,
-      fill:'#2563eb','font-weight':600,'font-family':'DM Mono,monospace'},v));
-    svg.appendChild(mkEl('text',{x:x+bw/2,y:M.top+iH+14,'text-anchor':'middle','font-size':8,fill:'#9ba3b2'},`S${i+1}`));
+    svg.appendChild(mk('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#e8e6e1','stroke-width':.8}));
+    svg.appendChild(mk('text',{x:M.left-4,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ca3af'},`${v.toFixed(0)}%`));
   });
 
-  svg.appendChild(mkEl('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e8e6e1',rx:4}));
-  svg.appendChild(mkEl('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle','font-size':9,fill:'#6b7385'},'Sprint'));
+  dist.forEach((d,i)=>{
+    const x = M.left+(i+.5)*(iW/n)-bw/2;
+    const bh = (d.pct/maxPct)*iH;
+    const isP50=d.val===pcts.p50, isP85=d.val===pcts.p85, isP95=d.val===pcts.p95;
+    const col=isP85?'#b45309':isP50?'#0f766e':isP95?'#b91c1c':'#3b82f6';
+    const op=(isP50||isP85||isP95)?1:.38;
+
+    svg.appendChild(mk('rect',{x,y:ys(d.pct),width:bw,height:bh,fill:col,rx:3,opacity:op}));
+    if(d.pct>=maxPct*0.07) svg.appendChild(mk('text',{x:x+bw/2,y:ys(d.pct)-4,'text-anchor':'middle',
+      'font-size':8,fill:col,'font-weight':700,'font-family':'DM Mono,monospace'},`${d.pct.toFixed(0)}%`));
+
+    const lbl = labelFn(d.val);
+    svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+14,'text-anchor':'middle','font-size':8,fill:'#6b7280','font-weight':600},lbl.line1));
+    if(lbl.line2) svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+25,'text-anchor':'middle','font-size':7,fill:'#9ca3af'},lbl.line2));
+    if(isP50) svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#0f766e','font-weight':700},'P50'));
+    if(isP85) svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#b45309','font-weight':700},'P85'));
+    if(isP95&&!isP85) svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+38,'text-anchor':'middle','font-size':8,fill:'#b91c1c','font-weight':700},'P95'));
+  });
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:4}));
 }
 
-/* ── SPRINT TABLE ── */
-function buildTable(r){
-  const { startDate, sprintLen, backlog } = r;
-  const throughput = r.throughput;
-  const mean = throughput.reduce((a,b)=>a+b,0)/throughput.length;
-  const maxSprint = Math.max(r.q2.p95 + 2, r.q2.p85 + 3);
+function drawChart85(d){
+  drawBarDist('chart85', d.dist85, d.q1, v => ({
+    line1:`S${v}`, line2: fmtShort(sprintEndDate(v))
+  }));
+}
+function drawChartAll(d){
+  drawBarDist('chartAll', d.distAll, d.q2, v => ({
+    line1:`S${v}`, line2: fmtShort(sprintEndDate(v))
+  }));
+}
+function drawChartAug(d){
+  const {svg,W,H} = setupSVG('chartAug', 230);
+  const M={top:16,right:14,bottom:36,left:36};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const dist=d.distAug;
+  const pcts=d.q3;
+  const n=dist.length;
+  const maxPct=Math.max(...dist.map(d=>d.pct));
+  const ys=v=>M.top+iH-(v/maxPct)*iH;
+  const bw=Math.min(22,(iW/n)*0.7);
 
-  // Build cumulative p10/p50/p90 for each sprint by Monte Carlo sprint-by-sprint
-  const N = 10000;
-  const bySprintDelivered = [];
-  for(let s = 0; s < maxSprint; s++) bySprintDelivered.push([]);
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fafafa',rx:4}));
+  [0,maxPct/2,maxPct].forEach(v=>{
+    const y=ys(v);
+    svg.appendChild(mk('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#e8e6e1','stroke-width':.8}));
+    svg.appendChild(mk('text',{x:M.left-4,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ca3af'},`${v.toFixed(0)}%`));
+  });
 
-  for(let sim = 0; sim < N; sim++){
-    let del = 0;
-    for(let s = 0; s < maxSprint; s++){
-      if(del >= backlog){ bySprintDelivered[s].push(backlog); continue; }
-      const tp = throughput[Math.floor(Math.random()*throughput.length)];
-      del = Math.min(del+tp, backlog);
-      bySprintDelivered[s].push(del);
-    }
+  dist.forEach((d,i)=>{
+    const x=M.left+(i+.5)*(iW/n)-bw/2;
+    const bh=(d.pct/maxPct)*iH;
+    const isP50=d.val===pcts.p50;
+    const col=isP50?'#0f766e':'#3b82f6';
+    const op=isP50?1:.4;
+    svg.appendChild(mk('rect',{x,y:ys(d.pct),width:bw,height:bh,fill:col,rx:2,opacity:op}));
+    if(i%3===0||isP50) svg.appendChild(mk('text',{x:x+bw/2,y:M.top+iH+13,'text-anchor':'middle','font-size':8,fill:isP50?'#0f766e':'#9ca3af','font-weight':isP50?700:400},d.val));
+  });
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:4}));
+  svg.appendChild(mk('text',{x:M.left+iW/2,y:H-1,'text-anchor':'middle','font-size':9,fill:'#6b7280'},'Items delivered by Aug 31'));
+}
+
+function drawChartMod(){
+  const {svg,W,H} = setupSVG('chartMod', 230);
+  const M={top:16,right:90,bottom:36,left:36};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const phases=[
+    {label:'Normal',  sprints:[1,2,3,4],     color:'#2563eb', factor:1.0,   desc:'Full capacity'},
+    {label:'Vacation',sprints:[5,6,7,8],      color:'#c2410c', factor:0.45,  desc:'~45% capacity'},
+    {label:'Seasonal',sprints:[10,11,12,13],  color:'#7c3aed', factor:0.50,  desc:'50% on fixes'},
+    {label:'Normal',  sprints:[14,15,16,17],  color:'#2563eb', factor:1.0,   desc:'Full capacity'},
+  ];
+
+  const totalSprints = 17;
+  const mean=BASE_THROUGHPUT.reduce((a,b)=>a+b,0)/BASE_THROUGHPUT.length;
+  const maxY=8;
+  const ys=v=>M.top+iH-(v/maxY)*iH;
+  const xs=s=>M.left+(s-0.5)*(iW/totalSprints);
+
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fafafa',rx:4}));
+
+  // Phase background bands
+  phases.forEach(p=>{
+    const s0=Math.min(...p.sprints), s1=Math.max(...p.sprints);
+    const x0=M.left+(s0-1)*(iW/totalSprints);
+    const x1=M.left+s1*(iW/totalSprints);
+    svg.appendChild(mk('rect',{x:x0,y:M.top,width:x1-x0,height:iH,fill:p.color,opacity:.06}));
+  });
+
+  // Baseline mean line
+  svg.appendChild(mk('line',{x1:M.left,x2:M.left+iW,y1:ys(mean),y2:ys(mean),stroke:'#6b7280','stroke-width':1,'stroke-dasharray':'4,3',opacity:.5}));
+  svg.appendChild(mk('text',{x:M.left+iW+4,y:ys(mean)+4,'font-size':8,fill:'#6b7280','font-weight':600,'font-family':'DM Mono,monospace'},`avg ${mean.toFixed(1)}`));
+
+  // Effective throughput bars
+  for(let s=1;s<=totalSprints;s++){
+    const tp=BASE_THROUGHPUT[(s-1)%BASE_THROUGHPUT.length];
+    let factor=1;
+    if(s>=5&&s<=8)  factor=0.45;
+    if(s>=10&&s<=13) factor=0.5;
+    const eff=Math.max(1,Math.round(tp*factor));
+    const x=xs(s);
+    const bw=(iW/totalSprints)*0.6;
+    const isVac=(s>=5&&s<=8), isSea=(s>=10&&s<=13);
+    const col=isVac?'#c2410c':isSea?'#7c3aed':'#2563eb';
+    const opacity=isVac||isSea?0.75:0.5;
+
+    // Potential bar (faint)
+    svg.appendChild(mk('rect',{x:x-bw/2,y:ys(tp),width:bw,height:(tp/maxY)*iH,fill:col,rx:2,opacity:.2}));
+    // Actual effective bar
+    svg.appendChild(mk('rect',{x:x-bw/2,y:ys(eff),width:bw,height:(eff/maxY)*iH,fill:col,rx:2,opacity}));
+    svg.appendChild(mk('text',{x,y:M.top+iH+13,'text-anchor':'middle','font-size':8,fill:'#9ca3af'},`S${s}`));
   }
 
-  let rows = '';
-  for(let s = 1; s <= maxSprint; s++){
-    const arr = bySprintDelivered[s-1].slice().sort((a,b)=>a-b);
-    const p50  = percentile(arr, .50);
-    const p85  = percentile(arr, .85);
-    const p95  = percentile(arr, .95);
-    const endD = sprintEndDate(startDate, sprintLen, s);
+  // Phase labels
+  [[2.5,'#2563eb','Normal'],[6.5,'#c2410c','Vac 🏖'],[9,'#6b7280','?'],[11.5,'#7c3aed','Fixes 🔧'],[15.5,'#2563eb','Normal']].forEach(([s,col,lbl])=>{
+    const x=M.left+(s-0.5)*(iW/totalSprints);
+    if(x>M.left&&x<M.left+iW)
+      svg.appendChild(mk('text',{x,y:M.top+7,'text-anchor':'middle','font-size':8,'font-weight':700,fill:col,opacity:.75},lbl));
+  });
 
-    const isQ1p85 = s === r.q1.p85;
-    const isQ2p50 = s === r.q2.p50;
-    const isQ2p85 = s === r.q2.p85;
-    const isQ2p95 = s === r.q2.p95;
-    const isByTarget = r.sprintsByTarget > 0 && s === r.sprintsByTarget;
+  // y grid
+  [0,2,4,6,8].forEach(v=>{
+    const y=ys(v);
+    svg.appendChild(mk('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'#ebebeb','stroke-width':.7}));
+    svg.appendChild(mk('text',{x:M.left-5,y:y+4,'text-anchor':'end','font-size':8,fill:'#9ca3af'},v));
+  });
+
+  svg.appendChild(mk('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:4}));
+}
+
+/* ═══════════ SPRINT TABLE ═══════════ */
+function buildTable(){
+  const rows = DATA.adjusted.sprintTable;
+  const tbody = document.getElementById('tbl-body');
+  const B = DATA.baseline; const A = DATA.adjusted;
+
+  const phaseOf = s => {
+    if(s>=5&&s<=8)  return {cls:'vac-row',     badge:'<span class="badge b-vac">🏖 Vacation</span>'};
+    if(s===9)       return {cls:'vac-row',     badge:'<span class="badge b-vac">🏖 Partial vac</span>'};
+    if(s>=10&&s<=13)return {cls:'seasonal-row',badge:'<span class="badge b-sea">🔧 Seasonal fixes</span>'};
+    return {cls:'', badge:''};
+  };
+
+  let html='';
+  // Only show up to sprint 25
+  const show = rows.filter(r=>r.s<=25);
+  show.forEach(r=>{
+    const ph = phaseOf(r.s);
+    const isTargetDate = r.s===8;
+    const isQ1p85 = r.s===A.q1.p85;
+    const isQ2p50 = r.s===A.q2.p50;
+    const isQ2p85 = r.s===A.q2.p85;
+    const isQ2p95 = r.s===A.q2.p95;
 
     const markers = [
-      isQ1p85 ? '<span class="marker-badge m-p85">P85 · 85% done</span>' : '',
-      isQ2p50 ? '<span class="marker-badge m-p50">P50 · all done</span>' : '',
-      isQ2p85 ? '<span class="marker-badge m-p85">P85 · all done</span>' : '',
-      isQ2p95 ? '<span class="marker-badge m-p95">P95 · all done</span>' : '',
-      isByTarget ? '<span class="marker-badge" style="background:#e8f6f5;color:#1a7a72;border-color:#9ed8d4">📅 Target date</span>' : '',
+      isTargetDate ? '<span class="badge b-tgt">📅 Aug 31 target</span>' : '',
+      isQ1p85 ? '<span class="badge b-p85">P85 · 85% done</span>' : '',
+      isQ2p50 ? '<span class="badge b-p50">P50 · all done</span>' : '',
+      isQ2p85 ? '<span class="badge b-p85">P85 · all done</span>' : '',
+      isQ2p95 ? '<span class="badge b-p95">P95 · all done</span>' : '',
     ].join('');
 
-    const hiClass = (isQ2p85||isQ1p85) ? 'highlight-row' : '';
-
-    rows += `<tr>
-      <td class="sprint-label">Sprint ${s}${markers}</td>
-      <td>${fmtDate(endD)}</td>
-      <td class="band-p50">${p50}</td>
-      <td class="band-p85">${p85}</td>
-      <td class="band-p95">${p95}</td>
+    const rowCls = ph.cls + (isQ2p85||isQ1p85 ? ' holiday-row' : '');
+    html += `<tr class="${rowCls}">
+      <td class="sprint-lbl">Sprint ${r.s}${markers}</td>
+      <td>${r.end}</td>
+      <td style="font-family:var(--font);font-size:.77rem">${ph.badge || '—'}</td>
+      <td class="pval-p50">${r.p50}</td>
+      <td class="pval-p85">${r.p85}</td>
+      <td class="pval-p95">${r.p95}</td>
+      <td style="font-size:.72rem;color:var(--ink3)">
+        ${isTargetDate?'End of Aug budget window':''}
+        ${isQ1p85?'85% of backlog reached (P85)':''}
+        ${isQ2p85?'All items done (P85)':''}
+      </td>
     </tr>`;
-  }
-
-  document.getElementById('tbl-body').innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Sprint</th>
-          <th>End Date</th>
-          <th style="color:var(--p50-color)">Cumul. P50</th>
-          <th style="color:var(--p85-color)">Cumul. P85</th>
-          <th style="color:var(--p95-color)">Cumul. P95</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  });
+  tbody.innerHTML = html;
 }
 
-/* ── auto-run on load ── */
-window.addEventListener('load', runSim);
+/* ═══════════ INIT ═══════════ */
+render();
+window.addEventListener('resize', render);
 </script>
 </body>
 </html>
