@@ -3,783 +3,818 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Throughput Process Behaviour Chart</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Throughput · Process Behaviour Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:         #080c14;
-  --surface:    #0d1220;
-  --surface2:   #111827;
-  --surface3:   #161f30;
-  --border:     rgba(99,130,200,0.13);
-  --border2:    rgba(99,130,200,0.07);
-  --text:       #dde3f0;
-  --muted:      #4b5a72;
-  --muted2:     #2d3a50;
+  /* palette */
+  --bg:         #f4f5f7;
+  --surface:    #ffffff;
+  --surface-2:  #f8f9fa;
+  --border:     #e3e6eb;
+  --border-2:   #cdd2da;
+  --text:       #111827;
+  --text-2:     #374151;
+  --muted:      #6b7280;
+  --muted-2:    #9ca3af;
 
-  --mean-col:   #f5c842;
-  --s1-col:     rgba(80,180,255,0.35);
-  --s2-col:     rgba(80,180,255,0.2);
-  --npl-col:    #ff5c5c;
-  --safe-col:   #3dd68c;
-  --rule1-col:  #ff3f3f;
-  --rule2-col:  #ff9f40;
-  --rule3-col:  #a78bfa;
-  --rule4-col:  #38bdf8;
-  --line-col:   #4f8ef7;
-  --mr-col:     #6ee7b7;
-  --accent:     #4f8ef7;
+  /* signal colours */
+  --c-median:   #c2710c;
+  --c-npl:      #dc2626;
+  --c-s2:       #d97706;
+  --c-s1:       #1d4ed8;
+  --c-run:      #7c3aed;
+  --c-ok:       #16a34a;
+  --c-line:     #2563eb;
+  --c-mr-bar:   #3b82f6;
+  --c-mr-hi:    #dc2626;
 
-  --font-head: 'Syne', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* signal tints */
+  --t-npl:  #fef2f2;
+  --t-s2:   #fffbeb;
+  --t-s1:   #eff6ff;
+  --t-run:  #f5f3ff;
+
+  --font:   'Geist', 'Inter', sans-serif;
+  --mono:   'Geist Mono', 'IBM Plex Mono', monospace;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.06);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-head);
+  font-family: var(--font);
   min-height: 100vh;
-  padding-bottom: 48px;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── noise texture overlay ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0;
-}
-
-/* ── header ── */
-.header {
-  padding: 32px 36px 24px;
+/* ── TOP BAR ─────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  height: 56px;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: relative;
-  background: linear-gradient(180deg, rgba(79,142,247,0.06) 0%, transparent 100%);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.header-top {
-  display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+.logo {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; flex-shrink: 0;
 }
-.header-left {}
-.eyebrow {
-  font-family: var(--font-mono);
+.topbar-info { flex: 1; }
+.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: -.02em; }
+.topbar-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.pills        { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  font-family: var(--mono);
   font-size: 10px; font-weight: 500;
-  letter-spacing: .18em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 8px;
-  display: flex; align-items: center; gap: 8px;
+  padding: 3px 9px; border-radius: 20px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text-2); white-space: nowrap;
 }
-.eyebrow::before { content:''; width:24px; height:1px; background:var(--accent); }
-h1 {
-  font-size: clamp(22px, 4vw, 36px);
-  font-weight: 800; letter-spacing: -0.03em;
-  color: #fff; line-height: 1.1;
-}
-h1 span { color: var(--accent); }
-.header-sub {
-  font-family: var(--font-mono);
-  font-size: 11px; color: var(--muted);
-  margin-top: 8px; letter-spacing: .04em;
-}
+.pill.accent { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
-/* ── stat cards ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  padding: 24px 36px 0;
+/* ── PAGE ────────────────────────────────── */
+.page { padding: 22px 28px 52px; max-width: 1320px; margin: 0 auto; }
+
+/* ── INFO BOX ────────────────────────────── */
+.info-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: 11px 16px;
+  font-size: 12px;
+  color: #1e40af;
+  line-height: 1.65;
+  margin-bottom: 20px;
 }
-.stat-card {
+.info-box strong { font-weight: 600; }
+
+/* ── STAT STRIP ──────────────────────────── */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.stat {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  position: relative; overflow: hidden;
-  animation: fadeUp .5s ease both;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
 }
-.stat-card::after {
+.stat::before {
   content: '';
-  position: absolute; top:0; left:0; right:0; height:2px;
-  background: var(--accent-color, var(--accent));
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent-color);
 }
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.stat-card:nth-child(2) { animation-delay:.05s }
-.stat-card:nth-child(3) { animation-delay:.1s }
-.stat-card:nth-child(4) { animation-delay:.15s }
-.stat-card:nth-child(5) { animation-delay:.2s }
-.stat-card:nth-child(6) { animation-delay:.25s }
-.stat-card:nth-child(7) { animation-delay:.3s }
-
 .stat-label {
-  font-family: var(--font-mono);
-  font-size: 9px; font-weight: 500;
-  letter-spacing: .1em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 8px;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 5px;
 }
 .stat-value {
-  font-family: var(--font-mono);
-  font-size: 22px; font-weight: 600;
-  color: #fff; letter-spacing: -0.04em; line-height: 1;
+  font-family: var(--mono);
+  font-size: 19px; font-weight: 600;
+  color: var(--text); letter-spacing: -.02em;
 }
-.stat-value small { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 3px; }
-.stat-sub {
-  font-family: var(--font-mono);
-  font-size: 9px; color: var(--muted); margin-top: 5px;
-}
+.stat-value .unit { font-size: 10px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+.stat-sub { font-size: 9px; color: var(--muted-2); margin-top: 3px; }
 
-/* ── signal legend ── */
-.signal-legend {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  padding: 18px 36px;
-  border-bottom: 1px solid var(--border2);
+/* ── RULES GRID ──────────────────────────── */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
 }
-.sig-pill {
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--font-mono);
-  font-size: 10px; font-weight: 500;
-  padding: 5px 11px; border-radius: 20px;
-  border: 1px solid; letter-spacing: .03em;
+.rule-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--rule-color);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
 }
-.sig-pill .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.rule-num {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--rule-color); margin-bottom: 5px;
+}
+.rule-desc { font-size: 11px; color: var(--text-2); line-height: 1.6; }
 
-/* ── signal hits ── */
-.signal-hits {
-  padding: 0 36px 18px;
-  display: flex; flex-direction: column; gap: 6px;
+/* ── LEGEND BAR ──────────────────────────── */
+.legend-bar {
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 16px;
+  margin-bottom: 18px; box-shadow: var(--shadow);
 }
-.signal-section-title {
-  font-family: var(--font-mono);
-  font-size: 9px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 8px; margin-top: 4px;
-}
-.hits-row { display: flex; gap: 6px; flex-wrap: wrap; }
-.hit-badge {
-  font-family: var(--font-mono);
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); }
+.leg-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.leg-line { width: 20px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+
+/* ── SIGNAL SUMMARY ──────────────────────── */
+.sig-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; min-height: 30px; align-items: center; }
+.sbadge {
+  display: inline-flex; align-items: center; gap: 5px;
   font-size: 10px; font-weight: 600;
-  padding: 4px 10px; border-radius: 6px;
-  border: 1px solid; display: flex; align-items: center; gap: 5px;
-  cursor: default; transition: opacity .15s;
+  padding: 4px 12px; border-radius: 20px; border: 1px solid;
 }
-.hit-badge:hover { opacity: .75; }
+.sbadge.npl    { background: var(--t-npl); color: var(--c-npl); border-color: #fca5a5; }
+.sbadge.s2     { background: var(--t-s2);  color: var(--c-s2);  border-color: #fcd34d; }
+.sbadge.s1     { background: var(--t-s1);  color: var(--c-s1);  border-color: #93c5fd; }
+.sbadge.run    { background: var(--t-run); color: var(--c-run); border-color: #c4b5fd; }
+.sbadge.ok     { background: #f0fdf4; color: var(--c-ok); border-color: #86efac; }
 
-/* ── charts ── */
-.charts-wrap {
-  padding: 20px 36px;
-  display: flex; flex-direction: column; gap: 20px;
-  position: relative; z-index: 1;
+/* ── CONTROLS ROW ────────────────────────── */
+.controls {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 16px;
 }
+.ctrl-group {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px; box-shadow: var(--shadow);
+}
+.ctrl-group label {
+  font-size: 10px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+select {
+  font-family: var(--font); font-size: 12px;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 8px; outline: none; cursor: pointer;
+  transition: border-color .15s;
+}
+select:focus { border-color: var(--c-line); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.tog-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font); font-size: 11px; font-weight: 600;
+  color: var(--muted); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 12px; cursor: pointer; user-select: none;
+  box-shadow: var(--shadow); transition: all .15s;
+}
+.tog-btn.on { color: var(--text-2); border-color: var(--border-2); }
+.tog-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+           background: var(--muted-2); transition: background .15s; }
+.tog-btn.on .tog-dot { background: var(--c-ok); }
+
+/* ── CHART CARD ──────────────────────────── */
 .chart-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  animation: fadeUp .6s ease both;
-}
-.chart-card:nth-child(2) { animation-delay: .12s; }
-.chart-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px 0;
+  border-radius: 12px;
+  padding: 20px 20px 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
 }
 .chart-title {
-  font-size: 12px; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px;
+  display: flex; align-items: baseline; gap: 10px;
 }
-.chart-legend {
-  display: flex; gap: 14px; align-items: center;
-  font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+.chart-title .sub {
+  font-size: 10px; font-weight: 400; color: var(--muted-2);
+  letter-spacing: .02em; text-transform: none;
 }
-.chart-legend-item { display: flex; align-items: center; gap: 5px; }
-.cl-dot { width:8px; height:8px; border-radius:50%; }
-.cl-line { width:16px; height:0; border-top: 1.5px dashed; }
+.chart-scroll { overflow-x: auto; }
+svg { display: block; overflow: visible; }
 
-.chart-inner { padding: 10px 20px 14px; position: relative; }
-svg { display: block; }
-
-/* ── tooltip ── */
+/* ── TOOLTIP ─────────────────────────────── */
 .tooltip {
   position: fixed;
-  background: #0a0f1c;
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--text);
+  color: #fff;
   border-radius: 10px;
   padding: 11px 15px;
-  font-family: var(--font-mono);
-  font-size: 11px; line-height: 1.75;
+  font-size: 11px;
+  line-height: 1.75;
   pointer-events: none;
   display: none;
-  z-index: 9999;
-  box-shadow: 0 12px 40px rgba(0,0,0,.7);
-  min-width: 180px;
-  backdrop-filter: blur(8px);
+  z-index: 500;
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  min-width: 190px;
 }
-.tt-date { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
-.tt-val  { font-size: 14px; font-weight: 600; color: #fff; }
-.tt-rule { font-size: 10px; margin-top: 4px; }
-
-/* ── rule filter ── */
-.rule-filter {
-  display: flex; gap: 8px; align-items: center;
-  padding: 0 36px 16px;
-  flex-wrap: wrap;
+.tooltip strong { font-size: 12px; font-weight: 600; }
+.tt-sig {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 7px;
+  font-size: 9px; font-weight: 700; margin-right: 3px;
 }
-.rule-filter-label {
-  font-family: var(--font-mono);
-  font-size: 9px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--muted); margin-right: 4px;
-}
-.rule-toggle {
-  font-family: var(--font-mono);
-  font-size: 10px; font-weight: 600;
-  padding: 5px 12px; border-radius: 20px;
-  border: 1px solid; cursor: pointer;
-  transition: all .15s; letter-spacing: .03em;
-  background: transparent;
-}
-.rule-toggle.active { color: #fff !important; }
-.rule-toggle:hover { filter: brightness(1.2); }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div class="header-top">
-    <div class="header-left">
-      <div class="eyebrow">Process Behaviour Chart</div>
-      <h1>Throughput <span>XmR</span> Dashboard</h1>
-      <div class="header-sub">Jan 7 – Apr 19, 2025 &nbsp;·&nbsp; n = 103 data points &nbsp;·&nbsp; 4 signal detection rules active</div>
+<!-- ── TOP BAR ───────────────────────────── -->
+<div class="topbar">
+  <div class="logo">📊</div>
+  <div class="topbar-info">
+    <div class="topbar-title">Throughput · Process Behaviour Chart</div>
+    <div class="topbar-sub">Weekly aggregation · Jan–Apr 2025 · XmR · Median-based limits</div>
+  </div>
+  <div class="pills">
+    <span class="pill">15 weeks</span>
+    <span class="pill accent">X̃ = 15 items</span>
+    <span class="pill">UNPL = 33.87</span>
+    <span class="pill">mR̃ = 6</span>
+    <span class="pill">URL = 23.19</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- info note -->
+  <div class="info-box">
+    <strong>Methodology:</strong> 103 daily records aggregated to <strong>15 weekly totals</strong> (Mon–Sun).
+    Centre line = <strong>median(X̃) = 15 items/week</strong>.
+    Process sigma estimated via median moving range: σ̂ = mR̃ ÷ 0.954 ≈ <strong>6.29</strong>.
+    Natural Process Limits: UNPL = X̃ + 3σ̂ = <strong>33.87</strong>, LNPL = 0.
+    Upper Range Limit: URL = 3.865 × mR̃ = <strong>23.19</strong>.
+  </div>
+
+  <!-- stat strip -->
+  <div class="stat-strip">
+    <div class="stat" style="--accent-color:#2563eb">
+      <div class="stat-label">Median (X̃)</div>
+      <div class="stat-value">15 <span class="unit">items/wk</span></div>
+      <div class="stat-sub">Centre line · 15 weeks</div>
+    </div>
+    <div class="stat" style="--accent-color:#c2710c">
+      <div class="stat-label">Median mR (mR̃)</div>
+      <div class="stat-value">6 <span class="unit">items</span></div>
+      <div class="stat-sub">mR̃ = median |xᵢ − xᵢ₋₁|</div>
+    </div>
+    <div class="stat" style="--accent-color:#6b7280">
+      <div class="stat-label">σ̂ estimate</div>
+      <div class="stat-value">6.29 <span class="unit">items</span></div>
+      <div class="stat-sub">mR̃ ÷ 0.954</div>
+    </div>
+    <div class="stat" style="--accent-color:#dc2626">
+      <div class="stat-label">UNPL (3σ̂)</div>
+      <div class="stat-value">33.87 <span class="unit">items</span></div>
+      <div class="stat-sub">X̃ + 3σ̂</div>
+    </div>
+    <div class="stat" style="--accent-color:#d97706">
+      <div class="stat-label">2σ̂ upper / lower</div>
+      <div class="stat-value">27.58 <span class="unit">/ 2.42</span></div>
+      <div class="stat-sub">X̃ ± 2σ̂</div>
+    </div>
+    <div class="stat" style="--accent-color:#1d4ed8">
+      <div class="stat-label">1σ̂ upper / lower</div>
+      <div class="stat-value">21.29 <span class="unit">/ 8.71</span></div>
+      <div class="stat-sub">X̃ ± 1σ̂</div>
+    </div>
+    <div class="stat" style="--accent-color:#dc2626">
+      <div class="stat-label">URL (mR)</div>
+      <div class="stat-value">23.19 <span class="unit">items</span></div>
+      <div class="stat-sub">3.865 × mR̃</div>
+    </div>
+    <div class="stat" style="--accent-color:#16a34a">
+      <div class="stat-label">Signal weeks</div>
+      <div class="stat-value" id="sig-count">—</div>
+      <div class="stat-sub">Weeks with ≥1 rule</div>
     </div>
   </div>
-</div>
 
-<!-- Stat cards -->
-<div class="stats-grid" id="stats-grid">
-  <div class="stat-card" style="--accent-color:#4f8ef7">
-    <div class="stat-label">Arithmetic Mean (X̄)</div>
-    <div class="stat-value" id="s-mean">—</div>
-    <div class="stat-sub">items / day</div>
+  <!-- rules -->
+  <div class="rules-grid">
+    <div class="rule-card" style="--rule-color:#dc2626">
+      <div class="rule-num">Rule 1 · Strong signal</div>
+      <div class="rule-desc">A single point outside the NPL corridor (above UNPL 33.87 or below LNPL 0) is a special cause signal.</div>
+    </div>
+    <div class="rule-card" style="--rule-color:#d97706">
+      <div class="rule-num">Rule 2 · Moderate signal</div>
+      <div class="rule-desc">2 out of 3 consecutive values beyond the 2σ̂ lines (above 27.58 or below 2.42) is a moderate signal.</div>
+    </div>
+    <div class="rule-card" style="--rule-color:#1d4ed8">
+      <div class="rule-num">Rule 3 · Persistent signal</div>
+      <div class="rule-desc">3 out of 5 consecutive values beyond the 1σ̂ lines (above 21.29 or below 8.71) is a moderate persistent signal.</div>
+    </div>
+    <div class="rule-card" style="--rule-color:#7c3aed">
+      <div class="rule-num">Rule 4 · Drift signal</div>
+      <div class="rule-desc">8 consecutive values all on one side of the median (15 items/week) signals a small but sustained shift.</div>
+    </div>
   </div>
-  <div class="stat-card" style="--accent-color:#f5c842">
-    <div class="stat-label">Mean Moving Range</div>
-    <div class="stat-value" id="s-mrbar">—</div>
-    <div class="stat-sub">mR̄ = avg |xᵢ − xᵢ₋₁|</div>
-  </div>
-  <div class="stat-card" style="--accent-color:#ff5c5c">
-    <div class="stat-label">UNPL (Upper)</div>
-    <div class="stat-value" id="s-unpl">—</div>
-    <div class="stat-sub">X̄ + 2.66 × mR̄</div>
-  </div>
-  <div class="stat-card" style="--accent-color:#3dd68c">
-    <div class="stat-label">LNPL (Lower)</div>
-    <div class="stat-value" id="s-lnpl">—</div>
-    <div class="stat-sub">max(0, X̄ − 2.66 × mR̄)</div>
-  </div>
-  <div class="stat-card" style="--accent-color:#60a5fa">
-    <div class="stat-label">1σ Upper / Lower</div>
-    <div class="stat-value" id="s-1s">—</div>
-    <div class="stat-sub">mR̄ / 1.128 per sigma</div>
-  </div>
-  <div class="stat-card" style="--accent-color:#818cf8">
-    <div class="stat-label">2σ Upper / Lower</div>
-    <div class="stat-value" id="s-2s">—</div>
-    <div class="stat-sub">2 × σ band</div>
-  </div>
-  <div class="stat-card" style="--accent-color:#f87171">
-    <div class="stat-label">Total Signals</div>
-    <div class="stat-value" id="s-total">—</div>
-    <div class="stat-sub">across all 4 rules</div>
-  </div>
-</div>
 
-<!-- Signal legend -->
-<div class="signal-legend" style="margin-top:18px">
-  <div class="eyebrow" style="width:100%;margin-bottom:4px;font-size:9px">Signal Rules</div>
-  <div class="sig-pill" style="color:var(--rule1-col);border-color:rgba(255,63,63,.3);background:rgba(255,63,63,.08)">
-    <div class="dot" style="background:var(--rule1-col)"></div> Rule 1 · Outside NPL
+  <!-- legend -->
+  <div class="legend-bar">
+    <div class="leg-item"><div class="leg-dot" style="background:#dc2626"></div>R1 · NPL breach</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div>R2 · 2-of-3 (2σ̂)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8"></div>R3 · 3-of-5 (1σ̂)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#7c3aed"></div>R4 · Run of 8</div>
+    <span style="flex:1"></span>
+    <div class="leg-item"><div class="leg-line" style="background:#c2710c"></div>Median (X̃)</div>
+    <div class="leg-item"><div class="leg-line" style="background:#dc2626; opacity:.65"></div>UNPL</div>
+    <div class="leg-item"><div class="leg-line" style="background:#d97706; opacity:.6"></div>2σ̂</div>
+    <div class="leg-item"><div class="leg-line" style="background:#1d4ed8; opacity:.6"></div>1σ̂</div>
+    <div class="leg-item"><div class="leg-line" style="background:#2563eb; opacity:.4"></div>Data line</div>
   </div>
-  <div class="sig-pill" style="color:var(--rule2-col);border-color:rgba(255,159,64,.3);background:rgba(255,159,64,.08)">
-    <div class="dot" style="background:var(--rule2-col)"></div> Rule 2 · 2/3 beyond 2σ
+
+  <!-- controls -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Highlight rule</label>
+      <select id="sel-rule">
+        <option value="all">All rules</option>
+        <option value="npl">Rule 1 — NPL breach</option>
+        <option value="twoofthree">Rule 2 — 2-of-3 (2σ̂)</option>
+        <option value="threeoffive">Rule 3 — 3-of-5 (1σ̂)</option>
+        <option value="runofeight">Rule 4 — Run of 8</option>
+      </select>
+    </div>
+    <button class="tog-btn on" id="tog-zones"   onclick="tog(this,'zones')">  <div class="tog-dot"></div>σ Zones</button>
+    <button class="tog-btn on" id="tog-line"    onclick="tog(this,'line')">   <div class="tog-dot"></div>Data line</button>
+    <button class="tog-btn on" id="tog-labels"  onclick="tog(this,'labels')"> <div class="tog-dot"></div>Value labels</button>
+    <button class="tog-btn on" id="tog-mr"      onclick="tog(this,'mr')">     <div class="tog-dot"></div>mR chart</button>
   </div>
-  <div class="sig-pill" style="color:var(--rule3-col);border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.08)">
-    <div class="dot" style="background:var(--rule3-col)"></div> Rule 3 · 3/5 beyond 1σ
-  </div>
-  <div class="sig-pill" style="color:var(--rule4-col);border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.08)">
-    <div class="dot" style="background:var(--rule4-col)"></div> Rule 4 · 8 consecutive one side
-  </div>
-</div>
 
-<!-- Rule filter toggles -->
-<div class="rule-filter">
-  <span class="rule-filter-label">Show signals:</span>
-  <button class="rule-toggle active" data-rule="1"
-    style="color:var(--rule1-col);border-color:rgba(255,63,63,.4)">Rule 1</button>
-  <button class="rule-toggle active" data-rule="2"
-    style="color:var(--rule2-col);border-color:rgba(255,159,64,.4)">Rule 2</button>
-  <button class="rule-toggle active" data-rule="3"
-    style="color:var(--rule3-col);border-color:rgba(167,139,250,.4)">Rule 3</button>
-  <button class="rule-toggle active" data-rule="4"
-    style="color:var(--rule4-col);border-color:rgba(56,189,248,.4)">Rule 4</button>
-</div>
+  <!-- signal summary badges -->
+  <div class="sig-row" id="sig-row"></div>
 
-<!-- Signal hits list -->
-<div class="signal-hits" id="hits-container"></div>
-
-<!-- Charts -->
-<div class="charts-wrap">
-
-  <!-- X Chart -->
+  <!-- X chart -->
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">X Chart — Individual Values (Daily Throughput)</div>
-      <div class="chart-legend">
-        <div class="chart-legend-item"><div class="cl-dot" style="background:var(--line-col)"></div>Throughput</div>
-        <div class="chart-legend-item"><div class="cl-line" style="border-color:var(--mean-col)"></div>X̄ Mean</div>
-        <div class="chart-legend-item"><div class="cl-line" style="border-color:var(--npl-col)"></div>NPL</div>
-        <div class="chart-legend-item"><div class="cl-line" style="border-color:rgba(80,180,255,.6)"></div>1σ / 2σ</div>
-      </div>
+    <div class="chart-title">
+      X Chart — Weekly Throughput
+      <span class="sub">· total items completed per week · hover for detail</span>
     </div>
-    <div class="chart-inner">
-      <svg id="xchart" width="100%" height="360"></svg>
+    <div class="chart-scroll" style="position:relative">
+      <div class="tooltip" id="x-tip"></div>
+      <svg id="xchart"></svg>
     </div>
   </div>
 
-  <!-- mR Chart -->
-  <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">mR Chart — Moving Range</div>
-      <div class="chart-legend">
-        <div class="chart-legend-item"><div class="cl-dot" style="background:var(--mr-col)"></div>Moving Range</div>
-        <div class="chart-legend-item"><div class="cl-line" style="border-color:var(--mean-col)"></div>mR̄</div>
-        <div class="chart-legend-item"><div class="cl-line" style="border-color:var(--npl-col)"></div>URL</div>
-      </div>
+  <!-- mR chart -->
+  <div class="chart-card" id="mr-card">
+    <div class="chart-title">
+      mR Chart — Moving Range
+      <span class="sub">· |week n − week n−1| · red bars exceed URL 23.19</span>
     </div>
-    <div class="chart-inner">
-      <svg id="mrchart" width="100%" height="220"></svg>
+    <div class="chart-scroll">
+      <svg id="mrchart"></svg>
     </div>
   </div>
 
-</div>
-
-<!-- Tooltip -->
-<div class="tooltip" id="tooltip"></div>
+</div><!-- /page -->
 
 <script>
-/* ══════════════════════════════════════
-   DATA
-══════════════════════════════════════ */
-const RAW = [
-  {date:'2025-01-07',v:0},{date:'2025-01-08',v:2},{date:'2025-01-09',v:10},
-  {date:'2025-01-10',v:3},{date:'2025-01-11',v:0},{date:'2025-01-12',v:0},
-  {date:'2025-01-13',v:2},{date:'2025-01-14',v:3},{date:'2025-01-15',v:7},
-  {date:'2025-01-16',v:0},{date:'2025-01-17',v:0},{date:'2025-01-18',v:0},
-  {date:'2025-01-19',v:0},{date:'2025-01-20',v:5},{date:'2025-01-21',v:2},
-  {date:'2025-01-22',v:0},{date:'2025-01-23',v:0},{date:'2025-01-24',v:0},
-  {date:'2025-01-25',v:0},{date:'2025-01-26',v:0},{date:'2025-01-27',v:1},
-  {date:'2025-01-28',v:1},{date:'2025-01-29',v:0},{date:'2025-01-30',v:5},
-  {date:'2025-01-31',v:4},{date:'2025-02-01',v:0},{date:'2025-02-02',v:0},
-  {date:'2025-02-03',v:7},{date:'2025-02-04',v:0},{date:'2025-02-05',v:2},
-  {date:'2025-02-06',v:2},{date:'2025-02-07',v:12},{date:'2025-02-08',v:0},
-  {date:'2025-02-09',v:0},{date:'2025-02-10',v:1},{date:'2025-02-11',v:0},
-  {date:'2025-02-12',v:0},{date:'2025-02-13',v:2},{date:'2025-02-14',v:12},
-  {date:'2025-02-15',v:0},{date:'2025-02-16',v:0},{date:'2025-02-17',v:1},
-  {date:'2025-02-18',v:0},{date:'2025-02-19',v:0},{date:'2025-02-20',v:3},
-  {date:'2025-02-21',v:11},{date:'2025-02-22',v:0},{date:'2025-02-23',v:0},
-  {date:'2025-02-24',v:6},{date:'2025-02-25',v:0},{date:'2025-02-26',v:0},
-  {date:'2025-02-27',v:6},{date:'2025-02-28',v:7},{date:'2025-03-01',v:0},
-  {date:'2025-03-02',v:0},{date:'2025-03-03',v:2},{date:'2025-03-04',v:0},
-  {date:'2025-03-05',v:0},{date:'2025-03-06',v:3},{date:'2025-03-07',v:5},
-  {date:'2025-03-08',v:0},{date:'2025-03-09',v:0},{date:'2025-03-10',v:1},
-  {date:'2025-03-11',v:0},{date:'2025-03-12',v:0},{date:'2025-03-13',v:9},
-  {date:'2025-03-14',v:7},{date:'2025-03-15',v:0},{date:'2025-03-16',v:0},
-  {date:'2025-03-17',v:3},{date:'2025-03-18',v:0},{date:'2025-03-19',v:0},
-  {date:'2025-03-20',v:4},{date:'2025-03-21',v:10},{date:'2025-03-22',v:0},
-  {date:'2025-03-23',v:0},{date:'2025-03-24',v:1},{date:'2025-03-25',v:0},
-  {date:'2025-03-26',v:0},{date:'2025-03-27',v:5},{date:'2025-03-28',v:1},
-  {date:'2025-03-29',v:0},{date:'2025-03-30',v:0},{date:'2025-03-31',v:2},
-  {date:'2025-04-01',v:0},{date:'2025-04-02',v:0},{date:'2025-04-03',v:2},
-  {date:'2025-04-04',v:11},{date:'2025-04-05',v:0},{date:'2025-04-06',v:0},
-  {date:'2025-04-07',v:1},{date:'2025-04-08',v:0},{date:'2025-04-09',v:0},
-  {date:'2025-04-10',v:5},{date:'2025-04-11',v:2},{date:'2025-04-12',v:0},
-  {date:'2025-04-13',v:0},{date:'2025-04-14',v:1},{date:'2025-04-15',v:0},
-  {date:'2025-04-16',v:0},{date:'2025-04-17',v:4},{date:'2025-04-18',v:7},
-  {date:'2025-04-19',v:0}
+/* ══════════════════════════════════════════════
+   DATA  (weekly aggregated, median-based limits)
+══════════════════════════════════════════════ */
+const DATA = [
+  {i:0,  label:"7\u201312 Jan",       v:15, sig:[]},
+  {i:1,  label:"13\u201319 Jan",      v:12, sig:[]},
+  {i:2,  label:"20\u201326 Jan",      v:7,  sig:[]},
+  {i:3,  label:"27 Jan\u20132 Feb",   v:11, sig:[]},
+  {i:4,  label:"3\u20139 Feb",        v:23, sig:[]},
+  {i:5,  label:"10\u201316 Feb",      v:15, sig:[]},
+  {i:6,  label:"17\u201323 Feb",      v:15, sig:[]},
+  {i:7,  label:"24 Feb\u20132 Mar",   v:19, sig:[]},
+  {i:8,  label:"3\u20139 Mar",        v:10, sig:[]},
+  {i:9,  label:"10\u201316 Mar",      v:17, sig:[]},
+  {i:10, label:"17\u201323 Mar",      v:17, sig:[]},
+  {i:11, label:"24\u201330 Mar",      v:7,  sig:[]},
+  {i:12, label:"31 Mar\u20136 Apr",   v:15, sig:[]},
+  {i:13, label:"7\u201313 Apr",       v:8,  sig:[]},
+  {i:14, label:"14\u201319 Apr",      v:12, sig:[]},
 ];
 
-const vals  = RAW.map(d=>d.v);
-const n     = vals.length;
-const mean  = vals.reduce((a,b)=>a+b,0)/n;
-const mRs   = vals.slice(1).map((v,i)=>Math.abs(v-vals[i]));
-const mRbar = mRs.reduce((a,b)=>a+b,0)/mRs.length;
-const sigma = mRbar/1.128;
-const unpl  = mean+2.66*mRbar;
-const lnpl  = Math.max(0, mean-2.66*mRbar);
-const s1u   = mean+sigma,    s1l = Math.max(0,mean-sigma);
-const s2u   = mean+2*sigma,  s2l = Math.max(0,mean-2*sigma);
-const urlMR = 3.268*mRbar;
+const MR = [
+  {i:1,  label:"13\u201319 Jan",    mr:3,  hi:false},
+  {i:2,  label:"20\u201326 Jan",    mr:5,  hi:false},
+  {i:3,  label:"27 Jan\u20132 Feb", mr:4,  hi:false},
+  {i:4,  label:"3\u20139 Feb",      mr:12, hi:false},
+  {i:5,  label:"10\u201316 Feb",    mr:8,  hi:false},
+  {i:6,  label:"17\u201323 Feb",    mr:0,  hi:false},
+  {i:7,  label:"24 Feb\u20132 Mar", mr:4,  hi:false},
+  {i:8,  label:"3\u20139 Mar",      mr:9,  hi:false},
+  {i:9,  label:"10\u201316 Mar",    mr:7,  hi:false},
+  {i:10, label:"17\u201323 Mar",    mr:0,  hi:false},
+  {i:11, label:"24\u201330 Mar",    mr:10, hi:false},
+  {i:12, label:"31 Mar\u20136 Apr", mr:8,  hi:false},
+  {i:13, label:"7\u201313 Apr",     mr:7,  hi:false},
+  {i:14, label:"14\u201319 Apr",    mr:4,  hi:false},
+];
 
-/* ── Signal detection ── */
-function detectSignals(){
-  const r1=new Set(), r2=new Set(), r3=new Set(), r4=new Set();
+/* limits */
+const MED=15, MBAR=6, SIGMA=6.2893;
+const UNPL=33.8679, LNPL=0;
+const S2U=27.5786, S2L=2.4214;
+const S1U=21.2893, S1L=8.7107;
+const URL=23.19;
 
-  // Rule 1: outside UNPL/LNPL
-  vals.forEach((v,i)=>{ if(v>unpl||v<lnpl) r1.add(i); });
-
-  // Rule 2: 2 of 3 beyond 2σ
-  for(let i=2;i<n;i++){
-    const w=vals.slice(i-2,i+1);
-    if(w.filter(v=>v>s2u||v<s2l).length>=2) r2.add(i);
-  }
-
-  // Rule 3: 3 of 5 beyond 1σ
-  for(let i=4;i<n;i++){
-    const w=vals.slice(i-4,i+1);
-    if(w.filter(v=>v>s1u||v<s1l).length>=3) r3.add(i);
-  }
-
-  // Rule 4: 8 consecutive same side of mean
-  for(let i=7;i<n;i++){
-    const w=vals.slice(i-7,i+1);
-    if(w.every(v=>v>mean)||w.every(v=>v<mean)) r4.add(i);
-  }
-
-  return {r1,r2,r3,r4};
-}
-
-const SIGNALS = detectSignals();
-
-/* Rule priority for colour (rule1 > rule2 > rule3 > rule4) */
-const RULE_COLS   = {1:'#ff3f3f',2:'#ff9f40',3:'#a78bfa',4:'#38bdf8'};
-const RULE_LABELS = {
-  1:'Rule 1 · Outside NPL',
-  2:'Rule 2 · 2/3 beyond 2σ',
-  3:'Rule 3 · 3/5 beyond 1σ',
-  4:'Rule 4 · 8 consecutive one side of mean'
+/* signal metadata */
+const SIG = {
+  npl:        { color:'#dc2626', bg:'#fef2f2', label:'R1 · NPL breach',       cls:'npl'  },
+  twoofthree: { color:'#d97706', bg:'#fffbeb', label:'R2 · 2-of-3 (2σ̂)',    cls:'s2'   },
+  threeoffive:{ color:'#1d4ed8', bg:'#eff6ff', label:'R3 · 3-of-5 (1σ̂)',    cls:'s1'   },
+  runofeight: { color:'#7c3aed', bg:'#f5f3ff', label:'R4 · Run of 8',         cls:'run'  },
 };
+const PRIORITY = ['npl','twoofthree','threeoffive','runofeight'];
 
-let activeRules = new Set([1,2,3,4]);
+function priSig(sigs){ for(const k of PRIORITY) if(sigs.includes(k)) return k; return null; }
 
-function dotColor(i){
-  for(const r of [1,2,3,4]){
-    if(activeRules.has(r) && SIGNALS[`r${r}`].has(i)) return RULE_COLS[r];
+/* ══ layer state ══ */
+let L = { zones:true, line:true, labels:true, mr:true };
+
+function tog(btn, key){
+  L[key] = !L[key];
+  btn.classList.toggle('on', L[key]);
+  btn.querySelector('.tog-dot').style.background = L[key] ? 'var(--c-ok)' : 'var(--muted-2)';
+  redraw();
+}
+
+/* ══ SVG helpers ══ */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, txt){
+  const e = document.createElementNS(NS, tag);
+  if(attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+  if(txt !== undefined) e.textContent = txt;
+  return e;
+}
+function poly(pts, attrs){
+  const e = document.createElementNS(NS, 'polyline');
+  e.setAttribute('points', pts.map(([x,y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' '));
+  if(attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+  return e;
+}
+
+/* ══ signal badges ══ */
+function renderBadges(){
+  const counts = {};
+  PRIORITY.forEach(k => counts[k] = 0);
+  DATA.forEach(d => d.sig.forEach(s => { if(s in counts) counts[s]++; }));
+  const total = DATA.filter(d => d.sig.length > 0).length;
+  document.getElementById('sig-count').textContent = total;
+
+  const row = document.getElementById('sig-row');
+  if(total === 0){
+    row.innerHTML = '<span class="sbadge ok">✓ No signals detected — process appears stable at weekly granularity</span>';
+    return;
   }
-  return null; // no active signal
+  row.innerHTML = PRIORITY.filter(k => counts[k] > 0).map(k =>
+    `<span class="sbadge ${SIG[k].cls}">${SIG[k].label} · ${counts[k]} wk${counts[k]>1?'s':''}</span>`
+  ).join('');
 }
 
-function dotRules(i){
-  return [1,2,3,4].filter(r=>SIGNALS[`r${r}`].has(i));
-}
-
-/* ── UI: stat cards ── */
-function fmt(v,d=1){ return v.toFixed(d); }
-document.getElementById('s-mean').innerHTML = `${fmt(mean)} <small>items/day</small>`;
-document.getElementById('s-mrbar').innerHTML = `${fmt(mRbar)} <small>items</small>`;
-document.getElementById('s-unpl').innerHTML  = `${fmt(unpl)} <small>items</small>`;
-document.getElementById('s-lnpl').innerHTML  = `${lnpl===0?'0':''+fmt(lnpl)} <small>items</small>`;
-document.getElementById('s-1s').innerHTML    = `${fmt(s1u)} <small>/ ${fmt(s1l)}</small>`;
-document.getElementById('s-2s').innerHTML    = `${fmt(s2u)} <small>/ ${fmt(s2l)}</small>`;
-
-function updateTotalSignals(){
-  const all=new Set();
-  [1,2,3,4].filter(r=>activeRules.has(r)).forEach(r=>{
-    SIGNALS[`r${r}`].forEach(i=>all.add(i));
-  });
-  document.getElementById('s-total').textContent = all.size;
-}
-updateTotalSignals();
-
-/* ── UI: hits list ── */
-function renderHits(){
-  const c=document.getElementById('hits-container'); c.innerHTML='';
-  [1,2,3,4].forEach(r=>{
-    const sig=SIGNALS[`r${r}`];
-    if(!activeRules.has(r)||!sig.size) return;
-    const label=document.createElement('div');
-    label.className='signal-section-title';
-    label.textContent=RULE_LABELS[r]+` (${sig.size} hit${sig.size!==1?'s':''})`;
-    c.appendChild(label);
-    const row=document.createElement('div');
-    row.className='hits-row';
-    [...sig].sort((a,b)=>a-b).forEach(i=>{
-      const b=document.createElement('div');
-      b.className='hit-badge';
-      b.style.color=RULE_COLS[r];
-      b.style.borderColor=RULE_COLS[r]+'55';
-      b.style.background=RULE_COLS[r]+'12';
-      b.innerHTML=`<span>#${i+1}</span><span style="color:var(--muted)">${fmtShort(RAW[i].date)}</span><span>${RAW[i].v}</span>`;
-      row.appendChild(b);
-    });
-    c.appendChild(row);
-  });
-}
-renderHits();
-
-/* ── Date helpers ── */
-function fmtShort(s){
-  return new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-}
-function fmtLong(s){
-  return new Date(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-}
-
-/* ══════════════════════════════════════
-   SVG HELPERS
-══════════════════════════════════════ */
-const NS='http://www.w3.org/2000/svg';
-function el(tag,attrs,txt){
-  const e=document.createElementNS(NS,tag);
-  if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  if(txt!==undefined) e.textContent=txt;
-  return e;
-}
-function mkPolyline(pts,attrs){
-  const e=document.createElementNS(NS,'polyline');
-  e.setAttribute('points',pts.map(([x,y])=>`${x},${y}`).join(' '));
-  if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  return e;
-}
-function mkPath(d,attrs){
-  const e=document.createElementNS(NS,'path');
-  e.setAttribute('d',d);
-  if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  return e;
-}
-
-/* ══════════════════════════════════════
-   DRAW X CHART
-══════════════════════════════════════ */
+/* ═══════════════════════════════════
+   X CHART
+═══════════════════════════════════ */
 function drawX(){
-  const svgEl=document.getElementById('xchart');
-  const W=svgEl.clientWidth||900, H=360;
-  svgEl.setAttribute('height',H); svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svgEl.innerHTML='';
+  renderBadges();
+  const n = DATA.length;
+  const rFilter = document.getElementById('sel-rule').value;
 
-  const M={top:18,right:14,bottom:40,left:46};
-  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const wrap  = document.getElementById('xchart').closest('.chart-scroll');
+  const avail = wrap.clientWidth || 900;
+  const W = Math.max(avail, n * 56 + 140);
+  const H = 350;
+  const M = { top:24, right:88, bottom:58, left:52 };
+  const iW = W - M.left - M.right;
+  const iH = H - M.top  - M.bottom;
 
-  const maxY=Math.max(unpl*1.12, Math.max(...vals)*1.08, 14);
-  const xS=i=>M.left+(i/(n-1))*iW;
-  const yS=v=>M.top+iH-Math.max(0,v)/maxY*iH;
+  const svg = document.getElementById('xchart');
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML = '';
 
-  /* bg */
-  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'rgba(255,255,255,.015)',rx:4}));
+  const maxY = Math.max(UNPL * 1.15, 40);
+  const xs = i => M.left + (n > 1 ? i/(n-1) : .5) * iW;
+  const ys = v => M.top  + iH - (Math.min(v, maxY) / maxY) * iH;
 
-  /* σ bands (filled areas) */
-  // between ±2σ (light tint)
-  const band2top=yS(Math.min(s2u,maxY)), band2bot=yS(s2l);
-  svgEl.appendChild(el('rect',{x:M.left,y:band2top,width:iW,height:band2bot-band2top,fill:'rgba(80,180,255,0.04)'}));
-  // between ±1σ (slightly more)
-  const band1top=yS(Math.min(s1u,maxY)), band1bot=yS(s1l);
-  svgEl.appendChild(el('rect',{x:M.left,y:band1top,width:iW,height:band1bot-band1top,fill:'rgba(80,180,255,0.04)'}));
+  /* ── chart background ── */
+  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fbfcfd',rx:6}));
 
-  /* y grid + labels */
-  const yStep=maxY>10?2:1;
-  for(let v=0;v<=Math.ceil(maxY);v+=yStep){
-    const y=yS(v); if(y<M.top-2) break;
-    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:v===0?'rgba(99,130,200,.2)':'rgba(99,130,200,.07)','stroke-width':1}));
-    svgEl.appendChild(el('text',{x:M.left-6,y:y+4,'text-anchor':'end',
-      'font-size':9,fill:'#2d3a50','font-family':'JetBrains Mono,monospace'},v));
+  /* ── sigma zones ── */
+  if(L.zones){
+    const zones = [
+      [UNPL, maxY,  '#dc2626', .05],
+      [S2U,  UNPL,  '#d97706', .05],
+      [S1U,  S2U,   '#1d4ed8', .04],
+      [0,    S1U,   '#16a34a', .03],
+    ];
+    zones.forEach(([lo, hi, col, op]) => {
+      const yTop = ys(Math.min(hi, maxY));
+      const yBot = ys(Math.max(lo, 0));
+      if(yBot <= yTop) return;
+      svg.appendChild(el('rect',{x:M.left, y:yTop, width:iW, height:yBot-yTop, fill:col, opacity:op}));
+    });
   }
 
-  /* x labels (weekly) */
-  RAW.forEach((d,i)=>{
-    const dt=new Date(d.date);
-    if(dt.getDay()===1||i===0||i===n-1){
-      const x=xS(i);
-      svgEl.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+4,stroke:'rgba(99,130,200,.2)'}));
-      if(i%7===0||i===0||i===n-1){
-        svgEl.appendChild(el('text',{x,y:M.top+iH+15,'text-anchor':'middle',
-          'font-size':8.5,fill:'#2d3a50','font-family':'JetBrains Mono,monospace'},
-          fmtShort(d.date)));
-      }
-    }
-  });
-  svgEl.appendChild(el('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle',
-    'font-size':9.5,fill:'#2d3a50'},'Date'));
+  /* ── y grid ── */
+  for(let v = 0; v <= maxY; v += 5){
+    const y = ys(v);
+    if(y < M.top - 2) break;
+    const major = v % 10 === 0;
+    svg.appendChild(el('line',{
+      x1:M.left, x2:M.left+iW, y1:y, y2:y,
+      stroke: major ? '#e5e8ed' : '#f0f2f5',
+      'stroke-width': major ? 1 : 0.7,
+    }));
+    if(major) svg.appendChild(el('text',{
+      x:M.left-8, y:y+4, 'text-anchor':'end',
+      'font-size':9.5, fill:'#9ca3af', 'font-family':'Geist Mono,monospace',
+    }, v));
+  }
 
-  /* limit lines */
-  const limits=[
-    [unpl, '#ff5c5c', `UNPL=${fmt(unpl)}`  , '5,3'],
-    [s2u,  'rgba(80,180,255,.55)', `+2σ=${fmt(s2u)}`, '3,4'],
-    [s1u,  'rgba(80,180,255,.35)', `+1σ=${fmt(s1u)}`, '2,4'],
-    [mean, '#f5c842', `X̄=${fmt(mean)}`     , '0'],
-    [s1l>0?s1l:null, 'rgba(80,180,255,.35)', `-1σ=${fmt(s1l)}`, '2,4'],
-    [s2l>0?s2l:null, 'rgba(80,180,255,.55)', `-2σ=${fmt(s2l)}`, '3,4'],
-    [lnpl>0?lnpl:null, '#ff5c5c', `LNPL=${fmt(lnpl)}`, '5,3'],
+  /* ── vertical separators ── */
+  DATA.forEach((_,i) => {
+    if(i === 0) return;
+    const x = (xs(i) + xs(i-1)) / 2;
+    svg.appendChild(el('line',{x1:x,x2:x,y1:M.top,y2:M.top+iH,stroke:'#edf0f4','stroke-width':.6,'stroke-dasharray':'3,3'}));
+  });
+
+  /* ── limit / reference lines ── */
+  const limLines = [
+    [UNPL, '#dc2626', `UNPL = ${UNPL.toFixed(1)}`, '6,3', 1.3],
+    [S2U,  '#d97706', `2σ̂ = ${S2U.toFixed(1)}`,   '4,3', 1.0],
+    [S1U,  '#1d4ed8', `1σ̂ = ${S1U.toFixed(1)}`,   '3,3', 1.0],
+    [MED,  '#c2710c', `X̃ = ${MED}`,               'none',2.0],
+    [S1L,  '#1d4ed8', `1σ̂ = ${S1L.toFixed(2)}`,   '3,3', 1.0],
+    [S2L,  '#d97706', `2σ̂ = ${S2L.toFixed(2)}`,   '4,3', 1.0],
   ];
-  limits.forEach(([v,col,lbl,dash])=>{
-    if(v===null) return;
-    const y=yS(v); if(y<M.top-2||y>M.top+iH+2) return;
-    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:col,'stroke-width':lbl.startsWith('X̄')?1.5:1,
-      'stroke-dasharray':dash,opacity:lbl.startsWith('X̄')?0.9:0.7}));
-    svgEl.appendChild(el('text',{x:M.left+iW-4,y:y-3,'text-anchor':'end',
-      'font-size':8,'font-family':'JetBrains Mono,monospace',fill:col,'font-weight':600},lbl));
+  limLines.forEach(([v, col, lbl, dash, sw]) => {
+    const y = ys(v);
+    if(y < M.top - 6 || y > M.top + iH + 6) return;
+    svg.appendChild(el('line',{
+      x1:M.left, x2:M.left+iW, y1:y, y2:y,
+      stroke:col, 'stroke-width':sw, 'stroke-dasharray':dash, opacity:.8,
+    }));
+    svg.appendChild(el('text',{
+      x:M.left+iW+6, y:y+4,
+      'font-size':8.5, fill:col, 'font-weight':600, 'font-family':'Geist Mono,monospace',
+    }, lbl));
   });
 
-  /* data line */
-  const pts=RAW.map((d,i)=>[xS(i),yS(d.v)]);
-  svgEl.appendChild(mkPolyline(pts,{fill:'none',stroke:'#4f8ef7','stroke-width':1.4,
-    'stroke-linejoin':'round',opacity:.8}));
+  /* ── connecting line ── */
+  if(L.line && n > 1){
+    svg.appendChild(poly(
+      DATA.map((d,i) => [xs(i), ys(d.v)]),
+      { fill:'none', stroke:'rgba(37,99,235,.3)', 'stroke-width':1.8,
+        'stroke-linejoin':'round', 'stroke-linecap':'round' }
+    ));
+  }
 
-  /* dots */
-  const tip=document.getElementById('tooltip');
-  RAW.forEach((d,i)=>{
-    const cx=xS(i), cy=yS(d.v);
-    const sigCol=dotColor(i);
-    const rules=dotRules(i).filter(r=>activeRules.has(r));
-    const isSignal=sigCol!==null;
+  /* ── column highlight for signal weeks ── */
+  const bw = iW / n * 0.64;
+  DATA.forEach((d,i) => {
+    const pri = priSig(d.sig);
+    if(!pri) return;
+    const focused = rFilter === 'all' || d.sig.includes(rFilter);
+    if(!focused) return;
+    svg.appendChild(el('rect',{
+      x: xs(i) - bw/2 - 3, y: M.top,
+      width: bw + 6, height: iH,
+      fill: SIG[pri].bg, rx:4,
+    }));
+  });
 
-    if(isSignal){
-      // glow ring
-      svgEl.appendChild(el('circle',{cx,cy,r:10,fill:sigCol+'1a'}));
-      svgEl.appendChild(el('circle',{cx,cy,r:7,fill:sigCol+'2a'}));
+  /* ── dots + labels ── */
+  const tip = document.getElementById('x-tip');
+
+  DATA.forEach((d,i) => {
+    const cx = xs(i), cy = ys(d.v);
+    const pri = priSig(d.sig);
+    const hasSig = d.sig.length > 0;
+    const focused = rFilter === 'all' || d.sig.includes(rFilter);
+    const dimmed = !focused && hasSig;
+    const ghost  = !focused && !hasSig && rFilter !== 'all';
+    const col = pri ? SIG[pri].color : '#2563eb';
+    const r = hasSig ? 7 : 5;
+    const opacity = ghost ? 0.25 : dimmed ? 0.3 : 1;
+
+    /* glow rings for focused signals */
+    if(hasSig && focused){
+      svg.appendChild(el('circle',{cx, cy, r:r+7, fill:col, opacity:.1}));
+      svg.appendChild(el('circle',{cx, cy, r:r+3, fill:'none', stroke:col, 'stroke-width':1.2, opacity:.3}));
     }
 
-    const c=el('circle',{cx,cy,r:isSignal?5:3.5,
-      fill:isSignal?sigCol:'#4f8ef7',
-      stroke:isSignal?'rgba(255,255,255,.25)':'rgba(79,142,247,.4)',
-      'stroke-width':isSignal?1.5:1,
-      opacity:isSignal?1:.7,
-      style:'cursor:pointer'});
-    svgEl.appendChild(c);
-
-    /* rule indicator ticks above dot */
-    if(isSignal){
-      rules.forEach((r,ri)=>{
-        svgEl.appendChild(el('circle',{cx:cx+(ri-0.5*(rules.length-1))*8,cy:cy-14,r:4,
-          fill:RULE_COLS[r],opacity:.9}));
-        svgEl.appendChild(el('text',{x:cx+(ri-0.5*(rules.length-1))*8,y:cy-11,
-          'text-anchor':'middle','font-size':6,'font-weight':700,
-          fill:'#fff',style:'pointer-events:none'},r));
-      });
+    /* value label above dot */
+    if(L.labels){
+      svg.appendChild(el('text',{
+        x:cx, y:cy - (r + 7),
+        'text-anchor':'middle',
+        'font-size': 10, 'font-weight': hasSig && focused ? 700 : 400,
+        fill: hasSig && focused ? col : '#9ca3af',
+        'font-family':'Geist Mono,monospace',
+        opacity,
+      }, d.v));
     }
 
-    /* tooltip */
-    c.addEventListener('mouseenter',()=>{
-      c.setAttribute('r',isSignal?7:5.5);
-      const ruleLines=rules.length
-        ? rules.map(r=>`<div class="tt-rule" style="color:${RULE_COLS[r]}">${RULE_LABELS[r]}</div>`).join('')
-        : '';
-      tip.innerHTML=`<div class="tt-date">${fmtLong(d.date)}</div>
-        <div class="tt-val">${d.v} <span style="font-size:10px;color:var(--muted)">items</span></div>
-        ${ruleLines}`;
-      tip.style.display='block';
+    /* dot */
+    const c = el('circle',{
+      cx, cy, r,
+      fill: col,
+      stroke: '#fff', 'stroke-width': hasSig ? 2 : 1.5,
+      opacity, style:'cursor:pointer',
     });
-    c.addEventListener('mousemove',e=>{
-      let l=e.clientX+14,t=e.clientY-52;
-      if(l+210>window.innerWidth) l=e.clientX-225;
-      if(t<0) t=e.clientY+10;
-      tip.style.left=l+'px'; tip.style.top=t+'px';
+    svg.appendChild(c);
+
+    /* run-of-8 underline */
+    if(d.sig.includes('runofeight') && focused){
+      svg.appendChild(el('line',{
+        x1:cx-4.5, y1:cy+r+4, x2:cx+4.5, y2:cy+r+4,
+        stroke:'#7c3aed', 'stroke-width':2.5, 'stroke-linecap':'round',
+      }));
+    }
+
+    /* x-axis label */
+    svg.appendChild(el('text',{
+      x:cx, y:M.top+iH+16,
+      'text-anchor':'middle', 'font-size':8.5, fill:'#9ca3af', 'font-weight':600,
+    }, `W${d.i+1}`));
+    svg.appendChild(el('text',{
+      x:cx, y:M.top+iH+28,
+      'text-anchor':'middle', 'font-size':7.5, fill:'#b0bec9',
+    }, d.label));
+
+    /* x tick */
+    svg.appendChild(el('line',{x1:cx,x2:cx,y1:M.top+iH,y2:M.top+iH+5,stroke:'#d1d5db'}));
+
+    /* tooltip interaction */
+    c.addEventListener('mouseenter', () => {
+      c.setAttribute('r', r + 3.5);
+      const sigHtml = d.sig.length
+        ? d.sig.map(s => `<span class="tt-sig" style="background:${SIG[s].bg};color:${SIG[s].color}">${SIG[s].label}</span>`).join('')
+        : `<span style="color:#86efac;font-size:10px">✓ No signal</span>`;
+      tip.innerHTML = `<strong>${d.label}</strong> <span style="opacity:.5;font-size:10px">W${d.i+1}</span><br>
+        Throughput: <strong>${d.v} items/week</strong><br>${sigHtml}`;
+      tip.style.display = 'block';
     });
-    c.addEventListener('mouseleave',()=>{
-      c.setAttribute('r',isSignal?5:3.5); tip.style.display='none';
+    c.addEventListener('mousemove', e => {
+      let l = e.clientX + 14, t = e.clientY - 54;
+      if(l + 230 > window.innerWidth) l = e.clientX - 244;
+      if(t < 8) t = e.clientY + 12;
+      tip.style.left = l + 'px';
+      tip.style.top  = t + 'px';
+    });
+    c.addEventListener('mouseleave', () => {
+      c.setAttribute('r', r);
+      tip.style.display = 'none';
     });
   });
 
-  /* border */
-  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,
-    fill:'none',stroke:'rgba(99,130,200,.1)',rx:4}));
+  /* ── border & axis labels ── */
+  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:6}));
+  svg.appendChild(el('text',{
+    x:-(M.top+iH/2), y:15, transform:'rotate(-90)',
+    'text-anchor':'middle', 'font-size':10.5, fill:'#6b7280', 'font-weight':500,
+  }, 'Items / week'));
 }
 
-/* ══════════════════════════════════════
-   DRAW mR CHART
-══════════════════════════════════════ */
+/* ═══════════════════════════════════
+   mR CHART
+═══════════════════════════════════ */
 function drawMR(){
-  const svgEl=document.getElementById('mrchart');
-  const W=svgEl.clientWidth||900, H=220;
-  svgEl.setAttribute('height',H); svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svgEl.innerHTML='';
+  const n  = MR.length;
+  const N  = DATA.length;
 
-  const M={top:14,right:14,bottom:38,left:46};
-  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
-  const nm=mRs.length;
+  const wrap  = document.getElementById('mrchart').closest('.chart-scroll');
+  const avail = wrap.clientWidth || 900;
+  const W = Math.max(avail, N * 56 + 140);
+  const H = 200;
+  const M = { top:14, right:88, bottom:58, left:52 };
+  const iW = W - M.left - M.right;
+  const iH = H - M.top  - M.bottom;
 
-  const maxMR=Math.max(urlMR*1.12,Math.max(...mRs)*1.08,4);
-  // mR[i] corresponds to gap between point i and i+1, plotted at position i+1
-  const xS=i=>M.left+((i+1)/(n-1))*iW;
-  const yS=v=>M.top+iH-Math.max(0,v)/maxMR*iH;
+  const svg = document.getElementById('mrchart');
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML = '';
 
-  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,
-    fill:'rgba(255,255,255,.015)',rx:4}));
+  const maxY = Math.max(URL * 1.25, Math.max(...MR.map(d => d.mr)) * 1.3, 16);
+  /* align x positions to the same week slots as X chart */
+  const xsW = i => M.left + (N > 1 ? i/(N-1) : .5) * iW;
+  const ys   = v => M.top  + iH - (Math.min(v, maxY) / maxY) * iH;
 
-  /* y grid */
-  const yStep=maxMR>10?2:1;
-  for(let v=0;v<=Math.ceil(maxMR);v+=yStep){
-    const y=yS(v); if(y<M.top-2) break;
-    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:v===0?'rgba(99,130,200,.2)':'rgba(99,130,200,.07)','stroke-width':1}));
-    svgEl.appendChild(el('text',{x:M.left-6,y:y+4,'text-anchor':'end',
-      'font-size':9,fill:'#2d3a50','font-family':'JetBrains Mono,monospace'},v));
+  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fbfcfd',rx:6}));
+
+  /* grid */
+  for(let v = 0; v <= maxY; v += 4){
+    const y = ys(v); if(y < M.top - 2) break;
+    const major = v % 8 === 0;
+    svg.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
+      stroke:major?'#e5e8ed':'#f0f2f5','stroke-width':major?1:.7}));
+    if(major) svg.appendChild(el('text',{
+      x:M.left-8,y:y+4,'text-anchor':'end','font-size':9.5,
+      fill:'#9ca3af','font-family':'Geist Mono,monospace'},v));
   }
 
-  /* x labels (same as X chart) */
-  RAW.forEach((d,i)=>{
-    const dt=new Date(d.date);
-    if((dt.getDay()===1||i===0||i===n-1)&&(i%7===0||i===0||i===n-1)){
-      const x=xS(i>0?i-1:0);
-      svgEl.appendChild(el('text',{x,y:M.top+iH+14,'text-anchor':'middle',
-        'font-size':8.5,fill:'#2d3a50','font-family':'JetBrains Mono,monospace'},
-        fmtShort(d.date)));
-    }
-  });
-  svgEl.appendChild(el('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle',
-    'font-size':9.5,fill:'#2d3a50'},'Date'));
-
-  /* mR̄ and URL lines */
-  [[urlMR,'#ff5c5c',`URL=${fmt(urlMR)}`,'5,3'],[mRbar,'#f5c842',`mR̄=${fmt(mRbar)}`,'0']].forEach(([v,col,lbl,dash])=>{
-    const y=yS(v);
-    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:col,'stroke-width':1.2,'stroke-dasharray':dash,opacity:.8}));
-    svgEl.appendChild(el('text',{x:M.left+iW-4,y:y-3,'text-anchor':'end',
-      'font-size':8,'font-family':'JetBrains Mono,monospace',fill:col,'font-weight':600},lbl));
+  /* URL and mR̃ lines */
+  [[URL,'#dc2626',`URL = ${URL.toFixed(2)}`,'5,3',1.2],
+   [MBAR,'#c2710c',`mR̃ = ${MBAR}`,'none',2]
+  ].forEach(([v,col,lbl,dash,sw]) => {
+    const y = ys(v); if(y < M.top-6 || y > M.top+iH+6) return;
+    svg.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
+      stroke:col,'stroke-width':sw,'stroke-dasharray':dash,opacity:.8}));
+    svg.appendChild(el('text',{x:M.left+iW+6,y:y+4,
+      'font-size':8.5,fill:col,'font-weight':600,'font-family':'Geist Mono,monospace'},lbl));
   });
 
   /* bars */
-  const barW=Math.max(2,(iW/n)*0.55);
-  mRs.forEach((v,i)=>{
-    const x=xS(i)-barW/2;
-    const bH=iH-(yS(v)-M.top);
-    const isHigh=v>=urlMR;
-    svgEl.appendChild(el('rect',{x,y:yS(v),width:barW,height:bH,
-      fill:isHigh?'rgba(255,92,92,.75)':'rgba(110,231,183,.45)',rx:1.5}));
+  const bw = Math.max(14, iW / N * 0.5);
+  MR.forEach(d => {
+    const cx = xsW(d.i);
+    const barH = iH - (ys(d.mr) - M.top);
+    const col = d.hi ? 'rgba(220,38,38,.75)' : 'rgba(37,99,235,.45)';
+    svg.appendChild(el('rect',{
+      x:cx - bw/2, y:ys(d.mr), width:bw, height:barH, fill:col, rx:3,
+    }));
+    if(d.mr > 0){
+      svg.appendChild(el('text',{
+        x:cx, y:ys(d.mr) - 5,
+        'text-anchor':'middle', 'font-size':9,
+        fill: d.hi ? '#dc2626' : '#6b7280',
+        'font-weight': d.hi ? 700 : 400,
+        'font-family':'Geist Mono,monospace',
+      }, d.mr));
+    }
   });
 
-  /* line over bars */
-  const pts=mRs.map((v,i)=>[xS(i),yS(v)]);
-  svgEl.appendChild(mkPolyline(pts,{fill:'none',stroke:'#6ee7b7','stroke-width':1.2,
-    'stroke-linejoin':'round',opacity:.6}));
+  /* x axis labels – aligned to DATA week slots */
+  DATA.forEach((d,i) => {
+    const x = xsW(i);
+    svg.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+5,stroke:'#d1d5db'}));
+    svg.appendChild(el('text',{x,y:M.top+iH+16,'text-anchor':'middle','font-size':8.5,fill:'#9ca3af','font-weight':600},`W${d.i+1}`));
+    svg.appendChild(el('text',{x,y:M.top+iH+28,'text-anchor':'middle','font-size':7.5,fill:'#b0bec9'},d.label));
+  });
 
-  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,
-    fill:'none',stroke:'rgba(99,130,200,.1)',rx:4}));
+  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:6}));
+  svg.appendChild(el('text',{
+    x:-(M.top+iH/2), y:15, transform:'rotate(-90)',
+    'text-anchor':'middle', 'font-size':10.5, fill:'#6b7280', 'font-weight':500,
+  }, 'Moving Range'));
 }
 
-/* ══════════════════════════════════════
-   RULE TOGGLE BUTTONS
-══════════════════════════════════════ */
-document.querySelectorAll('.rule-toggle').forEach(btn=>{
-  const r=parseInt(btn.dataset.rule);
-  btn.addEventListener('click',()=>{
-    if(activeRules.has(r)){ activeRules.delete(r); btn.classList.remove('active'); }
-    else { activeRules.add(r); btn.classList.add('active'); }
-    updateTotalSignals();
-    renderHits();
-    drawX();
-    drawMR();
-  });
-});
+/* ══ redraw ══ */
+function redraw(){
+  drawX();
+  if(L.mr){ drawMR(); document.getElementById('mr-card').style.display = 'block'; }
+  else     { document.getElementById('mr-card').style.display = 'none'; }
+}
 
-/* ══════════════════════════════════════
-   INIT
-══════════════════════════════════════ */
-drawX();
-drawMR();
-window.addEventListener('resize',()=>{ drawX(); drawMR(); });
+document.getElementById('sel-rule').addEventListener('change', redraw);
+redraw();
+window.addEventListener('resize', redraw);
 </script>
 </body>
 </html>
