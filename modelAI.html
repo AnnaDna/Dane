@@ -3,281 +3,594 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Program AI Efficiency — cykl pracy</title>
+<title>Model Pracy — AI Efficiency</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     background: #0f1117;
     color: #e2e8f0;
-    padding: 32px 24px;
     min-height: 100vh;
+    padding: 32px 24px 60px;
   }
-  h1 {
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+  .tabs {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 36px;
   }
-  .subtitle {
-    text-align: center;
-    font-size: 11px;
-    color: #475569;
-    margin-bottom: 36px;
-    letter-spacing: 0.08em;
+  .tab {
+    padding: 10px 28px; border-radius: 999px; border: 1px solid #334155;
+    background: transparent; color: #94a3b8; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+  .tab:hover:not(.active) { border-color: #7c3aed; color: #a78bfa; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .main-title { text-align: center; font-size: 20px; font-weight: 800; color: #a78bfa; margin-bottom: 4px; }
+  .main-sub { text-align: center; font-size: 13px; color: #475569; margin-bottom: 36px; }
+
+  /* ===== DIAGRAM ===== */
+  .diagram-wrap { max-width: 760px; margin: 0 auto; }
+  .flow { display: flex; flex-direction: column; align-items: center; }
+
+  .flow-node {
+    width: 100%; border-radius: 14px; padding: 16px 22px; border: 1px solid;
+  }
+  .node-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .node-icon { font-size: 20px; flex-shrink: 0; }
+  .node-num {
+    font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap;
+  }
+  .node-title { font-size: 14px; font-weight: 700; }
+  .node-body { font-size: 12.5px; color: #94a3b8; line-height: 1.6; padding-left: 30px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; padding-left: 30px; }
+  .chip { font-size: 11px; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
+
+  .flow-arrow { font-size: 22px; color: #334155; margin: 5px 0; line-height: 1; }
+
+  /* parallel block */
+  .parallel-label {
+    font-size: 11px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin: 14px 0 10px;
+    display: flex; align-items: center; gap: 8px; width: 100%;
+  }
+  .parallel-label::before, .parallel-label::after { content:''; flex:1; height:1px; background:#1e293b; }
+
+  .parallel-row { display: flex; gap: 14px; width: 100%; }
+  .parallel-node { flex: 1; border-radius: 12px; padding: 14px 16px; border: 1px solid; }
+  .parallel-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .parallel-tag {
+    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .parallel-title { font-size: 13px; font-weight: 700; }
+  .parallel-body { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  .parallel-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+  .parallel-merge {
+    width: 100%; margin: 8px 0 0;
+    display: flex; align-items: center; gap: 8px;
+    color: #475569; font-size: 11px;
+  }
+  .parallel-merge::before, .parallel-merge::after { content:''; flex:1; height:1px; background:#1e293b; }
+
+  /* fork */
+  .fork-label {
+    font-size: 11px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin: 14px 0 10px;
+    display: flex; align-items: center; gap: 8px; width: 100%;
+  }
+  .fork-label::before, .fork-label::after { content:''; flex:1; height:1px; background:#1e293b; }
+
+  .fork-row { display: flex; gap: 14px; width: 100%; }
+  .fork-node { flex: 1; border-radius: 12px; padding: 14px 16px; border: 1px solid; }
+  .fork-scenario {
+    display: inline-block; font-size: 10px; font-weight: 800;
+    padding: 2px 7px; border-radius: 999px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .fork-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .fork-body { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  .fork-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+  .fork-merge {
+    width: 100%; margin: 8px 0 0;
+    display: flex; align-items: center; gap: 8px;
+    color: #475569; font-size: 11px;
+  }
+  .fork-merge::before, .fork-merge::after { content:''; flex:1; height:1px; background:#1e293b; }
+
+  .cycle-box {
+    width: 100%; margin-top: 22px; padding: 14px 20px;
+    background: #13172a; border: 1px dashed #334155; border-radius: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .cycle-box-text { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .cycle-box-text strong { color: #94a3b8; }
+
+  /* node color themes */
+  .n-violet { background:#1a1628; border-color:#7c3aed55; }
+  .n-violet .node-num { background:#7c3aed22; color:#a78bfa; }
+  .n-violet .chip { border-color:#7c3aed44; color:#a78bfa; background:#7c3aed11; }
+
+  .n-indigo { background:#111830; border-color:#6366f155; }
+  .n-indigo .node-num { background:#6366f122; color:#a5b4fc; }
+  .n-indigo .chip { border-color:#6366f144; color:#a5b4fc; background:#6366f111; }
+
+  .n-blue { background:#0d1a2e; border-color:#2563eb55; }
+  .n-blue .node-num { background:#2563eb22; color:#60a5fa; }
+  .n-blue .chip { border-color:#2563eb44; color:#60a5fa; background:#2563eb11; }
+
+  .n-teal { background:#0a1f1e; border-color:#0d948855; }
+  .n-teal .node-num { background:#0d948822; color:#2dd4bf; }
+  .n-teal .chip { border-color:#0d948844; color:#2dd4bf; background:#0d948811; }
+
+  .n-amber { background:#1a1206; border-color:#d9770655; }
+  .n-amber .node-num { background:#d9770622; color:#fbbf24; }
+  .n-amber .chip { border-color:#d9770644; color:#fbbf24; background:#d9770611; }
+
+  .n-pink { background:#1c0a15; border-color:#db277755; }
+  .n-pink .node-num { background:#db277722; color:#f472b6; }
+  .n-pink .chip { border-color:#db277744; color:#f472b6; background:#db277711; }
+
+  .par-teal { background:#0a1f1e; border-color:#0d948844; }
+  .par-teal .parallel-tag { background:#0d948822; color:#2dd4bf; }
+
+  .par-cyan { background:#071e26; border-color:#0891b244; }
+  .par-cyan .parallel-tag { background:#0891b222; color:#22d3ee; }
+
+  .fork-green { background:#0b1c10; border-color:#16a34a55; }
+  .fork-green .fork-scenario { background:#16a34a22; color:#4ade80; }
+
+  .fork-orange { background:#1c1007; border-color:#ea580c55; }
+  .fork-orange .fork-scenario { background:#ea580c22; color:#fb923c; }
+
+  /* ===== TIMELINE ===== */
+  .timeline-wrap { max-width: 1020px; margin: 0 auto; }
+
+  .gantt-legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    justify-content: center; margin-bottom: 28px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink:0; }
+
+  .gantt {
+    background: #0d1117; border-radius: 16px;
+    border: 1px solid #1e293b; overflow: hidden;
   }
 
-  .flow {
-    display: flex;
-    flex-direction: column;
-    max-width: 820px;
-    margin: 0 auto;
+  /* 10 columns: label + 9 weeks */
+  .g-grid { grid-template-columns: 200px repeat(9, 1fr); }
+
+  .gantt-month-row {
+    display: grid; background: #080c14;
+    border-bottom: 1px solid #1e293b;
+  }
+  .gm-spacer { border-right: 1px solid #1e293b; padding: 5px 0; }
+  .gm-block {
+    text-align: center; font-size: 10px; font-weight: 800;
+    color: #475569; padding: 5px 0;
+    text-transform: uppercase; letter-spacing: 1px;
+    border-right: 1px solid #1e293b;
   }
 
-  .phase {
-    display: flex;
-    gap: 16px;
-    position: relative;
+  .gantt-header { display: grid; background: #0f1623; border-bottom: 1px solid #1e293b; }
+  .gh-label {
+    padding: 10px 14px; font-size: 11px; font-weight: 700;
+    color: #475569; text-transform: uppercase; letter-spacing: 0.5px;
+    border-right: 1px solid #1e293b;
+  }
+  .gh-week {
+    padding: 10px 4px; font-size: 11px; font-weight: 600;
+    color: #475569; text-align: center; border-right: 1px solid #1a2236;
+  }
+  .gh-week.ms { border-left: 2px solid #2d3748; }
+
+  .gantt-section {
+    display: grid; background: #0a0e18;
+    border-bottom: 1px solid #1e293b;
+  }
+  .gs-label {
+    padding: 7px 14px; font-size: 10px; font-weight: 800;
+    color: #334155; text-transform: uppercase; letter-spacing: 0.8px;
+    border-right: 1px solid #1e293b; display: flex; align-items: center;
+  }
+  .gs-span {
+    border-bottom: none;
+    display: flex; align-items: center; padding: 4px 8px;
+    font-size: 10px; color: #334155;
   }
 
-  .phase:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    left: 27px;
-    top: 56px;
-    bottom: -30px;
-    width: 2px;
-    background: linear-gradient(to bottom, #2d3748, #1a2030);
-    z-index: 0;
+  .gantt-row { display: grid; border-bottom: 1px solid #131a26; min-height: 48px; align-items: center; }
+  .gantt-row:last-child { border-bottom: none; }
+  .gantt-row:hover { background: #0d1420; }
+
+  .gr-label {
+    padding: 8px 14px; font-size: 12px; font-weight: 600;
+    color: #94a3b8; border-right: 1px solid #1e293b;
+    line-height: 1.4; display: flex; align-items: center; gap: 8px;
+  }
+  .gr-label-sub { font-size: 10px; color: #475569; }
+
+  .gr-cells {
+    display: grid; grid-template-columns: repeat(9, 1fr);
+    padding: 6px 4px; align-items: center;
   }
 
-  .phase-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    z-index: 1;
+  .bar {
+    height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: #fff;
+    white-space: nowrap; overflow: hidden; padding: 0 8px;
+  }
+  .bar-outline {
+    height: 26px; border-radius: 6px; border: 1.5px dashed;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; padding: 0 8px; white-space: nowrap;
   }
 
-  .phase-body {
-    flex: 1;
-    background: #161c2c;
-    border: 1px solid #232d40;
-    border-radius: 14px;
-    padding: 16px 20px;
-    margin-bottom: 28px;
+  .b-violet  { background: linear-gradient(90deg,#6d28d9,#7c3aed); }
+  .b-indigo  { background: linear-gradient(90deg,#4338ca,#6366f1); }
+  .b-blue    { background: linear-gradient(90deg,#1d4ed8,#2563eb); }
+  .b-teal    { background: linear-gradient(90deg,#0f766e,#0d9488); }
+  .b-cyan    { background: linear-gradient(90deg,#0e7490,#0891b2); }
+  .b-amber   { background: linear-gradient(90deg,#b45309,#d97706); }
+  .b-green   { background: linear-gradient(90deg,#15803d,#16a34a); }
+  .b-orange  { background: linear-gradient(90deg,#c2410c,#ea580c); }
+  .b-pink    { background: linear-gradient(90deg,#be185d,#db2777); opacity:.85; }
+  .b-outline-pink { border-color:#db2777; color:#f472b6; }
+
+  /* fork note */
+  .fork-note {
+    margin-top: 24px; background: #0d1117; border: 1px solid #1e293b;
+    border-radius: 12px; padding: 18px 22px;
   }
-
-  .phase-body h2 {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 7px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+  .fork-note-title { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 12px; }
+  .fork-note-row { display: flex; gap: 14px; }
+  .fork-note-col { flex: 1; border-radius: 10px; padding: 12px 16px; border: 1px solid; }
+  .fork-note-col-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .fork-note-scenario {
+    font-size: 10px; font-weight: 800; padding: 2px 8px;
+    border-radius: 999px; text-transform: uppercase;
   }
+  .fork-note-col-title { font-size: 13px; font-weight: 700; }
+  .fork-note-col-body { font-size: 12px; color: #64748b; line-height: 1.5; }
 
-  .badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 9px;
-    border-radius: 20px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-  }
-
-  .phase-body p {
-    font-size: 12.5px;
-    color: #94a3b8;
-    line-height: 1.65;
-  }
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 11px;
-  }
-
-  .chip {
-    font-size: 11px;
-    background: #0d1220;
-    border: 1px solid #2d3748;
-    border-radius: 6px;
-    padding: 3px 10px;
-    color: #94a3b8;
-  }
-
-  .p1 .phase-icon { background: #1a2e50; color: #60a5fa; }
-  .p1 .phase-body { border-left: 3px solid #3b82f6; }
-  .p1 h2 { color: #60a5fa; }
-  .p1 .badge { background: #1a2e50; color: #60a5fa; }
-
-  .p2 .phase-icon { background: #162e24; color: #34d399; }
-  .p2 .phase-body { border-left: 3px solid #10b981; }
-  .p2 h2 { color: #34d399; }
-  .p2 .badge { background: #162e24; color: #34d399; }
-
-  .p3 .phase-icon { background: #2c2614; color: #fbbf24; }
-  .p3 .phase-body { border-left: 3px solid #f59e0b; }
-  .p3 h2 { color: #fbbf24; }
-  .p3 .badge { background: #2c2614; color: #fbbf24; }
-
-  .p4 .phase-icon { background: #281b3a; color: #c084fc; }
-  .p4 .phase-body { border-left: 3px solid #a855f7; }
-  .p4 h2 { color: #c084fc; }
-  .p4 .badge { background: #281b3a; color: #c084fc; }
-
-  .p5 .phase-icon { background: #162533; color: #38bdf8; }
-  .p5 .phase-body { border-left: 3px solid #0ea5e9; }
-  .p5 h2 { color: #38bdf8; }
-  .p5 .badge { background: #162533; color: #38bdf8; }
-
-  .p6 .phase-icon { background: #2a1a1a; color: #f87171; }
-  .p6 .phase-body { border-left: 3px solid #ef4444; }
-  .p6 h2 { color: #f87171; }
-  .p6 .badge { background: #2a1a1a; color: #f87171; }
-
-  .p7 .phase-icon { background: #162416; color: #86efac; }
-  .p7 .phase-body { border-left: 3px solid #22c55e; }
-  .p7 h2 { color: #86efac; }
-  .p7 .badge { background: #162416; color: #86efac; }
-
-  .loop-banner {
-    max-width: 820px;
-    margin: 4px auto 0;
-    background: #13182a;
-    border: 1px dashed #2d3748;
-    border-radius: 12px;
-    padding: 13px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-    color: #64748b;
-  }
-  .loop-banner .arrow {
-    font-size: 22px;
-    color: #334155;
+  @media (max-width: 720px) {
+    .parallel-row, .fork-row, .fork-note-row { flex-direction: column; }
+    .gantt { overflow-x: auto; }
+    .gantt-month-row, .gantt-header, .gantt-row, .gantt-section { min-width: 680px; }
   }
 </style>
 </head>
 <body>
 
-<h1>Program AI Efficiency</h1>
-<p class="subtitle">Zwiększanie efektywności zespołów wytwórczych z użyciem AI · Cykl iteracyjny</p>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('diagram',this)">📊 Diagram (flow)</button>
+  <button class="tab" onclick="switchTab('timeline',this)">📅 Oś czasowa</button>
+</div>
 
-<div class="flow">
+<!-- ============ DIAGRAM ============ -->
+<div class="view active" id="view-diagram">
+<div class="diagram-wrap">
+  <div class="main-title">Model Pracy — AI Efficiency</div>
+  <div class="main-sub">Zwiększanie efektywności zespołów wytwórczych · obszar IT</div>
 
-  <div class="phase p1">
-    <div class="phase-icon">📊</div>
-    <div class="phase-body">
-      <h2>1. Diagnoza i priorytety <span class="badge">Dane → Decyzja</span></h2>
-      <p>Analiza danych z narzędzia DX oraz ankiet skierowanych do developerów, analityków, product ownerów i testerów. Identyfikacja obszarów o największym potencjale poprawy efektywności i ułożenie backlogu tematów.</p>
+  <div class="flow">
+
+    <!-- 1. Analiza -->
+    <div class="flow-node n-violet">
+      <div class="node-header">
+        <span class="node-icon">📊</span>
+        <span class="node-num">Krok 1</span>
+        <span class="node-title">Analiza danych → priorytetyzacja obszarów</span>
+      </div>
+      <div class="node-body">Dane z DX i ankiet (analitycy, PO, testerzy) wskazują obszary z największym problemem i potencjałem poprawy. Powstaje uporządkowana lista tematów.</div>
       <div class="chips">
         <span class="chip">DX metrics</span>
-        <span class="chip">Ankiety dev</span>
-        <span class="chip">Ankiety PO / BA</span>
-        <span class="chip">Ankiety QA</span>
-        <span class="chip">Ranking obszarów</span>
+        <span class="chip">Ankiety analitycy / PO / testerzy</span>
+        <span class="chip">Lista priorytetów</span>
       </div>
     </div>
-  </div>
 
-  <div class="phase p2">
-    <div class="phase-icon">📣</div>
-    <div class="phase-body">
-      <h2>2. Ogłoszenie z wyprzedzeniem <span class="badge">Komunikacja</span></h2>
-      <p>Zapowiedź startu grupy roboczej z co najmniej miesięcznym wyprzedzeniem. Określony problem, zakres i czas trwania. Zbieranie zgłoszeń od chętnych lub targeted outreach do osób z odpowiednią wiedzą i motywacją.</p>
+    <div class="flow-arrow">↓</div>
+
+    <!-- 2. Ogłoszenie listy -->
+    <div class="flow-node n-indigo">
+      <div class="node-header">
+        <span class="node-icon">📋</span>
+        <span class="node-num">Krok 2</span>
+        <span class="node-title">Ogłoszenie całej listy tematów (roadmapa)</span>
+      </div>
+      <div class="node-body">Publikujemy pełną listę priorytetów dla całego IT — każdy widzi co będzie i kiedy. Ludzie mogą z wyprzedzeniem zaplanować swój udział w interesującym ich temacie.</div>
       <div class="chips">
-        <span class="chip">Zapowiedź ~1 miesiąc wcześniej</span>
-        <span class="chip">Rekrutacja ochotników</span>
+        <span class="chip">Transparentność</span>
+        <span class="chip">Advance planning</span>
+        <span class="chip">Całe IT</span>
+      </div>
+    </div>
+
+    <div class="flow-arrow">↓</div>
+
+    <!-- 3. Rekrutacja do 2 tematów równolegle -->
+    <div class="flow-node n-blue">
+      <div class="node-header">
+        <span class="node-icon">📣</span>
+        <span class="node-num">Krok 3</span>
+        <span class="node-title">Rekrutacja do pierwszych dwóch tematów (równolegle)</span>
+      </div>
+      <div class="node-body">Jednocześnie otwieramy nabór do Tematu 1 i Tematu 2. Zbieramy chętnych lub zapraszamy osoby z wiedzą i motywacją do każdej z grup.</div>
+      <div class="chips">
+        <span class="chip">~2 tyg. przed startem</span>
+        <span class="chip">Wolontariusze</span>
         <span class="chip">Targeted outreach</span>
+        <span class="chip">Dwie grupy robocze</span>
       </div>
     </div>
-  </div>
 
-  <div class="phase p3">
-    <div class="phase-icon">🔬</div>
-    <div class="phase-body">
-      <h2>3. Sprint roboczy — ~1 miesiąc <span class="badge">Praca właściwa</span></h2>
-      <p>Zamknięta grupa robocza pracuje przez ustalony czas. Zaczyna od precyzyjnego zdefiniowania problemu, następnie prototypuje i testuje rozwiązania AI. Iteracje wewnątrz grupy.</p>
-      <div class="chips">
-        <span class="chip">Definicja problemu</span>
-        <span class="chip">Prototypowanie</span>
-        <span class="chip">Testy rozwiązań</span>
-        <span class="chip">Iteracje wewnętrzne</span>
+    <div class="flow-arrow">↓</div>
+
+    <!-- 4. Dwa równoległe sprinty -->
+    <div class="parallel-label">Równoległe sprinty — Temat 1 i Temat 2</div>
+
+    <div class="parallel-row">
+      <div class="parallel-node par-teal">
+        <div class="parallel-node-header">
+          <span class="parallel-tag">Temat 1</span>
+        </div>
+        <div class="parallel-title" style="font-size:13px;font-weight:700;margin-bottom:6px;">⚙️ Sprint grupowy</div>
+        <div class="parallel-body">Definiowanie problemu, prototypowanie i testowanie rozwiązań AI. Iteracje wewnątrz grupy przez miesiąc.</div>
+        <div class="parallel-chips">
+          <span class="chip" style="border-color:#0d948844;color:#2dd4bf;background:#0d948811;">~1 miesiąc</span>
+          <span class="chip" style="border-color:#0d948844;color:#2dd4bf;background:#0d948811;">Problem → Prototyp → Testy</span>
+        </div>
+      </div>
+      <div class="parallel-node par-cyan">
+        <div class="parallel-node-header">
+          <span class="parallel-tag" style="background:#0891b222;color:#22d3ee;">Temat 2</span>
+        </div>
+        <div class="parallel-title" style="font-size:13px;font-weight:700;margin-bottom:6px;">⚙️ Sprint grupowy</div>
+        <div class="parallel-body">Definiowanie problemu, prototypowanie i testowanie rozwiązań AI. Iteracje wewnątrz grupy przez miesiąc.</div>
+        <div class="parallel-chips">
+          <span class="chip" style="border-color:#0891b244;color:#22d3ee;background:#0891b211;">~1 miesiąc</span>
+          <span class="chip" style="border-color:#0891b244;color:#22d3ee;background:#0891b211;">Problem → Prototyp → Testy</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="phase p4">
-    <div class="phase-icon">🎤</div>
-    <div class="phase-body">
-      <h2>4. Review publiczne <span class="badge">Dzielenie się wiedzą</span></h2>
-      <p>Otwarte podsumowanie dla całej organizacji. Prezentacja: jaki był problem, jakie rozwiązania zostały wypracowane, co działa, co nie. Budowanie kultury AI i widoczności inicjatywy w firmie.</p>
+    <div class="parallel-merge">↓ &nbsp;obie grupy kończą sprint w tym samym czasie &nbsp;↓</div>
+
+    <div class="flow-arrow">↓</div>
+
+    <!-- 5. Open Review -->
+    <div class="flow-node n-amber">
+      <div class="node-header">
+        <span class="node-icon">🎤</span>
+        <span class="node-num">Krok 5</span>
+        <span class="node-title">Open Review — podsumowanie dla całego IT</span>
+      </div>
+      <div class="node-body">Obie grupy prezentują wyniki. Jaki był problem, co testowaliśmy, co działa. Rozwiązania trafiają do biblioteki.</div>
       <div class="chips">
-        <span class="chip">Demo / prezentacja</span>
-        <span class="chip">Wnioski i nauki</span>
-        <span class="chip">Otwarte dla wszystkich</span>
+        <span class="chip">Koniec miesiąca</span>
+        <span class="chip">Całe IT</span>
+        <span class="chip">Dwie prezentacje</span>
+        <span class="chip">Biblioteka rozwiązań</span>
       </div>
     </div>
-  </div>
 
-  <div class="phase p5">
-    <div class="phase-icon">🚀</div>
-    <div class="phase-body">
-      <h2>5. Przekazanie i adopcja <span class="badge">Rollout</span></h2>
-      <p>Gotowe rozwiązania trafiają do chętnych lub — na podstawie danych DX — do zespołów, które mają największy problem w danym obszarze. Zespoły testują rozwiązanie w warunkach produkcyjnych, ze wsparciem grupy roboczej.</p>
-      <div class="chips">
-        <span class="chip">Chętni adoptują</span>
-        <span class="chip">Targeted rollout (słabe miary)</span>
-        <span class="chip">Wsparcie grupy roboczej</span>
+    <div class="flow-arrow">↓</div>
+
+    <!-- FORK dystrybucja -->
+    <div class="fork-label">Dystrybucja rozwiązań — 2 scenariusze (dla każdego tematu osobno)</div>
+
+    <div class="fork-row">
+      <div class="fork-node fork-green">
+        <span class="fork-scenario">Scenariusz A</span>
+        <div class="fork-title">✋ Są chętni</div>
+        <div class="fork-body">Zespoły, które dobrowolnie zgłosiły się po review, przejmują rozwiązanie i testują je w realnych warunkach.</div>
+        <div class="fork-chips">
+          <span class="chip" style="border-color:#16a34a44;color:#4ade80;background:#16a34a11;">Adopcja dobrowolna</span>
+          <span class="chip" style="border-color:#16a34a44;color:#4ade80;background:#16a34a11;">Pilot → wyniki</span>
+        </div>
+      </div>
+      <div class="fork-node fork-orange">
+        <span class="fork-scenario">Scenariusz B</span>
+        <div class="fork-title">📉 Brak chętnych</div>
+        <div class="fork-body">Kierujemy rozwiązanie do zespołów, które w ankietach lub DX wskazywały ten obszar jako bolączkę.</div>
+        <div class="fork-chips">
+          <span class="chip" style="border-color:#ea580c44;color:#fb923c;background:#ea580c11;">Wskazanie z danych</span>
+          <span class="chip" style="border-color:#ea580c44;color:#fb923c;background:#ea580c11;">Pilot → wyniki</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="phase p6">
-    <div class="phase-icon">📈</div>
-    <div class="phase-body">
-      <h2>6. Pomiar wyników <span class="badge">Feedback loop</span></h2>
-      <p>Po ustalonym czasie zespoły wdrażające rozwiązanie wracają z wynikami. Porównanie miar DX przed i po. Weryfikacja rzeczywistego wpływu na efektywność — dane zasilają kolejną diagnozę.</p>
+    <div class="fork-merge">↓ &nbsp;wyniki pilotów wracają do danych → kalibracja kolejnych tematów &nbsp;↓</div>
+
+    <div class="flow-arrow">↓</div>
+
+    <!-- 6. Kolejny cykl -->
+    <div class="flow-node n-pink">
+      <div class="node-header">
+        <span class="node-icon">🔄</span>
+        <span class="node-num">Równolegle od kroku 5</span>
+        <span class="node-title">Rekrutacja do kolejnych tematów z listy</span>
+      </div>
+      <div class="node-body">Już podczas Open Review otwieramy nabór do Tematów 3 i 4 z ogłoszonej wcześniej roadmapy. Zainteresowani mieli czas się przygotować — program nie traci momentum.</div>
       <div class="chips">
-        <span class="chip">DX before / after</span>
-        <span class="chip">Raport z wdrożenia</span>
-        <span class="chip">Lessons learned</span>
+        <span class="chip">Tematy 3 i 4 z roadmapy</span>
+        <span class="chip">Ciągłość programu</span>
+        <span class="chip">Bez przerwy między cyklami</span>
       </div>
     </div>
+
   </div>
 
-  <div class="phase p7">
-    <div class="phase-icon">🔄</div>
-    <div class="phase-body">
-      <h2>7. Następna iteracja <span class="badge">Ciągłość</span></h2>
-      <p>Równolegle (już od kroku 2) zapowiedziana jest kolejna grupa robocza. Program działa w nakładających się cyklach — zawsze coś jest w toku i coś na horyzoncie. Rośnie baza case studies i społeczność praktyków.</p>
-      <div class="chips">
-        <span class="chip">Następny temat już ogłoszony</span>
-        <span class="chip">Nakładające się cykle</span>
-        <span class="chip">Rosnące case studies</span>
-        <span class="chip">Community of practice</span>
-      </div>
+  <div class="cycle-box" style="margin-top:22px;">
+    <span style="font-size:20px;">🔁</span>
+    <div class="cycle-box-text">
+      <strong>Mechanizm ciągłości:</strong> ogłoszona roadmapa daje ludziom czas na zaplanowanie udziału. Wyniki pilotów wracają do danych i kalibrują priorytety kolejnych tematów. Program działa bez przerwy — dwa tematy równolegle co miesiąc.
     </div>
   </div>
 
 </div>
-
-<div class="loop-banner">
-  <span class="arrow">↻</span>
-  <span>Każda iteracja zasila kolejną — danymi, wynikami wdrożeń i rosnącą społecznością praktyków AI w organizacji.</span>
 </div>
 
+<!-- ============ TIMELINE ============ -->
+<div class="view" id="view-timeline">
+<div class="timeline-wrap">
+  <div class="main-title">Model Pracy — Oś Czasowa</div>
+  <div class="main-sub">Dwa równoległe tematy · cykl miesięczny · ogłoszenie roadmapy z wyprzedzeniem</div>
+
+  <div class="gantt-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Analiza & priorytetyzacja</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Ogłoszenie roadmapy</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>Rekrutacja</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0d9488"></div>Sprint — Temat 1</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div>Sprint — Temat 2</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Open Review</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Pilot A (chętni)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ea580c"></div>Pilot B (wskazani)</div>
+    <div class="legend-item"><div class="legend-dot" style="border:1.5px dashed #db2777;background:transparent;border-radius:3px;"></div>Rekrutacja cyklu 2</div>
+  </div>
+
+  <div class="gantt">
+
+    <!-- month labels: 9 weeks — week 1-4 = miesiąc 0 (prep), week 5-9 = miesiąc 1+2 -->
+    <div class="gantt-month-row g-grid" style="display:grid;">
+      <div class="gm-spacer"></div>
+      <div class="gm-block" style="grid-column:2/4;">Przygotowanie</div>
+      <div class="gm-block" style="grid-column:4/8;">Miesiąc 1 — Sprint</div>
+      <div class="gm-block" style="grid-column:8/11;">Miesiąc 2 — Piloty</div>
+    </div>
+
+    <div class="gantt-header g-grid" style="display:grid;">
+      <div class="gh-label">Aktywność</div>
+      <div class="gh-week">T1</div>
+      <div class="gh-week">T2</div>
+      <div class="gh-week">T3</div>
+      <div class="gh-week ms">T4</div>
+      <div class="gh-week">T5</div>
+      <div class="gh-week">T6</div>
+      <div class="gh-week">T7</div>
+      <div class="gh-week ms">T8</div>
+      <div class="gh-week">T9</div>
+    </div>
+
+    <!-- Analiza -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>📊</span><div><div>Analiza danych</div><div class="gr-label-sub">priorytetyzacja</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-violet" style="grid-column:1/3;">Analiza & priorytetyzacja</div>
+      </div>
+    </div>
+
+    <!-- Ogłoszenie roadmapy -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>📋</span><div><div>Ogłoszenie roadmapy</div><div class="gr-label-sub">cała lista tematów</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-indigo" style="grid-column:2/4;">Publikacja listy tematów</div>
+      </div>
+    </div>
+
+    <!-- Rekrutacja -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>📣</span><div><div>Rekrutacja</div><div class="gr-label-sub">Tematy 1 i 2</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-blue" style="grid-column:2/4;">Rekrutacja — T1 i T2</div>
+      </div>
+    </div>
+
+    <!-- Sprint Temat 1 -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>⚙️</span><div><div>Sprint — Temat 1</div><div class="gr-label-sub">grupa robocza</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-teal" style="grid-column:4/8;">Problem → Prototyp → Testy</div>
+      </div>
+    </div>
+
+    <!-- Sprint Temat 2 -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>⚙️</span><div><div>Sprint — Temat 2</div><div class="gr-label-sub">grupa robocza</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-cyan" style="grid-column:4/8;">Problem → Prototyp → Testy</div>
+      </div>
+    </div>
+
+    <!-- Open Review -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>🎤</span><div><div>Open Review</div><div class="gr-label-sub">całe IT</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-amber" style="grid-column:8/9;">Review T1 + T2</div>
+      </div>
+    </div>
+
+    <!-- Pilot A -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>✋</span><div><div>Pilot A — chętni</div><div class="gr-label-sub">adopcja dobrowolna</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-green" style="grid-column:8/10;">Testowanie → wyniki</div>
+      </div>
+    </div>
+
+    <!-- Pilot B -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>📉</span><div><div>Pilot B — wskazani</div><div class="gr-label-sub">z danych DX / ankiet</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar b-orange" style="grid-column:8/10;">Testowanie → wyniki</div>
+      </div>
+    </div>
+
+    <!-- Rekrutacja cyklu 2 -->
+    <div class="gantt-row g-grid" style="display:grid;">
+      <div class="gr-label"><span>🔄</span><div><div>Rekrutacja cyklu 2</div><div class="gr-label-sub">Tematy 3 i 4</div></div></div>
+      <div class="gr-cells" style="grid-column:2/11;">
+        <div class="bar-outline b-outline-pink" style="grid-column:8/10;">Rekrutacja T3 i T4</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- fork note -->
+  <div class="fork-note">
+    <div class="fork-note-title">🔀 Dystrybucja po Review — 2 scenariusze (każdy temat osobno)</div>
+    <div class="fork-note-row">
+      <div class="fork-note-col" style="background:#0b1c10;border-color:#16a34a44;">
+        <div class="fork-note-col-head">
+          <span class="fork-note-scenario" style="background:#16a34a22;color:#4ade80;">Scenariusz A</span>
+          <span class="fork-note-col-title">✋ Są chętni</span>
+        </div>
+        <div class="fork-note-col-body">Po Open Review zgłaszają się zespoły chcące przetestować rozwiązanie. Adopcja dobrowolna — wyższe zaangażowanie, szybszy efekt.</div>
+      </div>
+      <div class="fork-note-col" style="background:#1c1007;border-color:#ea580c44;">
+        <div class="fork-note-col-head">
+          <span class="fork-note-scenario" style="background:#ea580c22;color:#fb923c;">Scenariusz B</span>
+          <span class="fork-note-col-title">📉 Brak chętnych</span>
+        </div>
+        <div class="fork-note-col-body">Kierujemy rozwiązanie do zespołów, które w danych (DX lub ankiety) wskazywały ten obszar jako bolączkę. Testują przez ustalony czas i wracają z wynikami.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cycle-box" style="margin-top:22px;">
+    <span style="font-size:20px;">📋</span>
+    <div class="cycle-box-text">
+      <strong>Kluczowy mechanizm:</strong> ogłoszona roadmapa sprawia, że ludzie widzą z wyprzedzeniem kiedy startuje temat, który ich interesuje — mogą zaplanować swój udział zanim otworzy się rekrutacja. Niweluje to barierę "nie wiedziałem że to startuje".
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+</script>
 </body>
 </html>
