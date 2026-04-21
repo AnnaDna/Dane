@@ -276,6 +276,7 @@
   <button onclick="show('matryca')">🗂 Matryca kompetencji</button>
   <button onclick="show('ai')">🤖 AI & Copilot</button>
   <button onclick="show('wnioski')">💡 Wnioski</button>
+  <button onclick="show('github')">🐙 GitHub Starter Pack</button>
 </nav>
 
 <div class="content">
@@ -818,7 +819,281 @@
   </div>
 </div>
 
+<!-- =========== GITHUB STARTER PACK =========== -->
+<div id="github" class="section">
+  <div class="section-header">
+    <h2>GitHub Starter Pack dla analityka</h2>
+    <p>Zestaw umiejętności niezbędnych do pracy w modelu „dokumentacja przy kodzie" · <em>Docs as Code</em></p>
+  </div>
+
+  <div class="insight" style="font-size:14px; margin-bottom:24px;">
+    54% analityków nigdy nie używa Git, a planowana adaptacja <strong>„dokumentacji przy kodzie"</strong> wymaga zmiany podejścia —
+    dokumenty (Markdown, diagramy, specyfikacje) przechowywane są razem z kodem w repozytorium i podlegają tym samym procesom: wersjonowanie, review, historia zmian.
+    Poniżej lista umiejętności podzielona na etapy nauki.
+  </div>
+
+  <div class="grid-3">
+
+    <!-- ETAP 1 -->
+    <div class="card" style="border-top: 3px solid var(--accent3);">
+      <div class="card-title"><span class="dot" style="background:var(--accent3)"></span>Etap 1 — Podstawy Git &amp; GitHub</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Cel: samodzielna praca z repozytorium, czytanie historii zmian</p>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b1">1</span><strong>Konto i konfiguracja</strong></div>
+        <p class="skill-desc">Założenie konta GitHub, konfiguracja git config (user.name, user.email), SSH lub token dostępu (PAT).</p>
+        <div class="skill-tags"><span class="chip">git config</span><span class="chip">SSH key</span><span class="chip">PAT token</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b1">2</span><strong>Klonowanie i nawigacja</strong></div>
+        <p class="skill-desc">Pobranie repozytorium na lokalne środowisko, orientacja w strukturze folderów, czytanie historii zmian.</p>
+        <div class="skill-tags"><span class="chip">git clone</span><span class="chip">git log</span><span class="chip">git status</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b1">3</span><strong>Podstawowy cykl zmian</strong></div>
+        <p class="skill-desc">Tworzenie commita z opisową wiadomością, wysyłanie zmian do zdalnego repozytorium.</p>
+        <div class="skill-tags"><span class="chip">git add</span><span class="chip">git commit -m</span><span class="chip">git push</span><span class="chip">git pull</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b1">4</span><strong>Praca z gałęziami</strong></div>
+        <p class="skill-desc">Tworzenie gałęzi dla każdej zmiany dokumentacji, przełączanie się między gałęziami, scalanie z main.</p>
+        <div class="skill-tags"><span class="chip">git branch</span><span class="chip">git checkout -b</span><span class="chip">git merge</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b1">5</span><strong>Interfejs GitHub.com</strong></div>
+        <p class="skill-desc">Przeglądanie plików, historia commitów, porównanie zmian (diff), wyszukiwanie w repozytorium.</p>
+        <div class="skill-tags"><span class="chip">Blame</span><span class="chip">History</span><span class="chip">Compare</span></div>
+      </div>
+    </div>
+
+    <!-- ETAP 2 -->
+    <div class="card" style="border-top: 3px solid var(--accent2);">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Etap 2 — Docs as Code w praktyce</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Cel: pisanie i utrzymywanie dokumentacji w repozytorium, uczestnictwo w review</p>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b2">6</span><strong>Markdown — język dokumentacji</strong></div>
+        <p class="skill-desc">Formatowanie tekstu, nagłówki, tabele, listy, linki, wstawianie obrazów i bloków kodu. Podgląd w VS Code lub GitHub.</p>
+        <div class="skill-tags"><span class="chip">.md</span><span class="chip">GFM</span><span class="chip">tabele</span><span class="chip">admonitions</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b2">7</span><strong>Pull Request — review dokumentacji</strong></div>
+        <p class="skill-desc">Tworzenie PR z opisem zmian, dodawanie recenzentów, komentowanie linii, akceptacja i merge. PR = brama jakości dla docs.</p>
+        <div class="skill-tags"><span class="chip">PR</span><span class="chip">Review</span><span class="chip">Approve</span><span class="chip">Request changes</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b2">8</span><strong>Konwencja commitów</strong></div>
+        <p class="skill-desc">Conventional Commits: docs: dodanie opisu API, feat: nowa sekcja, fix: poprawka błędu. Czytelna historia dla całego zespołu.</p>
+        <div class="skill-tags"><span class="chip">docs:</span><span class="chip">feat:</span><span class="chip">fix:</span><span class="chip">chore:</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b2">9</span><strong>Diagramy w repo (Mermaid)</strong></div>
+        <p class="skill-desc">Diagramy sekwencji, przepływów i stanów pisane jako kod Markdown — renderowane automatycznie w GitHub i Confluence.</p>
+        <div class="skill-tags"><span class="chip">```mermaid</span><span class="chip">sequenceDiagram</span><span class="chip">flowchart</span><span class="chip">stateDiagram</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b2">10</span><strong>Struktura repozytorium docs</strong></div>
+        <p class="skill-desc">Wzorzec organizacji: /docs, /adr (Architecture Decision Records), README.md przy każdym serwisie, CHANGELOG.md.</p>
+        <div class="skill-tags"><span class="chip">/docs</span><span class="chip">ADR</span><span class="chip">README</span><span class="chip">CHANGELOG</span></div>
+      </div>
+    </div>
+
+    <!-- ETAP 3 -->
+    <div class="card" style="border-top: 3px solid var(--accent4);">
+      <div class="card-title"><span class="dot" style="background:var(--accent4)"></span>Etap 3 — Zaawansowane i CI/CD</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Cel: automatyzacja, integracje, wyższy poziom współpracy</p>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b3">11</span><strong>GitHub Issues i Projects</strong></div>
+        <p class="skill-desc">Śledzenie zadań dokumentacyjnych, powiązanie Issue z PR, backlog dokumentacji jako tablica Kanban w GitHub Projects.</p>
+        <div class="skill-tags"><span class="chip">Issues</span><span class="chip">Labels</span><span class="chip">Milestones</span><span class="chip">Projects</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b3">12</span><strong>GitHub Actions — linting docs</strong></div>
+        <p class="skill-desc">Automatyczna walidacja Markdown (markdownlint), sprawdzanie linków (link-checker), generowanie diagramów przy każdym push.</p>
+        <div class="skill-tags"><span class="chip">Actions</span><span class="chip">markdownlint</span><span class="chip">link-check</span><span class="chip">YAML</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b3">13</span><strong>GitHub Pages / MkDocs</strong></div>
+        <p class="skill-desc">Publikacja dokumentacji jako strony www prosto z repo. MkDocs lub Docusaurus zamieniają Markdown w portal docs.</p>
+        <div class="skill-tags"><span class="chip">GitHub Pages</span><span class="chip">MkDocs</span><span class="chip">Docusaurus</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b3">14</span><strong>OpenAPI / AsyncAPI w repo</strong></div>
+        <p class="skill-desc">Specyfikacja API jako plik YAML/JSON w repozytorium — wersjonowana razem z kodem, walidowana automatycznie w pipeline.</p>
+        <div class="skill-tags"><span class="chip">openapi.yaml</span><span class="chip">Swagger</span><span class="chip">AsyncAPI</span><span class="chip">Redoc</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-header"><span class="skill-badge b3">15</span><strong>GitHub Copilot dla docs</strong></div>
+        <p class="skill-desc">Generowanie Markdown, uzupełnianie tabel i list, tłumaczenie komentarzy z kodu na opis biznesowy. Copilot Chat w VS Code.</p>
+        <div class="skill-tags"><span class="chip">Copilot Chat</span><span class="chip">VS Code</span><span class="chip">/explain</span><span class="chip">/doc</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NARZĘDZIA -->
+  <div class="card grid-1" style="margin-top:4px;">
+    <div class="card-title"><span class="dot"></span>Zestaw narzędzi analityka pracującego z GitHub</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:14px; margin-top:4px;">
+
+      <div class="tool-card">
+        <div class="tool-icon">🖥️</div>
+        <div class="tool-name">VS Code</div>
+        <div class="tool-desc">Edytor z podglądem Markdown, integracją Git, Mermaid preview, Copilot Chat i pluginami dla analityka.</div>
+        <div class="tool-must">✅ Must have</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">🐙</div>
+        <div class="tool-name">GitHub Desktop</div>
+        <div class="tool-desc">GUI do Git dla osób unikających terminala. Wizualne zarządzanie gałęziami i commitami.</div>
+        <div class="tool-must">✅ Must have (start)</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">📝</div>
+        <div class="tool-name">Markdown Preview Enhanced</div>
+        <div class="tool-desc">Wtyczka VS Code — podgląd Markdown + Mermaid na żywo. Eksport do PDF i HTML.</div>
+        <div class="tool-must">✅ Must have</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">GitHub Copilot</div>
+        <div class="tool-desc">Asystent AI w VS Code. Generuje dokumentację, uzupełnia specyfikacje, wyjaśnia kod.</div>
+        <div class="tool-must" style="color:var(--accent2);">⚡ Wysokie ROI</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">🔗</div>
+        <div class="tool-name">Confluence ↔ GitHub</div>
+        <div class="tool-desc">Plugin synchronizujący strony Confluence z plikami Markdown w repo. Jeden source of truth.</div>
+        <div class="tool-must" style="color:var(--accent4);">🔄 Integracja</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">📊</div>
+        <div class="tool-name">draw.io dla VS Code</div>
+        <div class="tool-desc">Diagramy .drawio przechowywane bezpośrednio w repo, edytowane w VS Code, renderowane w GitHub.</div>
+        <div class="tool-must" style="color:var(--accent4);">🔄 Opcjonalne</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ŚCIEŻKA NAUKI -->
+  <div class="card grid-1" style="margin-top:20px;">
+    <div class="card-title"><span class="dot"></span>Sugerowana ścieżka nauki — oś czasu</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent3)"></div>
+        <div class="tl-content">
+          <div class="tl-time">Tydzień 1–2</div>
+          <div class="tl-title">Fundamenty Git</div>
+          <div class="tl-desc">Konto, konfiguracja, clone, add, commit, push, pull. Pierwsze repozytorium z plikiem README.md. Ćwiczenie: dodaj plik dokumentacji do testowego repo.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent3)"></div>
+        <div class="tl-content">
+          <div class="tl-time">Tydzień 3–4</div>
+          <div class="tl-title">Markdown i gałęzie</div>
+          <div class="tl-desc">Pisanie dokumentacji w Markdown, praca na feature branch, pierwszy Pull Request. Ćwiczenie: zaktualizuj specyfikację US przez PR z recenzentem z zespołu.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent2)"></div>
+        <div class="tl-content">
+          <div class="tl-time">Miesiąc 2</div>
+          <div class="tl-title">Docs as Code w projekcie</div>
+          <div class="tl-desc">Migracja jednego rzeczywistego dokumentu (np. opis API lub specyfikacja US) do repo. Diagramy Mermaid zamiast obrazków. Konwencja commitów.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent2)"></div>
+        <div class="tl-content">
+          <div class="tl-time">Miesiąc 3</div>
+          <div class="tl-title">Automatyzacja i GitHub Copilot</div>
+          <div class="tl-desc">Konfiguracja markdownlint w Actions, GitHub Copilot do generowania opisów, integracja z Confluence lub publikacja GitHub Pages.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent4)"></div>
+        <div class="tl-content">
+          <div class="tl-time">Miesiąc 4+</div>
+          <div class="tl-title">Zaawansowane praktyki</div>
+          <div class="tl-desc">ADR (Architecture Decision Records) dla kluczowych decyzji projektowych, OpenAPI w repo, templaty dla US i specyfikacji jako pliki .md w repozytorium.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+</div>
+
+<style>
+  /* SKILL ITEMS */
+  .skill-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .skill-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .skill-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+  .skill-badge {
+    width: 22px; height: 22px; border-radius: 50%;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+  .b1 { background: rgba(42,148,64,0.15); color: var(--accent3); }
+  .b2 { background: rgba(212,130,10,0.15); color: var(--accent2); }
+  .b3 { background: rgba(26,111,207,0.15); color: var(--accent4); }
+  .skill-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  /* TOOL CARDS */
+  .tool-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .tool-icon { font-size: 22px; margin-bottom: 6px; }
+  .tool-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--text); }
+  .tool-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+  .tool-must { font-size: 11px; font-weight: 600; color: var(--accent3); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 24px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: -24px; top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--bg2);
+    box-shadow: 0 0 0 2px var(--border);
+  }
+  .tl-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .tl-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+</style>
 
 <script>
 function show(id) {
