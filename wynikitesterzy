@@ -1,1 +1,423 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analiza Doświadczeń Testerów – Obszary do Usprawnień AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1a202c; }
+  
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+    color: white; padding: 36px 40px; 
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .header p { font-size: 14px; opacity: 0.85; }
+  .header .meta { display: flex; gap: 30px; margin-top: 16px; }
+  .header .meta-item { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 18px; text-align: center; }
+  .header .meta-item .num { font-size: 28px; font-weight: 700; }
+  .header .meta-item .lbl { font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
 
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  
+  .section-title { font-size: 18px; font-weight: 700; color: #1e3a5f; margin-bottom: 20px; 
+    padding-bottom: 10px; border-bottom: 3px solid #2d6a9f; display: flex; align-items: center; gap: 10px; }
+  .section-title .icon { font-size: 22px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .grid-1 { margin-bottom: 32px; }
+  
+  .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card h3 { font-size: 14px; font-weight: 600; color: #4a5568; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .chart-wrap { position: relative; height: 260px; }
+  .chart-wrap-lg { position: relative; height: 340px; }
+  .chart-wrap-sm { position: relative; height: 200px; }
+
+  /* Priority badges */
+  .priority-list { list-style: none; }
+  .priority-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+  .priority-item:last-child { border-bottom: none; }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; min-width: 36px; text-align: center; }
+  .badge-red { background: #fed7d7; color: #c53030; }
+  .badge-orange { background: #feebc8; color: #c05621; }
+  .badge-yellow { background: #fefcbf; color: #975a16; }
+  .badge-green { background: #c6f6d5; color: #276749; }
+  .priority-label { font-size: 13px; font-weight: 600; flex: 1; }
+  .priority-bar-wrap { flex: 0 0 120px; height: 8px; background: #e2e8f0; border-radius: 4px; }
+  .priority-bar { height: 100%; border-radius: 4px; }
+
+  /* AI section */
+  .ai-highlight { background: linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%); border: 2px solid #81e6d9; border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+  .ai-highlight h2 { color: #1a7f74; font-size: 18px; margin-bottom: 16px; }
+
+  .ai-card { background: white; border-radius: 10px; padding: 20px; border-left: 4px solid; }
+  .ai-card.priority-1 { border-color: #e53e3e; }
+  .ai-card.priority-2 { border-color: #dd6b20; }
+  .ai-card.priority-3 { border-color: #d69e2e; }
+  .ai-card.priority-4 { border-color: #38a169; }
+  .ai-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .ai-card p { font-size: 12px; color: #4a5568; line-height: 1.6; }
+  .ai-card .tag { display: inline-block; background: #ebf8ff; color: #2b6cb0; font-size: 11px; 
+    padding: 2px 8px; border-radius: 12px; margin: 4px 2px 0; }
+
+  /* Time shift */
+  .time-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 13px; }
+  .time-label { width: 160px; font-weight: 600; color: #2d3748; }
+  .time-bar-container { flex: 1; display: flex; gap: 4px; }
+  .time-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 700; transition: all 0.3s; }
+  .time-arrow { font-size: 16px; }
+  .bar-current { background: #718096; }
+  .bar-desired { background: #48bb78; }
+  
+  /* Satisfaction */
+  .sat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+  .sat-label { width: 200px; }
+  .sat-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; color: white; font-size: 11px; font-weight: 600; }
+
+  /* Score grid */
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .score-item { background: #f7fafc; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+  .score-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+  .score-text { font-size: 11px; color: #4a5568; line-height: 1.4; }
+  .score-text strong { font-size: 13px; color: #1a202c; display: block; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #f6ad55; border-radius: 8px; padding: 14px 16px; margin-top: 12px; font-size: 12px; color: #744210; line-height: 1.6; }
+  .insight-box strong { color: #c05621; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔍 Badanie Doświadczeń Testerów – Analiza & Rekomendacje AI</h1>
+  <p>Identyfikacja obszarów do usprawnień przy pomocy sztucznej inteligencji</p>
+  <div class="meta">
+    <div class="meta-item"><div class="num">68</div><div class="lbl">Respondentów</div></div>
+    <div class="meta-item"><div class="num">81%</div><div class="lbl">Wysoka/Bardzo wysoka satysfakcja</div></div>
+    <div class="meta-item"><div class="num">#1</div><div class="lbl">Problem: Stabilność środowisk</div></div>
+    <div class="meta-item"><div class="num">70%</div><div class="lbl">Używa AI regularnie</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOP PRIORITIES -->
+  <div class="grid-1">
+    <div class="card">
+      <div class="section-title"><span class="icon">🎯</span> Obszary wskazane do ulepszenia – głosy testerów</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+        <div>
+          <ul class="priority-list">
+            <li class="priority-item">
+              <span class="badge badge-red">50</span>
+              <span class="priority-label">🖥️ 7. Stabilność i dostępność środowisk testowych</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:100%;background:#e53e3e;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-orange">21</span>
+              <span class="priority-label">🤝 6. Współpraca z innymi zespołami / systemami</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:42%;background:#dd6b20;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-orange">21</span>
+              <span class="priority-label">🤖 8. Stabilność testów automatycznych</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:42%;background:#dd6b20;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-yellow">20</span>
+              <span class="priority-label">📄 4. Jasność wymagań i kryteriów akceptacji</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:40%;background:#d69e2e;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-yellow">16</span>
+              <span class="priority-label">🧠 3. Czas na skupioną pracę</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:32%;background:#d69e2e;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-green">8</span>
+              <span class="priority-label">📋 2. Planowanie i priorytetyzacja testów</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:16%;background:#38a169;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-green">4</span>
+              <span class="priority-label">🐛 5. Obsługa defektów i komunikacja</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:8%;background:#48bb78;"></div></div>
+            </li>
+            <li class="priority-item">
+              <span class="badge badge-green">3</span>
+              <span class="priority-label">✅ 1. Wpływ na jakość</span>
+              <div class="priority-bar-wrap"><div class="priority-bar" style="width:6%;background:#68d391;"></div></div>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="votesChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORES + SATISFACTION -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title"><span class="icon">📊</span> Oceny obszarów procesowych (1–5)</div>
+      <div class="chart-wrap-lg">
+        <canvas id="scoresChart"></canvas>
+      </div>
+      <div class="insight-box">
+        <strong>⚠️ Najsłabsze obszary:</strong> Stabilność środowisk testowych (3.41), czas na skupioną pracę (3.78) i małe przyrostowe zmiany (3.73) – tu testerzy widzą największe bariery codziennej pracy.
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="icon">😊</span> Satysfakcja z pracy</div>
+      <div style="margin-bottom: 12px;">
+        <div class="sat-row"><div class="sat-label">Bardzo wysoka satysfakcja</div><div class="sat-bar" style="width:132px;background:#276749;">15 os. (22%)</div></div>
+        <div class="sat-row"><div class="sat-label">Wysoka satysfakcja</div><div class="sat-bar" style="width:264px;background:#38a169;">40 os. (59%)</div></div>
+        <div class="sat-row"><div class="sat-label">Średnia satysfakcja</div><div class="sat-bar" style="width:80px;background:#d69e2e;">8 os. (12%)</div></div>
+        <div class="sat-row"><div class="sat-label">Niska satysfakcja</div><div class="sat-bar" style="width:36px;background:#e53e3e;">3 os. (4%)</div></div>
+      </div>
+      <div class="insight-box">
+        <strong>✅ Dobra wiadomość:</strong> Aż <strong>81%</strong> testerów deklaruje wysoką lub bardzo wysoką satysfakcję z pracy. Problemy nie podważają motywacji – to szansa, by jeszcze bardziej usprawnić pracę i ją utrzymać.
+      </div>
+
+      <div class="section-title" style="margin-top: 20px;"><span class="icon">⏱️</span> Straty czasu – środowiska</div>
+      <div class="chart-wrap-sm">
+        <canvas id="envLossChart"></canvas>
+      </div>
+      <div class="insight-box" style="margin-top: 8px;">
+        <strong>🔴 25 testerów</strong> traci ponad 2 godz./tyg. na niestabilne środowiska – to ok. <strong>250+ roboczogodzin miesięcznie</strong> w całym zespole.
+      </div>
+    </div>
+  </div>
+
+  <!-- TIME SHIFT -->
+  <div class="card grid-1">
+    <div class="section-title"><span class="icon">🔄</span> Jak AI może przesunąć strukturę czasu pracy?</div>
+    <p style="font-size:13px;color:#4a5568;margin-bottom:20px;">Testerzy wskazali, jak chcieliby rozdzielać czas przy wsparciu AI w porównaniu do obecnego stanu:</p>
+    
+    <div style="margin-bottom: 8px; display: flex; gap: 20px; font-size: 12px;">
+      <span><span style="display:inline-block;width:14px;height:14px;background:#718096;border-radius:3px;vertical-align:middle;margin-right:4px;"></span>Aktualnie</span>
+      <span><span style="display:inline-block;width:14px;height:14px;background:#48bb78;border-radius:3px;vertical-align:middle;margin-right:4px;"></span>Docelowo z AI</span>
+    </div>
+
+    <div class="time-row">
+      <div class="time-label">📝 Tworzenie TC</div>
+      <div class="time-bar-container">
+        <div class="time-bar bar-current" style="width:122px;">12%</div>
+        <div class="time-bar" style="background:#90cdf4;color:#2b6cb0;padding:0 6px;font-size:11px;">→</div>
+        <div class="time-bar bar-desired" style="width:147px;">15% <span style="opacity:0.7">(+3%)</span></div>
+      </div>
+    </div>
+    <div class="time-row">
+      <div class="time-label">▶️ Wykonywanie testów</div>
+      <div class="time-bar-container">
+        <div class="time-bar bar-current" style="width:346px;">35%</div>
+        <div class="time-bar" style="background:#fed7d7;color:#c53030;padding:0 6px;font-size:11px;">→</div>
+        <div class="time-bar bar-desired" style="width:94px;background:#e53e3e;">9% <span style="opacity:0.7">(−26%)</span></div>
+      </div>
+    </div>
+    <div class="time-row">
+      <div class="time-label">⚙️ Automatyzacja</div>
+      <div class="time-bar-container">
+        <div class="time-bar bar-current" style="width:152px;">15%</div>
+        <div class="time-bar" style="background:#c6f6d5;color:#276749;padding:0 6px;font-size:11px;">→</div>
+        <div class="time-bar bar-desired" style="width:266px;">27% <span style="opacity:0.7">(+12%)</span></div>
+      </div>
+    </div>
+    <div class="time-row">
+      <div class="time-label">🐛 Analiza defektów</div>
+      <div class="time-bar-container">
+        <div class="time-bar bar-current" style="width:154px;">15%</div>
+        <div class="time-bar" style="background:#90cdf4;color:#2b6cb0;padding:0 6px;font-size:11px;">→</div>
+        <div class="time-bar bar-desired" style="width:124px;">12% <span style="opacity:0.7">(−3%)</span></div>
+      </div>
+    </div>
+    <div class="time-row">
+      <div class="time-label">📅 Spotkania</div>
+      <div class="time-bar-container">
+        <div class="time-bar bar-current" style="width:180px;">18%</div>
+        <div class="time-bar" style="background:#fed7d7;color:#c53030;padding:0 6px;font-size:11px;">→</div>
+        <div class="time-bar bar-desired" style="width:38px;background:#e53e3e;">4% <span style="opacity:0.7">(−14%)</span></div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="margin-top: 16px;">
+      <strong>🎯 Kluczowy wniosek:</strong> Testerzy chcą <strong>drastycznie zmniejszyć manualne wykonywanie testów</strong> (−26 p.p.) na rzecz <strong>automatyzacji (+12 p.p.)</strong>. AI jako generator testów i wsparcie automatyzacji jest tutaj głównym lewadem.
+    </div>
+  </div>
+
+  <!-- AI USAGE -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title"><span class="icon">🤖</span> Aktualne wykorzystanie AI</div>
+      <div class="chart-wrap">
+        <canvas id="aiUsageChart"></canvas>
+      </div>
+      <div class="insight-box">
+        <strong>70% testerów używa AI regularnie</strong> (codziennie lub kilka razy w tygodniu). Tylko 1 osoba nigdy nie używała. AI jest już częścią toolboxa – pytanie brzmi: <em>jak go rozbudować?</em>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="icon">⏰</span> Oszczędność czasu dzięki AI</div>
+      <div class="chart-wrap">
+        <canvas id="aiSavingsChart"></canvas>
+      </div>
+      <div class="insight-box">
+        <strong>20 testerów</strong> nie wie ile czasu oszczędza – to sygnał braku narzędzi do pomiaru ROI z AI. <strong>12 osób</strong> oszczędza 4+ godz./tyg. – dowód, że AI działa.
+      </div>
+    </div>
+  </div>
+
+  <!-- AI RECOMMENDATIONS -->
+  <div class="ai-highlight">
+    <h2>🚀 Rekomendacje: Gdzie AI da największy zwrot?</h2>
+    <p style="font-size:13px;color:#285e61;margin-bottom:20px;">Mapowanie bólu testerów → konkretne zastosowania AI, priorytetyzowane wg liczby głosów i wpływu na czas</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      
+      <div class="ai-card priority-1">
+        <h4>🔴 PRIORYTET 1 — Stabilność środowisk testowych (50 głosów)</h4>
+        <p>Testerzy tracą <strong>2–4+ godz./tyg.</strong> na niestabilne środowiska. AI może monitorować stan środowisk w czasie rzeczywistym, przewidywać awarie i automatycznie restartować usługi. Inteligentny scheduler może dynamicznie przydzielać testerów do dostępnych środowisk.</p>
+        <span class="tag">AI health monitoring</span>
+        <span class="tag">Predictive alerting</span>
+        <span class="tag">Auto-recovery scripts</span>
+      </div>
+
+      <div class="ai-card priority-2">
+        <h4>🟠 PRIORYTET 2 — Stabilność testów automatycznych (21 głosów)</h4>
+        <p>AI może <strong>analizować flaky tests</strong>, identyfikować wzorce niestabilności i proponować poprawki. Modele LLM mogą generować bardziej odporne scenariusze testowe, a AI-assisted self-healing selektory mogą redukować maintenance testów UI. Testerzy chcą przeznaczyć na automatyzację 27% czasu (vs 15% dziś).</p>
+        <span class="tag">Flaky test detection</span>
+        <span class="tag">Self-healing selectors</span>
+        <span class="tag">AI test generation</span>
+      </div>
+
+      <div class="ai-card priority-3">
+        <h4>🟡 PRIORYTET 3 — Jasność wymagań (20 głosów)</h4>
+        <p>AI może <strong>analizować dokumenty wymagań</strong> pod kątem niejasności, niespójności i brakujących kryteriów akceptacji. LLM może automatycznie generować pytania wyjaśniające, sugerować przypadki brzegowe i tworzyć szkielet przypadków testowych już na etapie refinementu.</p>
+        <span class="tag">Requirements analysis</span>
+        <span class="tag">AC generation</span>
+        <span class="tag">Gap detection</span>
+      </div>
+
+      <div class="ai-card priority-4">
+        <h4>🟢 PRIORYTET 4 — Skupiona praca / przerywniki (16 głosów)</h4>
+        <p>AI chatbot/asystent może <strong>przejąć typowe pytania ad-hoc</strong> – status bugów, wyjaśnienia testów, wyszukiwanie w dokumentacji. 43 testerów jest przerywanych 1-6 razy dziennie. AI jako "first line support" w zespole może odciążyć seniorów i pozwolić na głębszą pracę.</p>
+        <span class="tag">AI Q&A bot</span>
+        <span class="tag">Smart notifications</span>
+        <span class="tag">Context-aware docs</span>
+      </div>
+
+    </div>
+    <div class="insight-box" style="margin-top: 16px; background: #e6fffa; border-color: #38b2ac;">
+      <strong>💡 Quick win:</strong> Respondent wprost sugeruje zmianę narzędzia – <em>"wolałbym używać Claude zamiast Copilot"</em>. Warto rozważyć wdrożenie Claude jako asystenta testowego z kontekstem specyficznym dla projektów.
+    </div>
+  </div>
+
+  <!-- INEFFICIENCIES -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title"><span class="icon">🚧</span> Straty czasu i nieefektywności</div>
+      <div class="chart-wrap">
+        <canvas id="wasteChart"></canvas>
+      </div>
+      <div class="insight-box">
+        <strong>31 testerów</strong> traci 10–20%+ czasu z powodu braku decyzji, zmian zakresu, konfliktów priorytetów. AI może wspierać priorytetyzację i śledzenie blokad.
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="icon">🐛</span> Problemy z procesem defektów</div>
+      <div style="margin: 16px 0;">
+        <p style="font-size:13px;font-weight:600;color:#4a5568;margin-bottom:10px;">Naprawy defektów spóźnione / bez feedbacku:</p>
+        <div class="sat-row"><div class="sat-label">Nigdy</div><div class="sat-bar" style="width:190px;background:#276749;">19 os. (28%)</div></div>
+        <div class="sat-row"><div class="sat-label">Rzadko</div><div class="sat-bar" style="width:320px;background:#38a169;">32 os. (47%)</div></div>
+        <div class="sat-row"><div class="sat-label">Czasem</div><div class="sat-bar" style="width:110px;background:#d69e2e;">11 os. (16%)</div></div>
+        <div class="sat-row"><div class="sat-label">Zawsze/Często</div><div class="sat-bar" style="width:20px;background:#e53e3e;">2</div></div>
+      </div>
+      <p style="font-size:13px;font-weight:600;color:#4a5568;margin: 16px 0 10px;">Wdrożenia mimo otwartych bugów HP:</p>
+      <div class="sat-row"><div class="sat-label">Nigdy</div><div class="sat-bar" style="width:280px;background:#276749;">38 os. (56%)</div></div>
+      <div class="sat-row"><div class="sat-label">Rzadko</div><div class="sat-bar" style="width:110px;background:#38a169;">15 os. (22%)</div></div>
+      <div class="sat-row"><div class="sat-label">Nie wiem</div><div class="sat-bar" style="width:100px;background:#718096;">13 os.</div></div>
+      <div class="insight-box" style="margin-top: 8px;">
+        <strong>✅ Relatywnie dobrze:</strong> Procesy zarządzania defektami i wdrożeń działają sprawnie. Nie jest to priorytet dla AI w pierwszym kroku.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Votes chart
+new Chart(document.getElementById('votesChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Środowiska testowe', 'Współpraca zespołów', 'Testy automatyczne', 'Jasność wymagań', 'Skupiona praca', 'Planowanie', 'Defekty', 'Jakość'],
+    datasets: [{ data: [50,21,21,20,16,8,4,3], backgroundColor: ['#e53e3e','#dd6b20','#ed8936','#d69e2e','#ecc94b','#38a169','#48bb78','#68d391'], borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 14 } } } }
+});
+
+// Scores chart
+new Chart(document.getElementById('scoresChart'), {
+  type: 'bar',
+  data: {
+    labels: ['6. Środowiska', '12. Przyrost. zmiany', '4. Skupiona praca', '8. Współpraca→termin', '5. Jakość wymagań', '10. Testy auto', '3. Planowanie', '13. Wdrożenia', '7. Zgłaszanie def.', '11. Weryfikacja', '2. Wpływ na jakość', '1. Incydenty', '9. Współpraca'],
+    datasets: [{ label: 'Średnia ocena (1–5)', data: [3.41,3.73,3.78,3.85,3.97,4.00,4.15,4.21,4.22,4.38,4.49,4.56,4.63], backgroundColor: [
+      '#e53e3e','#e53e3e','#e53e3e','#dd6b20','#d69e2e','#d69e2e','#38a169','#38a169','#38a169','#38a169','#276749','#276749','#276749'
+    ], borderRadius: 4 }]
+  },
+  options: { 
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false, 
+    scales: { x: { min: 1, max: 5, grid: { color: '#eee' } }, y: { ticks: { font: { size: 11 } } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Env loss chart
+new Chart(document.getElementById('envLossChart'), {
+  type: 'bar',
+  data: {
+    labels: ['<30 min', '30-60 min', '1-2 godz.', '2-4 godz.', '>4 godz.', 'N/D'],
+    datasets: [{ data: [14,10,14,16,9,5], backgroundColor: ['#68d391','#38a169','#d69e2e','#e53e3e','#c53030','#a0aec0'], borderRadius: 4 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#eee' } } } }
+});
+
+// AI usage
+new Chart(document.getElementById('aiUsageChart'), {
+  type: 'pie',
+  data: {
+    labels: ['Codziennie', 'Kilka razy/tydzień', 'Kilka razy/miesiąc', 'Rzadko', 'Nigdy'],
+    datasets: [{ data: [16,31,9,11,1], backgroundColor: ['#276749','#38a169','#68d391','#d69e2e','#e53e3e'], borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 14 } } } }
+});
+
+// AI savings
+new Chart(document.getElementById('aiSavingsChart'), {
+  type: 'bar',
+  data: {
+    labels: ['<1 godz.', '1-2 godz.', '2-4 godz.', '4-6 godz.', '6-8 godz.', 'Nie wiem'],
+    datasets: [{ data: [8,20,8,6,6,20], backgroundColor: ['#90cdf4','#48bb78','#38a169','#276749','#1c4532','#a0aec0'], borderRadius: 4 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#eee' } } } }
+});
+
+// Waste
+new Chart(document.getElementById('wasteChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['0%', '10%', '20%', '30%', '40%', 'Nie wiem'],
+    datasets: [{ data: [9,15,14,4,3,23], backgroundColor: ['#276749','#68d391','#d69e2e','#dd6b20','#e53e3e','#a0aec0'], borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 14 } } } }
+});
+</script>
+</body>
+</html>
