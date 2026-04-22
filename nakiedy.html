@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Forecast</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14; --surface:#141820; --surface2:#1c2230; --border:#252d3d;
+    --accent:#4fffb0; --accent2:#ff6b6b; --accent3:#ffd166;
+    --blue:#7eb8ff; --purple:#c084fc; --orange:#fb923c;
+    --text:#e8ecf4; --muted:#6b7a99;
+    --clear:#4fffb0; --partial:#ffd166; --unclear:#ff6b6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(79,255,176,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(79,255,176,.03) 1px,transparent 1px);
+    background-size:40px 40px;pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:'';position:fixed;top:-120px;left:-120px;width:500px;height:500px;
+    background:radial-gradient(circle,rgba(79,255,176,.06) 0%,transparent 70%);
+    pointer-events:none;z-index:0;
+  }
+  .wrapper{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:40px 24px 80px;}
+  header{margin-bottom:40px;}
+  .tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:block;}
+  h1{font-family:'Fraunces',serif;font-size:clamp(26px,4vw,44px);font-weight:300;line-height:1.15;}
+  h1 em{font-style:italic;color:var(--accent);}
+  .subtitle{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.6;}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:22px;align-items:start;}
+  @media(max-width:800px){.layout{grid-template-columns:1fr;}}
+  .left-col{display:flex;flex-direction:column;gap:16px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .left-col .card:nth-child(1){border-top:2px solid var(--accent);}
+  .left-col .card:nth-child(2){border-top:2px solid var(--blue);}
+  .left-col .card:nth-child(3){border-top:2px solid var(--orange);}
+  .left-col .card:nth-child(4){border-top:2px solid var(--purple);}
+  .left-col .card:nth-child(5){border-top:2px solid var(--partial);}
+  .card-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card-title::before{content:'';display:inline-block;width:6px;height:6px;background:var(--accent);border-radius:50%;}
+  .card:nth-child(1) .card-title::before{background:var(--accent);}
+  .card:nth-child(2) .card-title::before{background:var(--blue);}
+  .card:nth-child(3) .card-title::before{background:var(--purple);}
+  .card:nth-child(4) .card-title::before{background:var(--partial);}
+  .card:nth-child(5) .card-title::before{background:var(--orange);}
+
+  /* velocity */
+  .velocity-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .vel-row{display:flex;align-items:center;gap:8px;}
+  .vel-label{font-size:11px;color:var(--muted);width:56px;flex-shrink:0;}
+  .vel-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;padding:6px 8px;width:62px;text-align:center;transition:border-color .2s;}
+  .vel-input:focus{outline:none;border-color:var(--accent);}
+  .vel-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .vel-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));border-radius:2px;opacity:.75;transition:width .3s;}
+  .vel-unit{font-size:10px;color:var(--muted);width:30px;text-align:right;flex-shrink:0;}
+  .vel-actions{display:flex;gap:8px;}
+  .btn-sm{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;padding:5px 10px;cursor:pointer;transition:all .2s;}
+  .btn-sm.add:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-sm.rem:hover{border-color:var(--accent2);color:var(--accent2);}
+
+  /* team */
+  .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .param-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .param-box label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+  .param-num{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:22px;font-weight:500;padding:7px 10px;text-align:center;width:100%;transition:border-color .2s;}
+  .param-num:focus{outline:none;border-color:var(--accent);}
+  .param-sub{font-size:10px;color:var(--muted);margin-top:5px;text-align:center;line-height:1.4;}
+  .focus-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .focus-box label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+  .focus-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .focus-pct{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--blue);}
+  .focus-desc{font-size:10px;color:var(--muted);line-height:1.5;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;margin:8px 0;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 0 6px rgba(126,184,255,.5);}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;border:none;}
+
+  /* clarity */
+  .bk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .bk-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;}
+  .bk-stat .val{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1;margin-bottom:3px;}
+  .bk-stat .lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+  .bk-stat.c{border-color:rgba(79,255,176,.25);background:rgba(79,255,176,.04);}
+  .bk-stat.c .val{color:var(--clear);}
+  .bk-stat.p{border-color:rgba(255,209,102,.25);background:rgba(255,209,102,.04);}
+  .bk-stat.p .val{color:var(--partial);}
+  .bk-stat.u{border-color:rgba(255,107,107,.25);background:rgba(255,107,107,.04);}
+  .bk-stat.u .val{color:var(--unclear);}
+  .clarity-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .clarity-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .clarity-text{flex:1;}
+  .ct-main{font-size:12px;color:var(--text);}
+  .ct-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+  .clarity-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;padding:6px 8px;width:62px;text-align:center;transition:border-color .2s;}
+  .clarity-input:focus{outline:none;border-color:var(--accent);}
+  .total-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);margin-top:2px;}
+  .total-badge.ok{border-color:var(--clear);color:var(--clear);}
+  .total-badge.bad{border-color:var(--unclear);color:var(--unclear);}
+
+  /* date & run */
+  .date-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 12px;width:100%;transition:border-color .2s;}
+  .date-input:focus{outline:none;border-color:var(--accent);}
+  .run-btn{width:100%;background:linear-gradient(90deg,var(--accent),var(--blue));color:#0d0f14;border:none;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:1px;padding:13px;cursor:pointer;transition:opacity .2s,transform .1s;text-transform:uppercase;}
+  .run-btn:hover{opacity:.85;} .run-btn:active{transform:scale(.98);}
+
+  /* results */
+  .results{display:flex;flex-direction:column;gap:16px;}
+  .result-hero{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:26px 22px;position:relative;overflow:hidden;}
+  .result-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);}
+  .hero-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:7px;}
+  .hero-date{font-family:'Fraunces',serif;font-size:clamp(22px,3.5vw,36px);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:5px;}
+  .hero-sub{font-size:12px;color:var(--muted);}
+  .prob-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .prob-table table{width:100%;border-collapse:collapse;}
+  .prob-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);}
+  .prob-table td{font-size:12px;padding:9px 14px;border-bottom:1px solid rgba(37,45,61,.5);}
+  .prob-table tr:last-child td{border-bottom:none;}
+  .prob-table tr.hl td{background:rgba(79,255,176,.05);}
+  .prob-table tr.hl td:first-child{color:var(--accent);font-weight:500;}
+  .prob-table tr.hl td:first-child{color:var(--accent);font-weight:500;}
+  .pbar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden;min-width:80px;}
+  .pbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--accent));}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  canvas#distChart{width:100%!important;}
+  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .pchip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center;}
+  .pchip .pn{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1;color:var(--accent);}
+  .pchip .pl{font-size:10px;color:var(--muted);margin-top:3px;}
+  .assumption-box{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:8px;padding:13px 15px;font-size:11px;color:var(--muted);line-height:1.7;}
+  .assumption-box strong{color:var(--purple);}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px;line-height:2;}
+  .empty-state .ei{font-size:36px;display:block;margin-bottom:12px;opacity:.4;}
+
+  /* capacity weakening */
+  .weak-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .weak-row{display:grid;grid-template-columns:1fr 1fr auto auto;gap:6px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:8px;padding:8px 10px;}
+  .weak-row input[type=text]{background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:5px 7px;width:100%;transition:border-color .2s;}
+  .weak-row input[type=text]:focus{outline:none;border-color:var(--accent);}
+  .weak-pct-wrap{display:flex;align-items:center;gap:4px;}
+  .weak-pct{background:var(--surface);border:1px solid rgba(251,146,60,.3);border-radius:5px;color:var(--orange);font-family:'DM Mono',monospace;font-size:13px;padding:5px 6px;width:52px;text-align:center;transition:border-color .2s;}
+  .weak-pct:focus{outline:none;border-color:var(--accent2);}
+  .weak-del{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-size:14px;width:26px;height:26px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+  .weak-del:hover{border-color:var(--accent2);color:var(--accent2);}
+  .weak-empty{font-size:11px;color:var(--muted);text-align:center;padding:10px 0;}
+  .weak-sprint-badge{font-size:10px;color:var(--orange);white-space:nowrap;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <span class="tag">// forecast tool v2.0</span>
+    <h1>Kiedy dowieziemy?<br><em>Monte Carlo</em> delivery forecast</h1>
+    <p class="subtitle">10 000 iteracji · velocity w itemach · uwzględnia niejasności, focus i skład zespołu</p>
+  </header>
+
+  <div class="layout">
+    <div class="left-col">
+
+      <!-- Velocity -->
+      <div class="card">
+        <div class="card-title">Historia velocity (itemy / sprint)</div>
+        <div class="velocity-list" id="velList"></div>
+        <div class="vel-actions">
+          <button class="btn-sm add" onclick="addVel()">+ dodaj sprint</button>
+          <button class="btn-sm rem" onclick="remVel()">− usuń</button>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="card">
+        <div class="card-title">Parametry zespołu</div>
+        <div class="team-grid">
+          <div class="param-box">
+            <label>Developerzy (teraz)</label>
+            <input type="number" class="param-num" id="devNow" value="4" min="1" max="50" oninput="onTeamChange()">
+            <div class="param-sub" id="devNowSub">aktualny skład</div>
+          </div>
+          <div class="param-box">
+            <label>Dev. przy pomiarze</label>
+            <input type="number" class="param-num" id="devBase" value="4" min="1" max="50" oninput="onTeamChange()">
+            <div class="param-sub">skład historyczny</div>
+          </div>
+        </div>
+        <div class="focus-box">
+          <label>Focus na tym projekcie</label>
+          <div class="focus-header">
+            <div class="focus-pct" id="focusPct">100%</div>
+            <div style="font-size:10px;color:var(--muted)">czasu zespołu</div>
+          </div>
+          <input type="range" id="focusSlider" min="10" max="100" value="100" step="5" oninput="onFocusChange()">
+          <div class="focus-desc" id="focusDesc">Zespół zajmuje się <strong style="color:var(--text)">wyłącznie</strong> tym projektem</div>
+        </div>
+      </div>
+
+      <!-- Clarity -->
+      <div class="card">
+        <div class="card-title">Backlog — liczba itemów i jasność</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:11px 14px;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;">
+          <div>
+            <div style="font-size:12px;color:var(--text);font-weight:500">Łączna liczba itemów</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">user story, wymagania, taski</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" class="param-num" id="totalItems" value="100" min="1" max="9999" oninput="onClarity()" style="width:88px;font-size:20px;">
+            <span style="color:var(--muted);font-size:11px">items</span>
+          </div>
+        </div>
+        <div class="bk-stats">
+          <div class="bk-stat c"><div class="val" id="bkC">60</div><div class="lbl">jasne</div></div>
+          <div class="bk-stat p"><div class="val" id="bkP">30</div><div class="lbl">częściowo</div></div>
+          <div class="bk-stat u"><div class="val" id="bkU">10</div><div class="lbl">niejasne</div></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Podaj % udział każdej kategorii (suma = 100%)</div>
+        <div class="clarity-row">
+          <div class="clarity-dot" style="background:var(--clear)"></div>
+          <div class="clarity-text">
+            <div class="ct-main">Jasne wymagania</div>
+            <div class="ct-sub">mnożnik ×1.0 — brak narzutu</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px">
+            <input type="number" class="clarity-input" id="inC" value="60" min="0" max="100" oninput="onClarity()">
+            <span style="color:var(--muted);font-size:11px">%</span>
+          </div>
+        </div>
+        <div class="clarity-row">
+          <div class="clarity-dot" style="background:var(--partial)"></div>
+          <div class="clarity-text">
+            <div class="ct-main">Częściowo niejasne</div>
+            <div class="ct-sub">mnożnik ×1.3 — ryzyko doprecyzowania</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px">
+            <input type="number" class="clarity-input" id="inP" value="30" min="0" max="100" oninput="onClarity()">
+            <span style="color:var(--muted);font-size:11px">%</span>
+          </div>
+        </div>
+        <div class="clarity-row">
+          <div class="clarity-dot" style="background:var(--unclear)"></div>
+          <div class="clarity-text">
+            <div class="ct-main">Niejasne / nierozumiane</div>
+            <div class="ct-sub">mnożnik ×1.6 — wysokie ryzyko</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px">
+            <input type="number" class="clarity-input" id="inU" value="10" min="0" max="100" oninput="onClarity()">
+            <span style="color:var(--muted);font-size:11px">%</span>
+          </div>
+        </div>
+        <div class="total-badge ok" id="totalBadge">Suma: 100% ✓</div>
+      </div>
+
+      <!-- Weakening -->
+      <div class="card">
+        <div class="card-title">Osłabienia zespołu (urlopy, święta)</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+          Dodaj sprinty z obniżoną capacity — np. urlopy letnie, przerwa świąteczna.<br>
+          Podaj zakres dat lub numer sprintu i % dostępności zespołu.
+        </div>
+        <div class="weak-list" id="weakList">
+          <div class="weak-empty" id="weakEmpty">Brak osłabień — kliknij „+ dodaj" aby dodać</div>
+        </div>
+        <button class="btn-sm add" onclick="addWeak()" style="width:100%;text-align:center">+ dodaj osłabienie</button>
+      </div>
+
+      <!-- Date -->
+      <div class="card">
+        <div class="card-title">Data startu</div>
+        <input type="date" class="date-input" id="startDate" value="2026-05-04" oninput="renderWeakList()">
+      </div>
+
+      <button class="run-btn" onclick="run()">▶ Uruchom symulację (10 000 iteracji)</button>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="results" id="results">
+      <div class="empty-state">
+        <span class="ei">◎</span>
+        Uzupełnij parametry i kliknij<br>
+        <strong style="color:var(--text)">Uruchom symulację</strong><br>
+        aby zobaczyć prognozę
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let velocities = [5,4,4,5,6,7];
+function getItems(){ return Math.max(1, +document.getElementById('totalItems').value || 100); }
+
+function renderVelList(){
+  const el = document.getElementById('velList');
+  const max = Math.max(...velocities,1);
+  el.innerHTML = velocities.map((v,i)=>`
+    <div class="vel-row">
+      <span class="vel-label">Sprint ${i+1}</span>
+      <input type="number" class="vel-input" value="${v}" min="1" max="999"
+        oninput="velocities[${i}]=Math.max(1,parseInt(this.value)||1);renderVelList()">
+      <div class="vel-bar-wrap"><div class="vel-bar" style="width:${(v/max*100).toFixed(0)}%"></div></div>
+      <span class="vel-unit">${v} it</span>
+    </div>`).join('');
+}
+
+function addVel(){
+  velocities.push(Math.round(velocities.reduce((a,b)=>a+b,0)/velocities.length));
+  renderVelList();
+}
+function remVel(){
+  if(velocities.length>2){velocities.pop();renderVelList();}
+}
+
+function onFocusChange(){
+  const v = +document.getElementById('focusSlider').value;
+  document.getElementById('focusPct').textContent = v+'%';
+  const pct100 = v===100;
+  const desc = pct100
+    ? 'Zespół zajmuje się <strong style="color:var(--text)">wyłącznie</strong> tym projektem'
+    : v>=70
+    ? `<strong style="color:var(--text)">${100-v}%</strong> czasu pochłaniają inne tematy`
+    : `Duże rozproszenie — <strong style="color:var(--accent2)">${100-v}%</strong> czasu poza projektem`;
+  document.getElementById('focusDesc').innerHTML = desc;
+  onTeamChange();
+}
+
+function onTeamChange(){
+  const now = Math.max(1,+document.getElementById('devNow').value||1);
+  const base = Math.max(1,+document.getElementById('devBase').value||1);
+  const focus = (+document.getElementById('focusSlider').value||100)/100;
+  const factor = (now/base)*focus;
+  const sub = factor===1?'taki sam skład + 100% focus':
+    `współczynnik skali: ×${factor.toFixed(2)}`;
+  document.getElementById('devNowSub').textContent = sub;
+}
+
+function onClarity(){
+  const items=getItems();
+  const c=+document.getElementById('inC').value||0;
+  const p=+document.getElementById('inP').value||0;
+  const u=+document.getElementById('inU').value||0;
+  const total=c+p+u;
+  document.getElementById('bkC').textContent=Math.round(c/100*items);
+  document.getElementById('bkP').textContent=Math.round(p/100*items);
+  document.getElementById('bkU').textContent=Math.round(u/100*items);
+  const badge=document.getElementById('totalBadge');
+  badge.textContent=total===100?`Suma: 100% ✓ (${items} items)`:`Suma: ${total}% ≠ 100%`;
+  badge.className='total-badge '+(total===100?'ok':'bad');
+}
+
+function effectiveBacklog(){
+  const items=getItems();
+  const c=+document.getElementById('inC').value||0;
+  const p=+document.getElementById('inP').value||0;
+  const u=+document.getElementById('inU').value||0;
+  const fc=(c/100)*items, fp=(p/100)*items, fu=(u/100)*items;
+  return{eff:fc*1.0+fp*1.3+fu*1.6, rawItems:items,
+    c:Math.round(fc), p:Math.round(fp), u:Math.round(fu)};
+}
+
+// ── Capacity weakening ──
+let weakenings = []; // [{label, fromDate, toDate, pct}]
+
+function addWeak(){
+  const startStr = document.getElementById('startDate').value || '2026-05-04';
+  const startDate = new Date(startStr);
+  // default: suggest next summer block
+  const from = new Date(startDate); from.setMonth(6); from.setDate(1);
+  const to = new Date(from); to.setDate(to.getDate()+27);
+  weakenings.push({
+    label:'Urlopy letnie',
+    from: from.toISOString().slice(0,10),
+    to: to.toISOString().slice(0,10),
+    pct: 60
+  });
+  renderWeakList();
+}
+
+function removeWeak(i){
+  weakenings.splice(i,1);
+  renderWeakList();
+}
+
+function renderWeakList(){
+  const el = document.getElementById('weakList');
+  const empty = document.getElementById('weakEmpty');
+  if(!weakenings.length){
+    el.innerHTML='<div class="weak-empty" id="weakEmpty">Brak osłabień — kliknij „+ dodaj" aby dodać</div>';
+    return;
+  }
+  el.innerHTML = weakenings.map((w,i)=>`
+    <div class="weak-row">
+      <input type="text" value="${w.label}" placeholder="Nazwa (np. urlopy)"
+        oninput="weakenings[${i}].label=this.value">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <input type="date" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 6px;width:100%"
+          value="${w.from}" oninput="weakenings[${i}].from=this.value;renderWeakList()">
+        <input type="date" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 6px;width:100%"
+          value="${w.to}" oninput="weakenings[${i}].to=this.value;renderWeakList()">
+      </div>
+      <div class="weak-pct-wrap">
+        <input type="number" class="weak-pct" value="${w.pct}" min="5" max="100"
+          oninput="weakenings[${i}].pct=Math.min(100,Math.max(5,+this.value||50));renderWeakList()">
+        <span style="font-size:10px;color:var(--muted)">%</span>
+      </div>
+      <button class="weak-del" onclick="removeWeak(${i})" title="Usuń">✕</button>
+    </div>
+    <div class="weak-sprint-badge" id="weakBadge${i}"></div>
+  `).join('');
+  // update sprint range badges
+  const startStr = document.getElementById('startDate').value || '2026-05-04';
+  const startDate = new Date(startStr);
+  weakenings.forEach((w,i)=>{
+    const badge = document.getElementById('weakBadge'+i);
+    if(!badge) return;
+    const fromSprint = dateToSprint(new Date(w.from), startDate);
+    const toSprint   = dateToSprint(new Date(w.to),   startDate);
+    if(fromSprint<=0 && toSprint<=0){ badge.textContent='przed startem projektu'; return; }
+    const f = Math.max(1,fromSprint), t = Math.max(1,toSprint);
+    badge.textContent = f===t ? `→ Sprint ${f} (${w.pct}% capacity)` : `→ Sprinty ${f}–${t} (${w.pct}% capacity)`;
+  });
+}
+
+function dateToSprint(date, startDate){
+  const diff = date - startDate;
+  return Math.floor(diff / (14*24*3600*1000)) + 1;
+}
+
+// get capacity factor for sprint number n (1-based)
+function sprintCapacityFactor(sprintNum, startDate, teamFactor){
+  const sprintStart = new Date(startDate);
+  sprintStart.setDate(sprintStart.getDate() + (sprintNum-1)*14);
+  const sprintEnd = new Date(sprintStart);
+  sprintEnd.setDate(sprintEnd.getDate()+13);
+
+  let overlapFactor = 1.0;
+  for(const w of weakenings){
+    const wFrom = new Date(w.from);
+    const wTo   = new Date(w.to);
+    // check overlap
+    if(sprintStart <= wTo && sprintEnd >= wFrom){
+      // partial overlap: fraction of sprint covered
+      const overlapStart = sprintStart > wFrom ? sprintStart : wFrom;
+      const overlapEnd   = sprintEnd < wTo ? sprintEnd : wTo;
+      const overlapDays  = (overlapEnd - overlapStart)/(24*3600*1000)+1;
+      const fraction     = Math.min(1, overlapDays/14);
+      // blend: non-overlap at 100%, overlap at w.pct%
+      const blended = 1.0 * (1-fraction) + (w.pct/100) * fraction;
+      overlapFactor = Math.min(overlapFactor, blended);
+    }
+  }
+  return teamFactor * overlapFactor;
+}
+
+
+function run(){
+  const SIM=10000;
+  const{eff,c,p,u,rawItems}=effectiveBacklog();
+  const startDate=new Date(document.getElementById('startDate').value);
+  const now=Math.max(1,+document.getElementById('devNow').value||1);
+  const base=Math.max(1,+document.getElementById('devBase').value||1);
+  const focus=(+document.getElementById('focusSlider').value||100)/100;
+  const teamFactor=(now/base)*focus;
+
+  const completions=[];
+  for(let s=0;s<SIM;s++){
+    let rem=eff,sprintNum=1;
+    while(rem>0&&sprintNum<2000){
+      const bv=velocities[Math.floor(Math.random()*velocities.length)];
+      const noise=gaussRand()*0.5;
+      const capFactor = weakenings.length
+        ? sprintCapacityFactor(sprintNum, startDate, teamFactor)
+        : teamFactor;
+      const v=Math.max(0.1,(bv+noise)*capFactor);
+      rem-=v; sprintNum++;
+    }
+    completions.push(sprintNum-1);
+  }
+  completions.sort((a,b)=>a-b);
+
+  const pcts=[50,75,85,90,95];
+  const res={};
+  pcts.forEach(pc=>res[pc]=pctile(completions,pc));
+
+  const toDate=n=>{const d=new Date(startDate);d.setDate(d.getDate()+n*14);return d;};
+  const fmt=d=>d.toLocaleDateString('pl-PL',{day:'numeric',month:'long',year:'numeric'});
+  const fmts=d=>d.toLocaleDateString('pl-PL',{day:'numeric',month:'short',year:'numeric'});
+
+  const bmin=completions[0],bmax=completions[completions.length-1];
+  const buckets={};
+  completions.forEach(v=>buckets[v]=(buckets[v]||0)+1);
+  const bkeys=[],bvals=[];
+  for(let k=bmin;k<=bmax;k++){bkeys.push(k);bvals.push((buckets[k]||0)/SIM*100);}
+
+  const avgVelRaw=(velocities.reduce((a,b)=>a+b,0)/velocities.length);
+  const avgVelScaled=(avgVelRaw*teamFactor).toFixed(1);
+  const focusPct=Math.round(focus*100);
+
+  document.getElementById('results').innerHTML=`
+    <div class="result-hero">
+      <div class="hero-tag">✦ Prognoza przy 85% pewności</div>
+      <div class="hero-date">${fmt(toDate(res[85]))}</div>
+      <div class="hero-sub">Sprint ${res[85]} · ${res[85]*2} tygodnie od startu (${fmts(startDate)})</div>
+    </div>
+
+    <div class="prob-table">
+      <table>
+        <thead><tr>
+          <th>Pewność</th><th>Sprinty</th><th>Szacowana data</th><th>Pasek</th>
+        </tr></thead>
+        <tbody>
+          ${pcts.map(pc=>`
+            <tr ${pc===85?'class="hl"':''}>
+              <td>${pc}%</td>
+              <td>Sprint ${res[pc]}</td>
+              <td>${fmts(toDate(res[pc]))}</td>
+              <td><div class="pbar-bg"><div class="pbar-fill" style="width:${pc}%"></div></div></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-card">
+      <div class="card-title">Rozkład ukończeń (% symulacji)</div>
+      <canvas id="distChart" height="160"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Parametry symulacji</div>
+      <div class="params-grid">
+        <div class="pchip"><div class="pn">${rawItems}</div><div class="pl">backlog (itemy)</div></div>
+        <div class="pchip"><div class="pn">${eff.toFixed(1)}</div><div class="pl">efektywny backlog</div></div>
+        <div class="pchip"><div class="pn">${avgVelScaled}</div><div class="pl">śr. vel. skalowana</div></div>
+        <div class="pchip" style="border-color:rgba(79,255,176,.3)"><div class="pn" style="color:var(--clear)">${c}</div><div class="pl">jasne ×1.0</div></div>
+        <div class="pchip" style="border-color:rgba(255,209,102,.3)"><div class="pn" style="color:var(--partial)">${p}</div><div class="pl">częściowe ×1.3</div></div>
+        <div class="pchip" style="border-color:rgba(255,107,107,.3)"><div class="pn" style="color:var(--unclear)">${u}</div><div class="pl">niejasne ×1.6</div></div>
+        <div class="pchip"><div class="pn">${now}</div><div class="pl">dev. teraz</div></div>
+        <div class="pchip"><div class="pn">${base}</div><div class="pl">dev. przy pomiarze</div></div>
+        <div class="pchip"><div class="pn">${focusPct}%</div><div class="pl">focus na projekt</div></div>
+        <div class="pchip" style="border-color:rgba(255,209,102,.3)"><div class="pn" style="color:var(--partial)">${weakenings.length}</div><div class="pl">osłabień</div></div>
+      </div>
+    </div>
+
+    <div class="assumption-box">
+      <strong>Założenia modelu:</strong><br>
+      Monte Carlo 10 000 iteracji · backlog: <strong>${rawItems} itemów</strong> · velocity historyczna w <em>itemach/sprint</em> ·
+      współczynnik skali = (dev_teraz / dev_baza) × focus% = ×${teamFactor.toFixed(2)} ·
+      efektywny backlog = Σ(itemy × mnożnik_niejasności) ·
+      sprint = 2 tygodnie · start: ${fmts(startDate)}
+    </div>
+  `;
+
+  setTimeout(()=>drawChart(bkeys,bvals,res[85]),50);
+}
+
+function pctile(sorted,p){
+  const idx=Math.ceil(p/100*sorted.length)-1;
+  return sorted[Math.max(0,Math.min(idx,sorted.length-1))];
+}
+function gaussRand(){
+  let u=0,v=0;
+  while(!u)u=Math.random();while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function drawChart(keys,vals,p85){
+  const canvas=document.getElementById('distChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth,H=160;
+  canvas.width=W;canvas.height=H;
+  const maxV=Math.max(...vals,1);
+  const pad={l:28,r:14,t:10,b:26};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+  const bw=Math.max(1.5,cw/keys.length-0.5);
+  ctx.clearRect(0,0,W,H);
+  keys.forEach((k,i)=>{
+    const x=pad.l+(i/keys.length)*cw;
+    const bh=(vals[i]/maxV)*ch;
+    const y=pad.t+ch-bh;
+    // gradient bar: left=blue, right=green for completed; faded for future
+    if(k<=p85){
+      const grad=ctx.createLinearGradient(x,0,x+Math.max(1,bw),0);
+      grad.addColorStop(0,'rgba(126,184,255,.85)');
+      grad.addColorStop(1,'rgba(79,255,176,.75)');
+      ctx.fillStyle=grad;
+    } else {
+      ctx.fillStyle='rgba(79,255,176,.13)';
+    }
+    ctx.fillRect(x,y,Math.max(1,bw),bh);
+  });
+  const ix=keys.indexOf(p85);
+  if(ix>=0){
+    const lx=pad.l+(ix/keys.length)*cw+bw/2;
+    ctx.strokeStyle='#c084fc';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(lx,pad.t);ctx.lineTo(lx,pad.t+ch);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#c084fc';ctx.font='9px DM Mono,monospace';
+    ctx.fillText('85%',lx+3,pad.t+9);
+  }
+  ctx.fillStyle='#6b7a99';ctx.font='9px DM Mono,monospace';
+  const step=Math.ceil(keys.length/8);
+  keys.forEach((k,i)=>{if(i%step===0){const x=pad.l+(i/keys.length)*cw;ctx.fillText(k,x,H-7);}});
+}
+
+renderVelList();
+onClarity();
+onFocusChange();
+onTeamChange();
+renderWeakList();
+</script>
+</body>
+</html>
