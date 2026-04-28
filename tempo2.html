@@ -3,818 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Throughput · Process Behaviour Chart</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Lead Times 2024–25</title>
 <style>
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  /* palette */
-  --bg:         #f4f5f7;
-  --surface:    #ffffff;
-  --surface-2:  #f8f9fa;
-  --border:     #e3e6eb;
-  --border-2:   #cdd2da;
-  --text:       #111827;
-  --text-2:     #374151;
-  --muted:      #6b7280;
-  --muted-2:    #9ca3af;
-
-  /* signal colours */
-  --c-median:   #c2710c;
-  --c-npl:      #dc2626;
-  --c-s2:       #d97706;
-  --c-s1:       #1d4ed8;
-  --c-run:      #7c3aed;
-  --c-ok:       #16a34a;
-  --c-line:     #2563eb;
-  --c-mr-bar:   #3b82f6;
-  --c-mr-hi:    #dc2626;
-
-  /* signal tints */
-  --t-npl:  #fef2f2;
-  --t-s2:   #fffbeb;
-  --t-s1:   #eff6ff;
-  --t-run:  #f5f3ff;
-
-  --font:   'Geist', 'Inter', sans-serif;
-  --mono:   'Geist Mono', 'IBM Plex Mono', monospace;
-  --radius: 10px;
-  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.06);
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── TOP BAR ─────────────────────────────── */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 28px;
-  height: 56px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 16px; flex-shrink: 0;
-}
-.topbar-info { flex: 1; }
-.topbar-title { font-size: 14px; font-weight: 700; letter-spacing: -.02em; }
-.topbar-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.pills        { display: flex; gap: 6px; flex-wrap: wrap; }
-.pill {
-  font-family: var(--mono);
-  font-size: 10px; font-weight: 500;
-  padding: 3px 9px; border-radius: 20px;
-  background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--text-2); white-space: nowrap;
-}
-.pill.accent { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-
-/* ── PAGE ────────────────────────────────── */
-.page { padding: 22px 28px 52px; max-width: 1320px; margin: 0 auto; }
-
-/* ── INFO BOX ────────────────────────────── */
-.info-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: var(--radius);
-  padding: 11px 16px;
-  font-size: 12px;
-  color: #1e40af;
-  line-height: 1.65;
-  margin-bottom: 20px;
-}
-.info-box strong { font-weight: 600; }
-
-/* ── STAT STRIP ──────────────────────────── */
-.stat-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-.stat::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--accent-color);
-}
-.stat-label {
-  font-size: 9px; font-weight: 600;
-  letter-spacing: .07em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 5px;
-}
-.stat-value {
-  font-family: var(--mono);
-  font-size: 19px; font-weight: 600;
-  color: var(--text); letter-spacing: -.02em;
-}
-.stat-value .unit { font-size: 10px; font-weight: 400; color: var(--muted); margin-left: 2px; }
-.stat-sub { font-size: 9px; color: var(--muted-2); margin-top: 3px; }
-
-/* ── RULES GRID ──────────────────────────── */
-.rules-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.rule-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--rule-color);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  box-shadow: var(--shadow);
-}
-.rule-num {
-  font-size: 9px; font-weight: 700;
-  letter-spacing: .07em; text-transform: uppercase;
-  color: var(--rule-color); margin-bottom: 5px;
-}
-.rule-desc { font-size: 11px; color: var(--text-2); line-height: 1.6; }
-
-/* ── LEGEND BAR ──────────────────────────── */
-.legend-bar {
-  display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 10px 16px;
-  margin-bottom: 18px; box-shadow: var(--shadow);
-}
-.leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); }
-.leg-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.leg-line { width: 20px; height: 2px; flex-shrink: 0; border-radius: 1px; }
-
-/* ── SIGNAL SUMMARY ──────────────────────── */
-.sig-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; min-height: 30px; align-items: center; }
-.sbadge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 600;
-  padding: 4px 12px; border-radius: 20px; border: 1px solid;
-}
-.sbadge.npl    { background: var(--t-npl); color: var(--c-npl); border-color: #fca5a5; }
-.sbadge.s2     { background: var(--t-s2);  color: var(--c-s2);  border-color: #fcd34d; }
-.sbadge.s1     { background: var(--t-s1);  color: var(--c-s1);  border-color: #93c5fd; }
-.sbadge.run    { background: var(--t-run); color: var(--c-run); border-color: #c4b5fd; }
-.sbadge.ok     { background: #f0fdf4; color: var(--c-ok); border-color: #86efac; }
-
-/* ── CONTROLS ROW ────────────────────────── */
-.controls {
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.ctrl-group {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 12px; box-shadow: var(--shadow);
-}
-.ctrl-group label {
-  font-size: 10px; font-weight: 600; letter-spacing: .05em;
-  text-transform: uppercase; color: var(--muted); white-space: nowrap;
-}
-select {
-  font-family: var(--font); font-size: 12px;
-  color: var(--text); background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: 6px;
-  padding: 4px 8px; outline: none; cursor: pointer;
-  transition: border-color .15s;
-}
-select:focus { border-color: var(--c-line); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-.tog-btn {
-  display: flex; align-items: center; gap: 6px;
-  font-family: var(--font); font-size: 11px; font-weight: 600;
-  color: var(--muted); background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 6px 12px; cursor: pointer; user-select: none;
-  box-shadow: var(--shadow); transition: all .15s;
-}
-.tog-btn.on { color: var(--text-2); border-color: var(--border-2); }
-.tog-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-           background: var(--muted-2); transition: background .15s; }
-.tog-btn.on .tog-dot { background: var(--c-ok); }
-
-/* ── CHART CARD ──────────────────────────── */
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 20px 14px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow);
-}
-.chart-title {
-  font-size: 11px; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 16px;
-  display: flex; align-items: baseline; gap: 10px;
-}
-.chart-title .sub {
-  font-size: 10px; font-weight: 400; color: var(--muted-2);
-  letter-spacing: .02em; text-transform: none;
-}
-.chart-scroll { overflow-x: auto; }
-svg { display: block; overflow: visible; }
-
-/* ── TOOLTIP ─────────────────────────────── */
-.tooltip {
-  position: fixed;
-  background: var(--text);
-  color: #fff;
-  border-radius: 10px;
-  padding: 11px 15px;
-  font-size: 11px;
-  line-height: 1.75;
-  pointer-events: none;
-  display: none;
-  z-index: 500;
-  box-shadow: 0 8px 28px rgba(0,0,0,.22);
-  min-width: 190px;
-}
-.tooltip strong { font-size: 12px; font-weight: 600; }
-.tt-sig {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 7px;
-  font-size: 9px; font-weight: 700; margin-right: 3px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    width: 100%;
+    max-width: 900px;
+  }
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 20px; font-weight: 700; color: #1a202c; }
+  .header p { font-size: 13px; color: #718096; margin-top: 4px; }
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: #f7fafc;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; font-weight: 500; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); }
+  .chart-area { position: relative; }
+  .tooltip {
+    position: fixed;
+    background: #1a202c;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+    line-height: 1.7;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    min-width: 160px;
+  }
+  .tooltip strong { font-size: 13px; }
+  .t-size {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
 </style>
 </head>
 <body>
-
-<!-- ── TOP BAR ───────────────────────────── -->
-<div class="topbar">
-  <div class="logo">📊</div>
-  <div class="topbar-info">
-    <div class="topbar-title">Throughput · Process Behaviour Chart</div>
-    <div class="topbar-sub">Weekly aggregation · Jan–Apr 2025 · XmR · Median-based limits</div>
+<div class="card">
+  <div class="header">
+    <h1>Lead Times — 2024/25</h1>
+    <p>Completion date vs. lead time in days &nbsp;·&nbsp; hover over a point for details</p>
   </div>
-  <div class="pills">
-    <span class="pill">15 weeks</span>
-    <span class="pill accent">X̃ = 15 items</span>
-    <span class="pill">UNPL = 33.87</span>
-    <span class="pill">mR̃ = 6</span>
-    <span class="pill">URL = 23.19</span>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Small (S)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#eab308;"></div>Medium (M)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Large (L)</div>
+    <div class="legend-item" style="margin-left:auto;color:#a0aec0;font-weight:400;font-style:italic;">╌ ╌ trend line</div>
+  </div>
+  <div class="chart-area">
+    <div class="tooltip" id="tooltip"></div>
+    <svg id="scatter" width="100%" height="480"></svg>
   </div>
 </div>
 
-<div class="page">
-
-  <!-- info note -->
-  <div class="info-box">
-    <strong>Methodology:</strong> 103 daily records aggregated to <strong>15 weekly totals</strong> (Mon–Sun).
-    Centre line = <strong>median(X̃) = 15 items/week</strong>.
-    Process sigma estimated via median moving range: σ̂ = mR̃ ÷ 0.954 ≈ <strong>6.29</strong>.
-    Natural Process Limits: UNPL = X̃ + 3σ̂ = <strong>33.87</strong>, LNPL = 0.
-    Upper Range Limit: URL = 3.865 × mR̃ = <strong>23.19</strong>.
-  </div>
-
-  <!-- stat strip -->
-  <div class="stat-strip">
-    <div class="stat" style="--accent-color:#2563eb">
-      <div class="stat-label">Median (X̃)</div>
-      <div class="stat-value">15 <span class="unit">items/wk</span></div>
-      <div class="stat-sub">Centre line · 15 weeks</div>
-    </div>
-    <div class="stat" style="--accent-color:#c2710c">
-      <div class="stat-label">Median mR (mR̃)</div>
-      <div class="stat-value">6 <span class="unit">items</span></div>
-      <div class="stat-sub">mR̃ = median |xᵢ − xᵢ₋₁|</div>
-    </div>
-    <div class="stat" style="--accent-color:#6b7280">
-      <div class="stat-label">σ̂ estimate</div>
-      <div class="stat-value">6.29 <span class="unit">items</span></div>
-      <div class="stat-sub">mR̃ ÷ 0.954</div>
-    </div>
-    <div class="stat" style="--accent-color:#dc2626">
-      <div class="stat-label">UNPL (3σ̂)</div>
-      <div class="stat-value">33.87 <span class="unit">items</span></div>
-      <div class="stat-sub">X̃ + 3σ̂</div>
-    </div>
-    <div class="stat" style="--accent-color:#d97706">
-      <div class="stat-label">2σ̂ upper / lower</div>
-      <div class="stat-value">27.58 <span class="unit">/ 2.42</span></div>
-      <div class="stat-sub">X̃ ± 2σ̂</div>
-    </div>
-    <div class="stat" style="--accent-color:#1d4ed8">
-      <div class="stat-label">1σ̂ upper / lower</div>
-      <div class="stat-value">21.29 <span class="unit">/ 8.71</span></div>
-      <div class="stat-sub">X̃ ± 1σ̂</div>
-    </div>
-    <div class="stat" style="--accent-color:#dc2626">
-      <div class="stat-label">URL (mR)</div>
-      <div class="stat-value">23.19 <span class="unit">items</span></div>
-      <div class="stat-sub">3.865 × mR̃</div>
-    </div>
-    <div class="stat" style="--accent-color:#16a34a">
-      <div class="stat-label">Signal weeks</div>
-      <div class="stat-value" id="sig-count">—</div>
-      <div class="stat-sub">Weeks with ≥1 rule</div>
-    </div>
-  </div>
-
-  <!-- rules -->
-  <div class="rules-grid">
-    <div class="rule-card" style="--rule-color:#dc2626">
-      <div class="rule-num">Rule 1 · Strong signal</div>
-      <div class="rule-desc">A single point outside the NPL corridor (above UNPL 33.87 or below LNPL 0) is a special cause signal.</div>
-    </div>
-    <div class="rule-card" style="--rule-color:#d97706">
-      <div class="rule-num">Rule 2 · Moderate signal</div>
-      <div class="rule-desc">2 out of 3 consecutive values beyond the 2σ̂ lines (above 27.58 or below 2.42) is a moderate signal.</div>
-    </div>
-    <div class="rule-card" style="--rule-color:#1d4ed8">
-      <div class="rule-num">Rule 3 · Persistent signal</div>
-      <div class="rule-desc">3 out of 5 consecutive values beyond the 1σ̂ lines (above 21.29 or below 8.71) is a moderate persistent signal.</div>
-    </div>
-    <div class="rule-card" style="--rule-color:#7c3aed">
-      <div class="rule-num">Rule 4 · Drift signal</div>
-      <div class="rule-desc">8 consecutive values all on one side of the median (15 items/week) signals a small but sustained shift.</div>
-    </div>
-  </div>
-
-  <!-- legend -->
-  <div class="legend-bar">
-    <div class="leg-item"><div class="leg-dot" style="background:#dc2626"></div>R1 · NPL breach</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div>R2 · 2-of-3 (2σ̂)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8"></div>R3 · 3-of-5 (1σ̂)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#7c3aed"></div>R4 · Run of 8</div>
-    <span style="flex:1"></span>
-    <div class="leg-item"><div class="leg-line" style="background:#c2710c"></div>Median (X̃)</div>
-    <div class="leg-item"><div class="leg-line" style="background:#dc2626; opacity:.65"></div>UNPL</div>
-    <div class="leg-item"><div class="leg-line" style="background:#d97706; opacity:.6"></div>2σ̂</div>
-    <div class="leg-item"><div class="leg-line" style="background:#1d4ed8; opacity:.6"></div>1σ̂</div>
-    <div class="leg-item"><div class="leg-line" style="background:#2563eb; opacity:.4"></div>Data line</div>
-  </div>
-
-  <!-- controls -->
-  <div class="controls">
-    <div class="ctrl-group">
-      <label>Highlight rule</label>
-      <select id="sel-rule">
-        <option value="all">All rules</option>
-        <option value="npl">Rule 1 — NPL breach</option>
-        <option value="twoofthree">Rule 2 — 2-of-3 (2σ̂)</option>
-        <option value="threeoffive">Rule 3 — 3-of-5 (1σ̂)</option>
-        <option value="runofeight">Rule 4 — Run of 8</option>
-      </select>
-    </div>
-    <button class="tog-btn on" id="tog-zones"   onclick="tog(this,'zones')">  <div class="tog-dot"></div>σ Zones</button>
-    <button class="tog-btn on" id="tog-line"    onclick="tog(this,'line')">   <div class="tog-dot"></div>Data line</button>
-    <button class="tog-btn on" id="tog-labels"  onclick="tog(this,'labels')"> <div class="tog-dot"></div>Value labels</button>
-    <button class="tog-btn on" id="tog-mr"      onclick="tog(this,'mr')">     <div class="tog-dot"></div>mR chart</button>
-  </div>
-
-  <!-- signal summary badges -->
-  <div class="sig-row" id="sig-row"></div>
-
-  <!-- X chart -->
-  <div class="chart-card">
-    <div class="chart-title">
-      X Chart — Weekly Throughput
-      <span class="sub">· total items completed per week · hover for detail</span>
-    </div>
-    <div class="chart-scroll" style="position:relative">
-      <div class="tooltip" id="x-tip"></div>
-      <svg id="xchart"></svg>
-    </div>
-  </div>
-
-  <!-- mR chart -->
-  <div class="chart-card" id="mr-card">
-    <div class="chart-title">
-      mR Chart — Moving Range
-      <span class="sub">· |week n − week n−1| · red bars exceed URL 23.19</span>
-    </div>
-    <div class="chart-scroll">
-      <svg id="mrchart"></svg>
-    </div>
-  </div>
-
-</div><!-- /page -->
-
 <script>
-/* ══════════════════════════════════════════════
-   DATA  (weekly aggregated, median-based limits)
-══════════════════════════════════════════════ */
-const DATA = [
-  {i:0,  label:"7\u201312 Jan",       v:15, sig:[]},
-  {i:1,  label:"13\u201319 Jan",      v:12, sig:[]},
-  {i:2,  label:"20\u201326 Jan",      v:7,  sig:[]},
-  {i:3,  label:"27 Jan\u20132 Feb",   v:11, sig:[]},
-  {i:4,  label:"3\u20139 Feb",        v:23, sig:[]},
-  {i:5,  label:"10\u201316 Feb",      v:15, sig:[]},
-  {i:6,  label:"17\u201323 Feb",      v:15, sig:[]},
-  {i:7,  label:"24 Feb\u20132 Mar",   v:19, sig:[]},
-  {i:8,  label:"3\u20139 Mar",        v:10, sig:[]},
-  {i:9,  label:"10\u201316 Mar",      v:17, sig:[]},
-  {i:10, label:"17\u201323 Mar",      v:17, sig:[]},
-  {i:11, label:"24\u201330 Mar",      v:7,  sig:[]},
-  {i:12, label:"31 Mar\u20136 Apr",   v:15, sig:[]},
-  {i:13, label:"7\u201313 Apr",       v:8,  sig:[]},
-  {i:14, label:"14\u201319 Apr",      v:12, sig:[]},
+const data = [
+  { date:"2024-07-15", label:"15 Jul 2024",  size:"S", days:49  },
+  { date:"2024-08-22", label:"22 Aug 2024",  size:"S", days:48  },
+  { date:"2024-09-10", label:"10 Sep 2024",  size:"S", days:87  },
+  { date:"2024-09-25", label:"25 Sep 2024",  size:"M", days:57  },
+  { date:"2024-10-05", label:"5 Oct 2024",   size:"M", days:148 },
+  { date:"2024-10-14", label:"14 Oct 2024",  size:"S", days:53  },
+  { date:"2024-10-28", label:"28 Oct 2024",  size:"S", days:45  },
+  { date:"2024-11-18", label:"18 Nov 2024",  size:"M", days:145 },
+  { date:"2024-12-04", label:"4 Dec 2024",   size:"L", days:105 },
+  { date:"2025-01-08", label:"8 Jan 2025",   size:"S", days:5   },
+  { date:"2025-01-20", label:"20 Jan 2025",  size:"L", days:163 },
+  { date:"2025-02-14", label:"14 Feb 2025",  size:"S", days:43  },
+  { date:"2025-02-26", label:"26 Feb 2025",  size:"M", days:415 },
+  { date:"2025-03-15", label:"15 Mar 2025",  size:"L", days:123 },
+  { date:"2025-04-10", label:"10 Apr 2025",  size:"M", days:103 },
+  { date:"2025-05-05", label:"5 May 2025",   size:"L", days:104 },
+  { date:"2025-06-12", label:"12 Jun 2025",  size:"L", days:302 },
+  { date:"2025-06-25", label:"25 Jun 2025",  size:"L", days:158 },
+  { date:"2025-07-02", label:"2 Jul 2025",   size:"L", days:98  },
+  { date:"2025-07-11", label:"11 Jul 2025",  size:"S", days:52  },
+  { date:"2025-07-18", label:"18 Jul 2025",  size:"M", days:95  },
+  { date:"2025-07-29", label:"29 Jul 2025",  size:"S", days:70  },
+  { date:"2025-08-03", label:"3 Aug 2025",   size:"M", days:95  },
+  { date:"2025-08-14", label:"14 Aug 2025",  size:"M", days:101 },
+  { date:"2025-08-21", label:"21 Aug 2025",  size:"M", days:57  },
+  { date:"2025-08-29", label:"29 Aug 2025",  size:"M", days:57  },
+  { date:"2025-09-08", label:"8 Sep 2025",   size:"S", days:53  },
+  { date:"2025-09-22", label:"22 Sep 2025",  size:"L", days:137 },
+  { date:"2025-10-04", label:"4 Oct 2025",   size:"S", days:73  },
+  { date:"2025-10-12", label:"12 Oct 2025",  size:"M", days:60  },
+  { date:"2025-10-19", label:"19 Oct 2025",  size:"S", days:126 },
+  { date:"2025-10-27", label:"27 Oct 2025",  size:"M", days:57  },
+  { date:"2025-11-05", label:"5 Nov 2025",   size:"L", days:124 },
+  { date:"2025-11-15", label:"15 Nov 2025",  size:"M", days:75  },
+  { date:"2025-11-25", label:"25 Nov 2025",  size:"M", days:89  },
+  { date:"2025-12-10", label:"10 Dec 2025",  size:"S", days:44  },
 ];
 
-const MR = [
-  {i:1,  label:"13\u201319 Jan",    mr:3,  hi:false},
-  {i:2,  label:"20\u201326 Jan",    mr:5,  hi:false},
-  {i:3,  label:"27 Jan\u20132 Feb", mr:4,  hi:false},
-  {i:4,  label:"3\u20139 Feb",      mr:12, hi:false},
-  {i:5,  label:"10\u201316 Feb",    mr:8,  hi:false},
-  {i:6,  label:"17\u201323 Feb",    mr:0,  hi:false},
-  {i:7,  label:"24 Feb\u20132 Mar", mr:4,  hi:false},
-  {i:8,  label:"3\u20139 Mar",      mr:9,  hi:false},
-  {i:9,  label:"10\u201316 Mar",    mr:7,  hi:false},
-  {i:10, label:"17\u201323 Mar",    mr:0,  hi:false},
-  {i:11, label:"24\u201330 Mar",    mr:10, hi:false},
-  {i:12, label:"31 Mar\u20136 Apr", mr:8,  hi:false},
-  {i:13, label:"7\u201313 Apr",     mr:7,  hi:false},
-  {i:14, label:"14\u201319 Apr",    mr:4,  hi:false},
-];
+const COLOR    = { S:"#22c55e", M:"#eab308", L:"#ef4444" };
+const LABEL    = { S:"Small",   M:"Medium",  L:"Large"   };
+const SIZE_BG  = { S:"#dcfce7", M:"#fef9c3", L:"#fee2e2" };
+const SIZE_COL = { S:"#166534", M:"#713f12", L:"#991b1b" };
+const DOT_R    = { S:7,         M:9,         L:11        };
 
-/* limits */
-const MED=15, MBAR=6, SIGMA=6.2893;
-const UNPL=33.8679, LNPL=0;
-const S2U=27.5786, S2L=2.4214;
-const S1U=21.2893, S1L=8.7107;
-const URL=23.19;
+const parsed = data.map(d => ({ ...d, ts: new Date(d.date).getTime() }));
+const margin = { top:24, right:36, bottom:64, left:68 };
 
-/* signal metadata */
-const SIG = {
-  npl:        { color:'#dc2626', bg:'#fef2f2', label:'R1 · NPL breach',       cls:'npl'  },
-  twoofthree: { color:'#d97706', bg:'#fffbeb', label:'R2 · 2-of-3 (2σ̂)',    cls:'s2'   },
-  threeoffive:{ color:'#1d4ed8', bg:'#eff6ff', label:'R3 · 3-of-5 (1σ̂)',    cls:'s1'   },
-  runofeight: { color:'#7c3aed', bg:'#f5f3ff', label:'R4 · Run of 8',         cls:'run'  },
-};
-const PRIORITY = ['npl','twoofthree','threeoffive','runofeight'];
+function draw() {
+  const svgEl = document.getElementById("scatter");
+  const W = svgEl.clientWidth || 836;
+  const H = 480;
+  svgEl.setAttribute("height", H);
+  svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svgEl.innerHTML = "";
 
-function priSig(sigs){ for(const k of PRIORITY) if(sigs.includes(k)) return k; return null; }
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
 
-/* ══ layer state ══ */
-let L = { zones:true, line:true, labels:true, mr:true };
+  const minTs = Math.min(...parsed.map(d => d.ts));
+  const maxTs = Math.max(...parsed.map(d => d.ts));
+  const maxDays = 460;
 
-function tog(btn, key){
-  L[key] = !L[key];
-  btn.classList.toggle('on', L[key]);
-  btn.querySelector('.tog-dot').style.background = L[key] ? 'var(--c-ok)' : 'var(--muted-2)';
-  redraw();
-}
+  const xS = ts => margin.left + ((ts - minTs) / (maxTs - minTs)) * iW;
+  const yS = v  => margin.top  + iH - (v / maxDays) * iH;
 
-/* ══ SVG helpers ══ */
-const NS = 'http://www.w3.org/2000/svg';
-function el(tag, attrs, txt){
-  const e = document.createElementNS(NS, tag);
-  if(attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
-  if(txt !== undefined) e.textContent = txt;
-  return e;
-}
-function poly(pts, attrs){
-  const e = document.createElementNS(NS, 'polyline');
-  e.setAttribute('points', pts.map(([x,y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' '));
-  if(attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
-  return e;
-}
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, txt) => {
+    const el = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    if (txt !== undefined) el.textContent = txt;
+    return el;
+  };
 
-/* ══ signal badges ══ */
-function renderBadges(){
-  const counts = {};
-  PRIORITY.forEach(k => counts[k] = 0);
-  DATA.forEach(d => d.sig.forEach(s => { if(s in counts) counts[s]++; }));
-  const total = DATA.filter(d => d.sig.length > 0).length;
-  document.getElementById('sig-count').textContent = total;
+  // Background
+  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"#fafafa", rx:4 }));
 
-  const row = document.getElementById('sig-row');
-  if(total === 0){
-    row.innerHTML = '<span class="sbadge ok">✓ No signals detected — process appears stable at weekly granularity</span>';
-    return;
-  }
-  row.innerHTML = PRIORITY.filter(k => counts[k] > 0).map(k =>
-    `<span class="sbadge ${SIG[k].cls}">${SIG[k].label} · ${counts[k]} wk${counts[k]>1?'s':''}</span>`
-  ).join('');
-}
-
-/* ═══════════════════════════════════
-   X CHART
-═══════════════════════════════════ */
-function drawX(){
-  renderBadges();
-  const n = DATA.length;
-  const rFilter = document.getElementById('sel-rule').value;
-
-  const wrap  = document.getElementById('xchart').closest('.chart-scroll');
-  const avail = wrap.clientWidth || 900;
-  const W = Math.max(avail, n * 56 + 140);
-  const H = 350;
-  const M = { top:24, right:88, bottom:58, left:52 };
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-
-  const svg = document.getElementById('xchart');
-  svg.setAttribute('width',  W);
-  svg.setAttribute('height', H);
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.innerHTML = '';
-
-  const maxY = Math.max(UNPL * 1.15, 40);
-  const xs = i => M.left + (n > 1 ? i/(n-1) : .5) * iW;
-  const ys = v => M.top  + iH - (Math.min(v, maxY) / maxY) * iH;
-
-  /* ── chart background ── */
-  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fbfcfd',rx:6}));
-
-  /* ── sigma zones ── */
-  if(L.zones){
-    const zones = [
-      [UNPL, maxY,  '#dc2626', .05],
-      [S2U,  UNPL,  '#d97706', .05],
-      [S1U,  S2U,   '#1d4ed8', .04],
-      [0,    S1U,   '#16a34a', .03],
-    ];
-    zones.forEach(([lo, hi, col, op]) => {
-      const yTop = ys(Math.min(hi, maxY));
-      const yBot = ys(Math.max(lo, 0));
-      if(yBot <= yTop) return;
-      svg.appendChild(el('rect',{x:M.left, y:yTop, width:iW, height:yBot-yTop, fill:col, opacity:op}));
-    });
-  }
-
-  /* ── y grid ── */
-  for(let v = 0; v <= maxY; v += 5){
-    const y = ys(v);
-    if(y < M.top - 2) break;
-    const major = v % 10 === 0;
-    svg.appendChild(el('line',{
-      x1:M.left, x2:M.left+iW, y1:y, y2:y,
-      stroke: major ? '#e5e8ed' : '#f0f2f5',
-      'stroke-width': major ? 1 : 0.7,
-    }));
-    if(major) svg.appendChild(el('text',{
-      x:M.left-8, y:y+4, 'text-anchor':'end',
-      'font-size':9.5, fill:'#9ca3af', 'font-family':'Geist Mono,monospace',
-    }, v));
-  }
-
-  /* ── vertical separators ── */
-  DATA.forEach((_,i) => {
-    if(i === 0) return;
-    const x = (xs(i) + xs(i-1)) / 2;
-    svg.appendChild(el('line',{x1:x,x2:x,y1:M.top,y2:M.top+iH,stroke:'#edf0f4','stroke-width':.6,'stroke-dasharray':'3,3'}));
+  // Grid lines + y labels
+  [0,50,100,150,200,250,300,350,400,450].forEach(v => {
+    const y = yS(v);
+    svgEl.appendChild(mk("line", { x1:margin.left, x2:margin.left+iW, y1:y, y2:y, stroke: v===0?"#cbd5e0":"#e2e8f0", "stroke-width":1 }));
+    svgEl.appendChild(mk("text", { x:margin.left-10, y:y+4, "text-anchor":"end", "font-size":11, fill:"#94a3b8" }, v));
   });
 
-  /* ── limit / reference lines ── */
-  const limLines = [
-    [UNPL, '#dc2626', `UNPL = ${UNPL.toFixed(1)}`, '6,3', 1.3],
-    [S2U,  '#d97706', `2σ̂ = ${S2U.toFixed(1)}`,   '4,3', 1.0],
-    [S1U,  '#1d4ed8', `1σ̂ = ${S1U.toFixed(1)}`,   '3,3', 1.0],
-    [MED,  '#c2710c', `X̃ = ${MED}`,               'none',2.0],
-    [S1L,  '#1d4ed8', `1σ̂ = ${S1L.toFixed(2)}`,   '3,3', 1.0],
-    [S2L,  '#d97706', `2σ̂ = ${S2L.toFixed(2)}`,   '4,3', 1.0],
-  ];
-  limLines.forEach(([v, col, lbl, dash, sw]) => {
-    const y = ys(v);
-    if(y < M.top - 6 || y > M.top + iH + 6) return;
-    svg.appendChild(el('line',{
-      x1:M.left, x2:M.left+iW, y1:y, y2:y,
-      stroke:col, 'stroke-width':sw, 'stroke-dasharray':dash, opacity:.8,
-    }));
-    svg.appendChild(el('text',{
-      x:M.left+iW+6, y:y+4,
-      'font-size':8.5, fill:col, 'font-weight':600, 'font-family':'Geist Mono,monospace',
-    }, lbl));
-  });
-
-  /* ── connecting line ── */
-  if(L.line && n > 1){
-    svg.appendChild(poly(
-      DATA.map((d,i) => [xs(i), ys(d.v)]),
-      { fill:'none', stroke:'rgba(37,99,235,.3)', 'stroke-width':1.8,
-        'stroke-linejoin':'round', 'stroke-linecap':'round' }
-    ));
-  }
-
-  /* ── column highlight for signal weeks ── */
-  const bw = iW / n * 0.64;
-  DATA.forEach((d,i) => {
-    const pri = priSig(d.sig);
-    if(!pri) return;
-    const focused = rFilter === 'all' || d.sig.includes(rFilter);
-    if(!focused) return;
-    svg.appendChild(el('rect',{
-      x: xs(i) - bw/2 - 3, y: M.top,
-      width: bw + 6, height: iH,
-      fill: SIG[pri].bg, rx:4,
-    }));
-  });
-
-  /* ── dots + labels ── */
-  const tip = document.getElementById('x-tip');
-
-  DATA.forEach((d,i) => {
-    const cx = xs(i), cy = ys(d.v);
-    const pri = priSig(d.sig);
-    const hasSig = d.sig.length > 0;
-    const focused = rFilter === 'all' || d.sig.includes(rFilter);
-    const dimmed = !focused && hasSig;
-    const ghost  = !focused && !hasSig && rFilter !== 'all';
-    const col = pri ? SIG[pri].color : '#2563eb';
-    const r = hasSig ? 7 : 5;
-    const opacity = ghost ? 0.25 : dimmed ? 0.3 : 1;
-
-    /* glow rings for focused signals */
-    if(hasSig && focused){
-      svg.appendChild(el('circle',{cx, cy, r:r+7, fill:col, opacity:.1}));
-      svg.appendChild(el('circle',{cx, cy, r:r+3, fill:'none', stroke:col, 'stroke-width':1.2, opacity:.3}));
+  // X-axis ticks (every 2 months)
+  const cur = new Date("2024-07-01");
+  const end = new Date("2026-01-01");
+  while (cur < end) {
+    const x = xS(cur.getTime());
+    if (x >= margin.left && x <= margin.left+iW) {
+      svgEl.appendChild(mk("line", { x1:x, x2:x, y1:margin.top+iH, y2:margin.top+iH+6, stroke:"#cbd5e0" }));
+      const lbl = cur.toLocaleString("en",{month:"short"}) + " '" + cur.getFullYear().toString().slice(2);
+      svgEl.appendChild(mk("text", { x, y:margin.top+iH+20, "text-anchor":"middle", "font-size":10, fill:"#94a3b8" }, lbl));
     }
-
-    /* value label above dot */
-    if(L.labels){
-      svg.appendChild(el('text',{
-        x:cx, y:cy - (r + 7),
-        'text-anchor':'middle',
-        'font-size': 10, 'font-weight': hasSig && focused ? 700 : 400,
-        fill: hasSig && focused ? col : '#9ca3af',
-        'font-family':'Geist Mono,monospace',
-        opacity,
-      }, d.v));
-    }
-
-    /* dot */
-    const c = el('circle',{
-      cx, cy, r,
-      fill: col,
-      stroke: '#fff', 'stroke-width': hasSig ? 2 : 1.5,
-      opacity, style:'cursor:pointer',
-    });
-    svg.appendChild(c);
-
-    /* run-of-8 underline */
-    if(d.sig.includes('runofeight') && focused){
-      svg.appendChild(el('line',{
-        x1:cx-4.5, y1:cy+r+4, x2:cx+4.5, y2:cy+r+4,
-        stroke:'#7c3aed', 'stroke-width':2.5, 'stroke-linecap':'round',
-      }));
-    }
-
-    /* x-axis label */
-    svg.appendChild(el('text',{
-      x:cx, y:M.top+iH+16,
-      'text-anchor':'middle', 'font-size':8.5, fill:'#9ca3af', 'font-weight':600,
-    }, `W${d.i+1}`));
-    svg.appendChild(el('text',{
-      x:cx, y:M.top+iH+28,
-      'text-anchor':'middle', 'font-size':7.5, fill:'#b0bec9',
-    }, d.label));
-
-    /* x tick */
-    svg.appendChild(el('line',{x1:cx,x2:cx,y1:M.top+iH,y2:M.top+iH+5,stroke:'#d1d5db'}));
-
-    /* tooltip interaction */
-    c.addEventListener('mouseenter', () => {
-      c.setAttribute('r', r + 3.5);
-      const sigHtml = d.sig.length
-        ? d.sig.map(s => `<span class="tt-sig" style="background:${SIG[s].bg};color:${SIG[s].color}">${SIG[s].label}</span>`).join('')
-        : `<span style="color:#86efac;font-size:10px">✓ No signal</span>`;
-      tip.innerHTML = `<strong>${d.label}</strong> <span style="opacity:.5;font-size:10px">W${d.i+1}</span><br>
-        Throughput: <strong>${d.v} items/week</strong><br>${sigHtml}`;
-      tip.style.display = 'block';
-    });
-    c.addEventListener('mousemove', e => {
-      let l = e.clientX + 14, t = e.clientY - 54;
-      if(l + 230 > window.innerWidth) l = e.clientX - 244;
-      if(t < 8) t = e.clientY + 12;
-      tip.style.left = l + 'px';
-      tip.style.top  = t + 'px';
-    });
-    c.addEventListener('mouseleave', () => {
-      c.setAttribute('r', r);
-      tip.style.display = 'none';
-    });
-  });
-
-  /* ── border & axis labels ── */
-  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:6}));
-  svg.appendChild(el('text',{
-    x:-(M.top+iH/2), y:15, transform:'rotate(-90)',
-    'text-anchor':'middle', 'font-size':10.5, fill:'#6b7280', 'font-weight':500,
-  }, 'Items / week'));
-}
-
-/* ═══════════════════════════════════
-   mR CHART
-═══════════════════════════════════ */
-function drawMR(){
-  const n  = MR.length;
-  const N  = DATA.length;
-
-  const wrap  = document.getElementById('mrchart').closest('.chart-scroll');
-  const avail = wrap.clientWidth || 900;
-  const W = Math.max(avail, N * 56 + 140);
-  const H = 200;
-  const M = { top:14, right:88, bottom:58, left:52 };
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-
-  const svg = document.getElementById('mrchart');
-  svg.setAttribute('width',  W);
-  svg.setAttribute('height', H);
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.innerHTML = '';
-
-  const maxY = Math.max(URL * 1.25, Math.max(...MR.map(d => d.mr)) * 1.3, 16);
-  /* align x positions to the same week slots as X chart */
-  const xsW = i => M.left + (N > 1 ? i/(N-1) : .5) * iW;
-  const ys   = v => M.top  + iH - (Math.min(v, maxY) / maxY) * iH;
-
-  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'#fbfcfd',rx:6}));
-
-  /* grid */
-  for(let v = 0; v <= maxY; v += 4){
-    const y = ys(v); if(y < M.top - 2) break;
-    const major = v % 8 === 0;
-    svg.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:major?'#e5e8ed':'#f0f2f5','stroke-width':major?1:.7}));
-    if(major) svg.appendChild(el('text',{
-      x:M.left-8,y:y+4,'text-anchor':'end','font-size':9.5,
-      fill:'#9ca3af','font-family':'Geist Mono,monospace'},v));
+    cur.setMonth(cur.getMonth() + 2);
   }
 
-  /* URL and mR̃ lines */
-  [[URL,'#dc2626',`URL = ${URL.toFixed(2)}`,'5,3',1.2],
-   [MBAR,'#c2710c',`mR̃ = ${MBAR}`,'none',2]
-  ].forEach(([v,col,lbl,dash,sw]) => {
-    const y = ys(v); if(y < M.top-6 || y > M.top+iH+6) return;
-    svg.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,
-      stroke:col,'stroke-width':sw,'stroke-dasharray':dash,opacity:.8}));
-    svg.appendChild(el('text',{x:M.left+iW+6,y:y+4,
-      'font-size':8.5,fill:col,'font-weight':600,'font-family':'Geist Mono,monospace'},lbl));
-  });
+  // Chart border
+  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"none", stroke:"#cbd5e0", "stroke-width":1, rx:4 }));
 
-  /* bars */
-  const bw = Math.max(14, iW / N * 0.5);
-  MR.forEach(d => {
-    const cx = xsW(d.i);
-    const barH = iH - (ys(d.mr) - M.top);
-    const col = d.hi ? 'rgba(220,38,38,.75)' : 'rgba(37,99,235,.45)';
-    svg.appendChild(el('rect',{
-      x:cx - bw/2, y:ys(d.mr), width:bw, height:barH, fill:col, rx:3,
-    }));
-    if(d.mr > 0){
-      svg.appendChild(el('text',{
-        x:cx, y:ys(d.mr) - 5,
-        'text-anchor':'middle', 'font-size':9,
-        fill: d.hi ? '#dc2626' : '#6b7280',
-        'font-weight': d.hi ? 700 : 400,
-        'font-family':'Geist Mono,monospace',
-      }, d.mr));
-    }
-  });
+  // Axis labels
+  const yLbl = mk("text", { x:-(margin.top+iH/2), y:16, transform:"rotate(-90)", "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Lead Time (days)");
+  svgEl.appendChild(yLbl);
+  svgEl.appendChild(mk("text", { x:margin.left+iW/2, y:H-10, "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Completion Date"));
 
-  /* x axis labels – aligned to DATA week slots */
-  DATA.forEach((d,i) => {
-    const x = xsW(i);
-    svg.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+5,stroke:'#d1d5db'}));
-    svg.appendChild(el('text',{x,y:M.top+iH+16,'text-anchor':'middle','font-size':8.5,fill:'#9ca3af','font-weight':600},`W${d.i+1}`));
-    svg.appendChild(el('text',{x,y:M.top+iH+28,'text-anchor':'middle','font-size':7.5,fill:'#b0bec9'},d.label));
-  });
+  // Trend line
+  const n = parsed.length;
+  const xs = parsed.map(d => d.ts), ys = parsed.map(d => d.days);
+  const xm = xs.reduce((a,b)=>a+b,0)/n, ym = ys.reduce((a,b)=>a+b,0)/n;
+  const slope = xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0) / xs.reduce((acc,x)=>acc+(x-xm)**2,0);
+  const ic = ym - slope*xm;
+  svgEl.appendChild(mk("line", {
+    x1:xS(minTs), x2:xS(maxTs),
+    y1:yS(slope*minTs+ic), y2:yS(slope*maxTs+ic),
+    stroke:"#94a3b8", "stroke-width":1.5, "stroke-dasharray":"6,4", opacity:0.7
+  }));
 
-  svg.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'#e3e6eb',rx:6}));
-  svg.appendChild(el('text',{
-    x:-(M.top+iH/2), y:15, transform:'rotate(-90)',
-    'text-anchor':'middle', 'font-size':10.5, fill:'#6b7280', 'font-weight':500,
-  }, 'Moving Range'));
+  // Dots
+  const tooltip = document.getElementById("tooltip");
+
+  parsed.forEach(d => {
+    const cx = xS(d.ts), cy = yS(d.days);
+    const r = DOT_R[d.size];
+
+    const shadow = mk("circle", { cx, cy:cy+2, r:r+1, fill:"rgba(0,0,0,0.07)" });
+    svgEl.appendChild(shadow);
+
+    const c = mk("circle", { cx, cy, r, fill:COLOR[d.size], stroke:"white", "stroke-width":2, opacity:0.92, style:"cursor:pointer" });
+
+    c.addEventListener("mouseenter", () => {
+      c.setAttribute("r", r+3);
+      c.setAttribute("opacity", 1);
+      tooltip.innerHTML = `
+        <strong>${d.label}</strong><br>
+        Size: <span class="t-size" style="background:${SIZE_BG[d.size]};color:${SIZE_COL[d.size]}">${LABEL[d.size]}</span><br>
+        Lead time: <strong>${d.days} days</strong>
+      `;
+      tooltip.style.display = "block";
+    });
+    c.addEventListener("mousemove", e => {
+      let l = e.clientX+14, t = e.clientY-48;
+      if (l+180 > window.innerWidth) l = e.clientX-190;
+      if (t < 0) t = e.clientY+10;
+      tooltip.style.left = l+"px";
+      tooltip.style.top  = t+"px";
+    });
+    c.addEventListener("mouseleave", () => {
+      c.setAttribute("r", r);
+      c.setAttribute("opacity", 0.92);
+      tooltip.style.display = "none";
+    });
+
+    svgEl.appendChild(c);
+  });
 }
 
-/* ══ redraw ══ */
-function redraw(){
-  drawX();
-  if(L.mr){ drawMR(); document.getElementById('mr-card').style.display = 'block'; }
-  else     { document.getElementById('mr-card').style.display = 'none'; }
-}
-
-document.getElementById('sel-rule').addEventListener('change', redraw);
-redraw();
-window.addEventListener('resize', redraw);
+draw();
+window.addEventListener("resize", draw);
 </script>
 </body>
 </html>
