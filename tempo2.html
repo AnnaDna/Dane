@@ -3,243 +3,939 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lead Times 2024–25</title>
+<title>Team Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f2f5;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-  .card {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-    width: 100%;
-    max-width: 900px;
-  }
-  .header { margin-bottom: 20px; }
-  .header h1 { font-size: 20px; font-weight: 700; color: #1a202c; }
-  .header p { font-size: 13px; color: #718096; margin-top: 4px; }
-  .legend {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 20px;
-    padding: 12px 16px;
-    background: #f7fafc;
-    border-radius: 8px;
-    flex-wrap: wrap;
-  }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; font-weight: 500; }
-  .legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); }
-  .chart-area { position: relative; }
-  .tooltip {
-    position: fixed;
-    background: #1a202c;
-    color: white;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    pointer-events: none;
-    display: none;
-    z-index: 100;
-    line-height: 1.7;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    min-width: 160px;
-  }
-  .tooltip strong { font-size: 13px; }
-  .t-size {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-left: 4px;
-  }
+/* ── Reset & base ──────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --surface:   #181c27;
+  --surface2:  #1e2333;
+  --border:    rgba(255,255,255,0.07);
+  --text:      #e8eaf0;
+  --muted:     #6b7280;
+  --accent:    #4f8ef7;
+  --accent2:   #f7c948;
+  --green:     #34d47a;
+  --yellow:    #f7c948;
+  --red:       #f05252;
+  --purple:    #a78bfa;
+
+  --tab-h:     52px;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Top bar ───────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 32px;
+  height: 58px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-logo {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+/* ── Tabs ──────────────────────────────────────────── */
+.tabs-nav {
+  display: flex;
+  gap: 0;
+  padding: 0 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 20px;
+  height: var(--tab-h);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .18s, border-color .18s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.tab-icon { font-size: 15px; }
+
+/* ── Tab panels ────────────────────────────────────── */
+.tab-panel { display: none; padding: 28px 32px 40px; }
+.tab-panel.active { display: block; }
+
+/* ── Section header ────────────────────────────────── */
+.section-header {
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.section-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ── Stat cards ────────────────────────────────────── */
+.stat-row { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.stat-card {
+  flex: 1; min-width: 120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.green::before  { background: var(--green); }
+.stat-card.yellow::before { background: var(--yellow); }
+.stat-card.red::before    { background: var(--red); }
+.stat-card.blue::before   { background: var(--accent); }
+.stat-card.purple::before { background: var(--purple); }
+.stat-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.stat-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); letter-spacing: -0.03em; color: var(--text); }
+.stat-value span { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* ── Toolbar ───────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+.toolbar-group label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+select, input[type=date], input[type=number] {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 9px;
+  outline: none;
+  transition: border-color .15s;
+}
+select:focus, input:focus { border-color: var(--accent); }
+select option { background: #1e2333; }
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: opacity .15s, background .15s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.btn:hover { opacity: .85; }
+.btn-red    { background: rgba(240,82,82,.15); color: var(--red); border-color: rgba(240,82,82,.3); }
+.btn-muted  { background: var(--surface); color: var(--muted); border-color: var(--border); }
+.btn-accent { background: rgba(79,142,247,.2); color: var(--accent); border-color: rgba(79,142,247,.35); }
+
+/* ── Add panel ─────────────────────────────────────── */
+.add-panel {
+  display: none;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.add-panel.open { display: flex; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.err-msg { font-size: 11px; color: var(--red); margin-top: 3px; display: none; }
+
+/* ── Legend ────────────────────────────────────────── */
+.legend {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 12px; color: var(--muted);
+}
+.legend-item { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+.ldot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.lline { width: 20px; height: 0; border-top: 2px dashed; flex-shrink: 0; }
+
+/* ── Chart containers ──────────────────────────────── */
+.chart-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 20px 14px;
+  position: relative;
+}
+.chart-box svg { display: block; }
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  background: #0f1117;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  pointer-events: none;
+  display: none;
+  z-index: 300;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  min-width: 160px;
+}
+.t-badge {
+  display: inline-block; padding: 1px 8px;
+  border-radius: 8px; font-size: 10px; font-weight: 700;
+  margin-left: 4px;
+}
+.new-badge {
+  background: rgba(167,139,250,.2); color: var(--purple);
+  font-size: 10px; font-weight: 700; padding: 1px 7px;
+  border-radius: 7px; margin-left: 5px;
+}
+
+/* ── PBC-specific ──────────────────────────────────── */
+.pbc-stat-row { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+
+.signal-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: rgba(240,82,82,.15);
+  color: var(--red);
+  border: 1px solid rgba(240,82,82,.25);
+}
+.signal-list { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tab-panel { padding: 18px 16px 32px; }
+  .topbar, .tabs-nav { padding: 0 16px; }
+}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="header">
-    <h1>Lead Times — 2024/25</h1>
-    <p>Completion date vs. lead time in days &nbsp;·&nbsp; hover over a point for details</p>
-  </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Small (S)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#eab308;"></div>Medium (M)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Large (L)</div>
-    <div class="legend-item" style="margin-left:auto;color:#a0aec0;font-weight:400;font-style:italic;">╌ ╌ trend line</div>
-  </div>
-  <div class="chart-area">
-    <div class="tooltip" id="tooltip"></div>
-    <svg id="scatter" width="100%" height="480"></svg>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-logo">📊</div>
+  <div>
+    <div class="topbar-title">Team Analytics Dashboard</div>
+    <div class="topbar-sub">2024 – 2025</div>
   </div>
 </div>
 
+<!-- Tab nav -->
+<nav class="tabs-nav">
+  <button class="tab-btn active" onclick="switchTab('tab-lt', this)">
+    <span class="tab-icon">🗓️</span> Lead Times
+  </button>
+  <button class="tab-btn" onclick="switchTab('tab-pbc', this)">
+    <span class="tab-icon">📈</span> Process Behaviour Chart
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 1 · LEAD TIMES
+════════════════════════════════════════════════════════════ -->
+<div id="tab-lt" class="tab-panel active">
+
+  <div class="section-header">
+    <div class="section-title">Lead Times — 2024 / 25</div>
+    <div class="section-desc">Completion date vs. lead time in days · 85th percentile lines per size · hover for details</div>
+  </div>
+
+  <!-- P85 stat cards -->
+  <div class="stat-row" id="lt-p85row"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <label>📅 Show last</label>
+      <select id="lt-period">
+        <option value="all">All data</option>
+        <option value="180">6 months</option>
+        <option value="365" selected>12 months</option>
+        <option value="548">18 months</option>
+        <option value="custom">Custom…</option>
+      </select>
+    </div>
+    <div class="toolbar-group" id="lt-custom-range" style="display:none">
+      <label>From</label><input type="date" id="lt-from">
+      <label>to</label><input type="date" id="lt-to">
+    </div>
+    <button class="btn btn-red" id="lt-btn-remove">✕ Remove top outlier</button>
+    <button class="btn btn-muted" id="lt-btn-reset" style="display:none">↺ Reset</button>
+    <button class="btn btn-accent" id="lt-btn-add-toggle">+ Add point</button>
+  </div>
+
+  <!-- Add data panel -->
+  <div class="add-panel" id="lt-add-panel">
+    <div class="field">
+      <label>Completion Date</label>
+      <input type="date" id="lt-new-date">
+    </div>
+    <div class="field">
+      <label>Size</label>
+      <select id="lt-new-size">
+        <option value="S">Small (S)</option>
+        <option value="M">Medium (M)</option>
+        <option value="L">Large (L)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Lead Time (days)</label>
+      <input type="number" id="lt-new-days" min="1" placeholder="e.g. 72" style="width:110px">
+      <span class="err-msg" id="lt-add-err">Fill all fields.</span>
+    </div>
+    <button class="btn btn-accent" id="lt-btn-add-confirm">Add to chart</button>
+    <button class="btn btn-muted" id="lt-btn-add-cancel">Cancel</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="ldot" style="background:var(--green)"></div>Small (S)</div>
+    <div class="legend-item"><div class="ldot" style="background:var(--yellow)"></div>Medium (M)</div>
+    <div class="legend-item"><div class="ldot" style="background:var(--red)"></div>Large (L)</div>
+    <div class="legend-item"><div class="lline" style="border-color:var(--muted)"></div>Trend</div>
+    <div class="legend-item" style="margin-left:auto;color:var(--purple);font-weight:600;font-size:11px">★ newly added</div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-box">
+    <div class="tooltip" id="lt-tooltip"></div>
+    <svg id="lt-scatter" width="100%" height="440"></svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 2 · PROCESS BEHAVIOUR CHART
+════════════════════════════════════════════════════════════ -->
+<div id="tab-pbc" class="tab-panel">
+
+  <div class="section-header">
+    <div class="section-title">Process Behaviour Chart — Cycle Time</div>
+    <div class="section-desc">XmR data sequence · arithmetic mean · natural process limits (UNPL / LNPL)</div>
+  </div>
+
+  <!-- PBC stat cards -->
+  <div class="stat-row">
+    <div class="stat-card blue">
+      <div class="stat-label">Arithmetic Mean (X̄)</div>
+      <div class="stat-value" id="pbc-mean-val">—<span>days</span></div>
+      <div class="stat-sub">Average of all 30 items</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Mean Moving Range (mR̄)</div>
+      <div class="stat-value" id="pbc-mr-val">—<span>days</span></div>
+      <div class="stat-sub">Average |xᵢ − xᵢ₋₁|</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">UNPL (Upper Limit)</div>
+      <div class="stat-value" id="pbc-unpl-val">—<span>days</span></div>
+      <div class="stat-sub">X̄ + 2.66 × mR̄</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">LNPL (Lower Limit)</div>
+      <div class="stat-value" id="pbc-lnpl-val">—<span>days</span></div>
+      <div class="stat-sub">max(0, X̄ − 2.66 × mR̄)</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Signals above UNPL</div>
+      <div class="stat-value" id="pbc-signals-val">—</div>
+      <div class="stat-sub">Points outside limits</div>
+    </div>
+  </div>
+
+  <!-- Signal badges -->
+  <div class="signal-list" id="pbc-signals-list"></div>
+
+  <!-- Legend -->
+  <div class="legend" style="margin-bottom:14px">
+    <div class="legend-item"><div class="lline" style="border-color:var(--accent);border-style:solid;border-width:2px"></div>Cycle Time</div>
+    <div class="legend-item"><div class="lline" style="border-color:var(--yellow);border-style:dashed"></div>Mean (X̄)</div>
+    <div class="legend-item"><div class="lline" style="border-color:var(--red);border-style:dashed"></div>UNPL / LNPL</div>
+    <div class="legend-item"><div class="ldot" style="background:var(--red);width:10px;height:10px"></div>Signal (above UNPL)</div>
+  </div>
+
+  <!-- XmR Chart -->
+  <div class="chart-box" style="margin-bottom:20px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">X Chart — Individual Values</div>
+    <div class="tooltip" id="pbc-tooltip"></div>
+    <svg id="pbc-xchart" width="100%" height="300"></svg>
+  </div>
+
+  <!-- mR Chart -->
+  <div class="chart-box">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">mR Chart — Moving Range</div>
+    <svg id="pbc-mrchart" width="100%" height="200"></svg>
+  </div>
+
+</div><!-- /tab-pbc -->
+
 <script>
-const data = [
-  { date:"2024-07-15", label:"15 Jul 2024",  size:"S", days:49  },
-  { date:"2024-08-22", label:"22 Aug 2024",  size:"S", days:48  },
-  { date:"2024-09-10", label:"10 Sep 2024",  size:"S", days:87  },
-  { date:"2024-09-25", label:"25 Sep 2024",  size:"M", days:57  },
-  { date:"2024-10-05", label:"5 Oct 2024",   size:"M", days:148 },
-  { date:"2024-10-14", label:"14 Oct 2024",  size:"S", days:53  },
-  { date:"2024-10-28", label:"28 Oct 2024",  size:"S", days:45  },
-  { date:"2024-11-18", label:"18 Nov 2024",  size:"M", days:145 },
-  { date:"2024-12-04", label:"4 Dec 2024",   size:"L", days:105 },
-  { date:"2025-01-08", label:"8 Jan 2025",   size:"S", days:5   },
-  { date:"2025-01-20", label:"20 Jan 2025",  size:"L", days:163 },
-  { date:"2025-02-14", label:"14 Feb 2025",  size:"S", days:43  },
-  { date:"2025-02-26", label:"26 Feb 2025",  size:"M", days:415 },
-  { date:"2025-03-15", label:"15 Mar 2025",  size:"L", days:123 },
-  { date:"2025-04-10", label:"10 Apr 2025",  size:"M", days:103 },
-  { date:"2025-05-05", label:"5 May 2025",   size:"L", days:104 },
-  { date:"2025-06-12", label:"12 Jun 2025",  size:"L", days:302 },
-  { date:"2025-06-25", label:"25 Jun 2025",  size:"L", days:158 },
-  { date:"2025-07-02", label:"2 Jul 2025",   size:"L", days:98  },
-  { date:"2025-07-11", label:"11 Jul 2025",  size:"S", days:52  },
-  { date:"2025-07-18", label:"18 Jul 2025",  size:"M", days:95  },
-  { date:"2025-07-29", label:"29 Jul 2025",  size:"S", days:70  },
-  { date:"2025-08-03", label:"3 Aug 2025",   size:"M", days:95  },
-  { date:"2025-08-14", label:"14 Aug 2025",  size:"M", days:101 },
-  { date:"2025-08-21", label:"21 Aug 2025",  size:"M", days:57  },
-  { date:"2025-08-29", label:"29 Aug 2025",  size:"M", days:57  },
-  { date:"2025-09-08", label:"8 Sep 2025",   size:"S", days:53  },
-  { date:"2025-09-22", label:"22 Sep 2025",  size:"L", days:137 },
-  { date:"2025-10-04", label:"4 Oct 2025",   size:"S", days:73  },
-  { date:"2025-10-12", label:"12 Oct 2025",  size:"M", days:60  },
-  { date:"2025-10-19", label:"19 Oct 2025",  size:"S", days:126 },
-  { date:"2025-10-27", label:"27 Oct 2025",  size:"M", days:57  },
-  { date:"2025-11-05", label:"5 Nov 2025",   size:"L", days:124 },
-  { date:"2025-11-15", label:"15 Nov 2025",  size:"M", days:75  },
-  { date:"2025-11-25", label:"25 Nov 2025",  size:"M", days:89  },
-  { date:"2025-12-10", label:"10 Dec 2025",  size:"S", days:44  },
-];
+/* ══════════════════════════════════════════════════
+   TAB SWITCHING
+══════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'tab-lt') { setTimeout(drawLT, 50); }
+  if (id === 'tab-pbc') { setTimeout(drawPBC, 50); }
+}
 
-const COLOR    = { S:"#22c55e", M:"#eab308", L:"#ef4444" };
-const LABEL    = { S:"Small",   M:"Medium",  L:"Large"   };
-const SIZE_BG  = { S:"#dcfce7", M:"#fef9c3", L:"#fee2e2" };
-const SIZE_COL = { S:"#166534", M:"#713f12", L:"#991b1b" };
-const DOT_R    = { S:7,         M:9,         L:11        };
+/* ══════════════════════════════════════════════════
+   SVG HELPERS
+══════════════════════════════════════════════════ */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, txt) {
+  const e = document.createElementNS(NS, tag);
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
+  if (txt !== undefined) e.textContent = txt;
+  return e;
+}
+function poly(pts, attrs) {
+  const e = document.createElementNS(NS, 'polyline');
+  e.setAttribute('points', pts.map(([x,y])=>`${x},${y}`).join(' '));
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
+  return e;
+}
 
-const parsed = data.map(d => ({ ...d, ts: new Date(d.date).getTime() }));
-const margin = { top:24, right:36, bottom:64, left:68 };
+/* ══════════════════════════════════════════════════
+   TAB 1 · LEAD TIMES
+══════════════════════════════════════════════════ */
+let LT_ALL = [
+  {date:"2024-07-15",size:"S",days:49},{date:"2024-08-22",size:"S",days:48},
+  {date:"2024-09-10",size:"S",days:87},{date:"2024-09-25",size:"M",days:57},
+  {date:"2024-10-05",size:"M",days:148},{date:"2024-10-14",size:"S",days:53},
+  {date:"2024-10-28",size:"S",days:45},{date:"2024-11-18",size:"M",days:145},
+  {date:"2024-12-04",size:"L",days:105},{date:"2025-01-08",size:"S",days:5},
+  {date:"2025-01-20",size:"L",days:163},{date:"2025-02-14",size:"S",days:43},
+  {date:"2025-02-26",size:"M",days:415},{date:"2025-03-15",size:"L",days:123},
+  {date:"2025-04-10",size:"M",days:103},{date:"2025-05-05",size:"L",days:104},
+  {date:"2025-06-12",size:"L",days:302},{date:"2025-06-25",size:"L",days:158},
+  {date:"2025-07-02",size:"L",days:98},{date:"2025-07-11",size:"S",days:52},
+  {date:"2025-07-18",size:"M",days:95},{date:"2025-07-29",size:"S",days:70},
+  {date:"2025-08-03",size:"M",days:95},{date:"2025-08-14",size:"M",days:101},
+  {date:"2025-08-21",size:"M",days:57},{date:"2025-08-29",size:"M",days:57},
+  {date:"2025-09-08",size:"S",days:53},{date:"2025-09-22",size:"L",days:137},
+  {date:"2025-10-04",size:"S",days:73},{date:"2025-10-12",size:"M",days:60},
+  {date:"2025-10-19",size:"S",days:126},{date:"2025-10-27",size:"M",days:57},
+  {date:"2025-11-05",size:"L",days:124},{date:"2025-11-15",size:"M",days:75},
+  {date:"2025-11-25",size:"M",days:89},{date:"2025-12-10",size:"S",days:44},
+].map((d,i)=>({...d,id:i,isNew:false}));
 
-function draw() {
-  const svgEl = document.getElementById("scatter");
-  const W = svgEl.clientWidth || 836;
-  const H = 480;
-  svgEl.setAttribute("height", H);
-  svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  svgEl.innerHTML = "";
+let ltNextId = LT_ALL.length;
+let ltRemoved = new Set();
 
-  const iW = W - margin.left - margin.right;
-  const iH = H - margin.top - margin.bottom;
+const LT_COL   = {S:'#34d47a', M:'#f7c948', L:'#f05252'};
+const LT_LBL   = {S:'Small', M:'Medium', L:'Large'};
+const LT_BG    = {S:'rgba(52,212,122,.18)', M:'rgba(247,201,72,.18)', L:'rgba(240,82,82,.18)'};
+const LT_FG    = {S:'#34d47a', M:'#f7c948', L:'#f05252'};
+const LT_DOT_R = {S:6, M:8, L:10};
 
-  const minTs = Math.min(...parsed.map(d => d.ts));
-  const maxTs = Math.max(...parsed.map(d => d.ts));
-  const maxDays = 460;
+function p85(arr){
+  if(!arr.length) return null;
+  const s=[...arr].sort((a,b)=>a-b);
+  const idx=0.85*(s.length-1), lo=Math.floor(idx), hi=Math.ceil(idx);
+  return s[lo]+(s[hi]-s[lo])*(idx-lo);
+}
 
-  const xS = ts => margin.left + ((ts - minTs) / (maxTs - minTs)) * iW;
-  const yS = v  => margin.top  + iH - (v / maxDays) * iH;
-
-  const ns = "http://www.w3.org/2000/svg";
-  const mk = (tag, attrs, txt) => {
-    const el = document.createElementNS(ns, tag);
-    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
-    if (txt !== undefined) el.textContent = txt;
-    return el;
-  };
-
-  // Background
-  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"#fafafa", rx:4 }));
-
-  // Grid lines + y labels
-  [0,50,100,150,200,250,300,350,400,450].forEach(v => {
-    const y = yS(v);
-    svgEl.appendChild(mk("line", { x1:margin.left, x2:margin.left+iW, y1:y, y2:y, stroke: v===0?"#cbd5e0":"#e2e8f0", "stroke-width":1 }));
-    svgEl.appendChild(mk("text", { x:margin.left-10, y:y+4, "text-anchor":"end", "font-size":11, fill:"#94a3b8" }, v));
-  });
-
-  // X-axis ticks (every 2 months)
-  const cur = new Date("2024-07-01");
-  const end = new Date("2026-01-01");
-  while (cur < end) {
-    const x = xS(cur.getTime());
-    if (x >= margin.left && x <= margin.left+iW) {
-      svgEl.appendChild(mk("line", { x1:x, x2:x, y1:margin.top+iH, y2:margin.top+iH+6, stroke:"#cbd5e0" }));
-      const lbl = cur.toLocaleString("en",{month:"short"}) + " '" + cur.getFullYear().toString().slice(2);
-      svgEl.appendChild(mk("text", { x, y:margin.top+iH+20, "text-anchor":"middle", "font-size":10, fill:"#94a3b8" }, lbl));
-    }
-    cur.setMonth(cur.getMonth() + 2);
+function ltDateBounds(){
+  const p = document.getElementById('lt-period').value;
+  if(p==='all') return {min:new Date('2000-01-01'),max:new Date('2999-12-31')};
+  if(p==='custom'){
+    const f=document.getElementById('lt-from').value, t=document.getElementById('lt-to').value;
+    return {min:f?new Date(f):new Date('2000-01-01'), max:t?new Date(t):new Date('2999-12-31')};
   }
+  const days=parseInt(p), now=new Date(), min=new Date(now);
+  min.setDate(min.getDate()-days);
+  return {min, max:new Date('2999-12-31')};
+}
 
-  // Chart border
-  svgEl.appendChild(mk("rect", { x:margin.left, y:margin.top, width:iW, height:iH, fill:"none", stroke:"#cbd5e0", "stroke-width":1, rx:4 }));
+function ltVisible(){
+  const {min,max}=ltDateBounds();
+  return LT_ALL.filter(d=>{
+    if(ltRemoved.has(d.id)) return false;
+    const dt=new Date(d.date); return dt>=min && dt<=max;
+  }).map(d=>({...d, ts:new Date(d.date).getTime()}));
+}
 
-  // Axis labels
-  const yLbl = mk("text", { x:-(margin.top+iH/2), y:16, transform:"rotate(-90)", "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Lead Time (days)");
-  svgEl.appendChild(yLbl);
-  svgEl.appendChild(mk("text", { x:margin.left+iW/2, y:H-10, "text-anchor":"middle", "font-size":12, fill:"#64748b", "font-weight":500 }, "Completion Date"));
+function ltTopOutlier(data){ return data.length ? data.reduce((m,d)=>d.days>m.days?d:m,data[0]) : null; }
 
-  // Trend line
-  const n = parsed.length;
-  const xs = parsed.map(d => d.ts), ys = parsed.map(d => d.days);
-  const xm = xs.reduce((a,b)=>a+b,0)/n, ym = ys.reduce((a,b)=>a+b,0)/n;
-  const slope = xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0) / xs.reduce((acc,x)=>acc+(x-xm)**2,0);
-  const ic = ym - slope*xm;
-  svgEl.appendChild(mk("line", {
-    x1:xS(minTs), x2:xS(maxTs),
-    y1:yS(slope*minTs+ic), y2:yS(slope*maxTs+ic),
-    stroke:"#94a3b8", "stroke-width":1.5, "stroke-dasharray":"6,4", opacity:0.7
-  }));
-
-  // Dots
-  const tooltip = document.getElementById("tooltip");
-
-  parsed.forEach(d => {
-    const cx = xS(d.ts), cy = yS(d.days);
-    const r = DOT_R[d.size];
-
-    const shadow = mk("circle", { cx, cy:cy+2, r:r+1, fill:"rgba(0,0,0,0.07)" });
-    svgEl.appendChild(shadow);
-
-    const c = mk("circle", { cx, cy, r, fill:COLOR[d.size], stroke:"white", "stroke-width":2, opacity:0.92, style:"cursor:pointer" });
-
-    c.addEventListener("mouseenter", () => {
-      c.setAttribute("r", r+3);
-      c.setAttribute("opacity", 1);
-      tooltip.innerHTML = `
-        <strong>${d.label}</strong><br>
-        Size: <span class="t-size" style="background:${SIZE_BG[d.size]};color:${SIZE_COL[d.size]}">${LABEL[d.size]}</span><br>
-        Lead time: <strong>${d.days} days</strong>
-      `;
-      tooltip.style.display = "block";
-    });
-    c.addEventListener("mousemove", e => {
-      let l = e.clientX+14, t = e.clientY-48;
-      if (l+180 > window.innerWidth) l = e.clientX-190;
-      if (t < 0) t = e.clientY+10;
-      tooltip.style.left = l+"px";
-      tooltip.style.top  = t+"px";
-    });
-    c.addEventListener("mouseleave", () => {
-      c.setAttribute("r", r);
-      c.setAttribute("opacity", 0.92);
-      tooltip.style.display = "none";
-    });
-
-    svgEl.appendChild(c);
+function ltUpdateCards(data){
+  const row=document.getElementById('lt-p85row');
+  row.innerHTML='';
+  const cls={S:'green',M:'yellow',L:'red'};
+  ['S','M','L'].forEach(s=>{
+    const vals=data.filter(d=>d.size===s).map(d=>d.days);
+    const v=p85(vals);
+    row.innerHTML+=`<div class="stat-card ${cls[s]}">
+      <div class="stat-label">P85 · ${LT_LBL[s]}</div>
+      <div class="stat-value">${v!==null?Math.round(v):'—'}<span>days</span></div>
+      <div class="stat-sub">85th percentile · n=${vals.length}</div>
+    </div>`;
   });
 }
 
-draw();
-window.addEventListener("resize", draw);
+function drawLT(){
+  const data=ltVisible();
+  ltUpdateCards(data);
+  const outlier=ltTopOutlier(data);
+  const btnRm=document.getElementById('lt-btn-remove');
+  const btnRs=document.getElementById('lt-btn-reset');
+  btnRm.textContent=outlier?`✕ Remove outlier (${fmtDate(outlier.date)}, ${outlier.days}d)`:'✕ Remove top outlier';
+  btnRm.disabled=!outlier;
+  btnRs.style.display=ltRemoved.size>0?'flex':'none';
+
+  const svgEl=document.getElementById('lt-scatter');
+  const W=svgEl.clientWidth||880, H=440;
+  svgEl.setAttribute('height',H); svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.innerHTML='';
+
+  const M={top:20,right:90,bottom:56,left:60};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+
+  if(!data.length){
+    svgEl.appendChild(el('text',{x:W/2,y:H/2,'text-anchor':'middle','font-size':13,fill:'#6b7280'},'No data in selected range.'));
+    return;
+  }
+
+  const minTs=Math.min(...data.map(d=>d.ts)), maxTs=Math.max(...data.map(d=>d.ts));
+  const maxDays=Math.max(80,Math.max(...data.map(d=>d.days))*1.1);
+
+  const xS=ts=>M.left+((ts-minTs)/(maxTs-minTs||1))*iW;
+  const yS=v=>M.top+iH-(v/maxDays)*iH;
+
+  // bg
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'rgba(255,255,255,0.02)',rx:6}));
+
+  // grid + y labels
+  const step=maxDays>400?100:maxDays>200?50:25;
+  for(let v=0;v<=maxDays;v+=step){
+    const y=yS(v); if(y<M.top-1) break;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:v===0?'rgba(255,255,255,.12)':'rgba(255,255,255,.05)','stroke-width':1}));
+    svgEl.appendChild(el('text',{x:M.left-8,y:y+4,'text-anchor':'end','font-size':10,fill:'#4b5563','font-family':'DM Mono,monospace'},v));
+  }
+
+  // x ticks
+  const span=(maxTs-minTs)/(86400000);
+  const tickMo=span<100?1:span<400?2:3;
+  const cur=new Date(minTs); cur.setDate(1);
+  while(cur.getTime()<=maxTs+30*86400000){
+    const x=xS(cur.getTime());
+    if(x>=M.left&&x<=M.left+iW){
+      svgEl.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+5,stroke:'rgba(255,255,255,.15)'}));
+      svgEl.appendChild(el('text',{x,y:M.top+iH+17,'text-anchor':'middle','font-size':9,fill:'#4b5563'},
+        cur.toLocaleString('en',{month:'short'})+" '"+cur.getFullYear().toString().slice(2)));
+    }
+    cur.setMonth(cur.getMonth()+tickMo);
+  }
+
+  // border
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'rgba(255,255,255,.08)','stroke-width':1,rx:6}));
+
+  // axis labels
+  const yLbl=el('text',{x:-(M.top+iH/2),y:14,transform:'rotate(-90)','text-anchor':'middle','font-size':11,fill:'#6b7280','font-weight':500},'Lead Time (days)');
+  svgEl.appendChild(yLbl);
+  svgEl.appendChild(el('text',{x:M.left+iW/2,y:H-6,'text-anchor':'middle','font-size':11,fill:'#6b7280','font-weight':500},'Completion Date'));
+
+  // P85 lines
+  const p85s={};
+  ['S','M','L'].forEach(s=>{
+    const vals=data.filter(d=>d.size===s).map(d=>d.days);
+    p85s[s]=p85(vals);
+  });
+  ['S','M','L'].forEach(s=>{
+    const v=p85s[s]; if(v===null) return;
+    const y=yS(v); if(y<M.top||y>M.top+iH) return;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:LT_COL[s],'stroke-width':1,'stroke-dasharray':'5,4',opacity:.55}));
+    svgEl.appendChild(el('text',{x:M.left+iW+5,y:y+4,'font-size':9,fill:LT_COL[s],'font-weight':700,'font-family':'DM Mono,monospace'},`P85(${s})=${Math.round(v)}d`));
+  });
+
+  // Trend line
+  if(data.length>1){
+    const n=data.length,xs=data.map(d=>d.ts),ys=data.map(d=>d.days);
+    const xm=xs.reduce((a,b)=>a+b,0)/n,ym=ys.reduce((a,b)=>a+b,0)/n;
+    const sl=xs.reduce((acc,x,i)=>acc+(x-xm)*(ys[i]-ym),0)/xs.reduce((acc,x)=>acc+(x-xm)**2,0);
+    const ic=ym-sl*xm;
+    svgEl.appendChild(el('line',{x1:xS(minTs),x2:xS(maxTs),y1:yS(sl*minTs+ic),y2:yS(sl*maxTs+ic),stroke:'rgba(255,255,255,.2)','stroke-width':1.5,'stroke-dasharray':'5,4'}));
+  }
+
+  // Dots
+  const tip=document.getElementById('lt-tooltip');
+  data.forEach(d=>{
+    const cx=xS(d.ts),cy=yS(d.days),r=LT_DOT_R[d.size];
+    const isOut=outlier&&d.id===outlier.id;
+    const aboveP85=p85s[d.size]!==null&&d.days>p85s[d.size];
+
+    if(isOut){
+      svgEl.appendChild(el('circle',{cx,cy,r:r+9,fill:'rgba(240,82,82,.08)'}));
+      svgEl.appendChild(el('circle',{cx,cy,r:r+5,fill:'rgba(240,82,82,.13)'}));
+    }
+    svgEl.appendChild(el('circle',{cx,cy:cy+2,r:r+1,fill:'rgba(0,0,0,.25)'}));
+
+    const c=el('circle',{cx,cy,r,fill:LT_COL[d.size],stroke:isOut?'#f05252':d.isNew?'#a78bfa':'rgba(255,255,255,.3)','stroke-width':isOut?2.5:d.isNew?2.5:1.5,opacity:.92,style:'cursor:pointer'});
+
+    if(isOut){
+      svgEl.appendChild(c);
+      svgEl.appendChild(el('line',{x1:cx-3.5,y1:cy-3.5,x2:cx+3.5,y2:cy+3.5,stroke:'white','stroke-width':1.5,'stroke-linecap':'round'}));
+      svgEl.appendChild(el('line',{x1:cx+3.5,y1:cy-3.5,x2:cx-3.5,y2:cy+3.5,stroke:'white','stroke-width':1.5,'stroke-linecap':'round'}));
+    } else if(d.isNew){
+      svgEl.appendChild(c);
+      svgEl.appendChild(el('text',{x:cx,y:cy+4,'text-anchor':'middle','font-size':8,'font-weight':700,fill:'white',style:'pointer-events:none'},'★'));
+    } else {
+      svgEl.appendChild(c);
+    }
+
+    c.addEventListener('mouseenter',()=>{
+      c.setAttribute('r',r+3); c.setAttribute('opacity',1);
+      tip.innerHTML=`<strong>${fmtDate(d.date)}</strong>${d.isNew?'<span class="new-badge">NEW</span>':''}${isOut?'<span class="new-badge" style="background:rgba(240,82,82,.2);color:var(--red)">OUTLIER</span>':''}<br>
+Size: <span class="t-badge" style="background:${LT_BG[d.size]};color:${LT_FG[d.size]}">${LT_LBL[d.size]}</span><br>
+Lead time: <strong>${d.days} days</strong><br>
+P85(${d.size}): ${p85s[d.size]!==null?Math.round(p85s[d.size])+' days':'—'}${aboveP85?'<br><span style="color:var(--red);font-size:10px">▲ above 85th percentile</span>':''}`;
+      tip.style.display='block';
+    });
+    c.addEventListener('mousemove',e=>{
+      let l=e.clientX+14,t=e.clientY-52;
+      if(l+200>window.innerWidth) l=e.clientX-215;
+      if(t<0) t=e.clientY+10;
+      tip.style.left=l+'px'; tip.style.top=t+'px';
+    });
+    c.addEventListener('mouseleave',()=>{ c.setAttribute('r',r); c.setAttribute('opacity',.92); tip.style.display='none'; });
+  });
+}
+
+// LT controls
+document.getElementById('lt-period').addEventListener('change',function(){
+  document.getElementById('lt-custom-range').style.display=this.value==='custom'?'flex':'none';
+  drawLT();
+});
+document.getElementById('lt-from').addEventListener('change',drawLT);
+document.getElementById('lt-to').addEventListener('change',drawLT);
+document.getElementById('lt-btn-remove').addEventListener('click',()=>{
+  const o=ltTopOutlier(ltVisible()); if(o){ltRemoved.add(o.id);drawLT();}
+});
+document.getElementById('lt-btn-reset').addEventListener('click',()=>{ltRemoved.clear();drawLT();});
+document.getElementById('lt-btn-add-toggle').addEventListener('click',()=>{
+  const p=document.getElementById('lt-add-panel'),open=p.classList.toggle('open');
+  document.getElementById('lt-btn-add-toggle').textContent=open?'✕ Close':'+ Add point';
+  document.getElementById('lt-add-err').style.display='none';
+  if(open) document.getElementById('lt-new-date').value=new Date().toISOString().slice(0,10);
+});
+document.getElementById('lt-btn-add-cancel').addEventListener('click',()=>{
+  document.getElementById('lt-add-panel').classList.remove('open');
+  document.getElementById('lt-btn-add-toggle').textContent='+ Add point';
+});
+document.getElementById('lt-btn-add-confirm').addEventListener('click',()=>{
+  const dv=document.getElementById('lt-new-date').value;
+  const sv=document.getElementById('lt-new-size').value;
+  const dys=parseInt(document.getElementById('lt-new-days').value);
+  const err=document.getElementById('lt-add-err');
+  if(!dv||!sv||isNaN(dys)||dys<1){err.style.display='block';return;}
+  err.style.display='none';
+  LT_ALL.push({date:dv,size:sv,days:dys,id:ltNextId++,isNew:true});
+  const {min,max}=ltDateBounds(); const dt=new Date(dv);
+  if(dt<min||dt>max){document.getElementById('lt-period').value='all';document.getElementById('lt-custom-range').style.display='none';}
+  document.getElementById('lt-add-panel').classList.remove('open');
+  document.getElementById('lt-btn-add-toggle').textContent='+ Add point';
+  drawLT();
+});
+
+// Preset date inputs
+(()=>{
+  const dates=LT_ALL.map(d=>d.date).sort();
+  document.getElementById('lt-from').value=dates[0];
+  document.getElementById('lt-to').value=dates[dates.length-1];
+})();
+
+/* ══════════════════════════════════════════════════
+   TAB 2 · PROCESS BEHAVIOUR CHART
+══════════════════════════════════════════════════ */
+const PBC_DATA = [
+  {id:1,  closed:'2024-01-05', ct:38},
+  {id:2,  closed:'2024-01-11', ct:24},
+  {id:3,  closed:'2024-01-16', ct:14},
+  {id:4,  closed:'2024-01-17', ct:9},
+  {id:5,  closed:'2024-01-22', ct:4},
+  {id:6,  closed:'2024-01-26', ct:25},
+  {id:7,  closed:'2024-01-29', ct:19},
+  {id:8,  closed:'2024-02-06', ct:51},
+  {id:9,  closed:'2024-02-12', ct:48},
+  {id:10, closed:'2024-02-15', ct:15},
+  {id:11, closed:'2024-02-17', ct:22},
+  {id:12, closed:'2024-02-18', ct:42},
+  {id:13, closed:'2024-02-19', ct:17},
+  {id:14, closed:'2024-02-21', ct:7},
+  {id:15, closed:'2024-02-28', ct:5},
+  {id:16, closed:'2024-03-12', ct:20},
+  {id:17, closed:'2024-03-14', ct:63},
+  {id:18, closed:'2024-03-19', ct:6},
+  {id:19, closed:'2024-03-20', ct:56},
+  {id:20, closed:'2024-03-22', ct:24},
+  {id:21, closed:'2024-03-22', ct:22},
+  {id:22, closed:'2024-03-26', ct:50},
+  {id:23, closed:'2024-03-27', ct:8},
+  {id:24, closed:'2024-03-28', ct:2},
+  {id:25, closed:'2024-03-29', ct:3},
+  {id:26, closed:'2024-03-30', ct:8},
+  {id:27, closed:'2024-04-01', ct:36},
+  {id:28, closed:'2024-04-02', ct:27},
+  {id:29, closed:'2024-04-09', ct:29},
+  {id:30, closed:'2024-04-09', ct:20},
+];
+
+function computePBC(){
+  const cts=PBC_DATA.map(d=>d.ct);
+  const n=cts.length;
+  const mean=cts.reduce((a,b)=>a+b,0)/n;
+  const mRs=cts.slice(1).map((v,i)=>Math.abs(v-cts[i]));
+  const mRbar=mRs.reduce((a,b)=>a+b,0)/mRs.length;
+  const unpl=mean+2.66*mRbar;
+  const lnpl=Math.max(0,mean-2.66*mRbar);
+  const urlMR=3.268*mRbar;
+  return {mean,mRs,mRbar,unpl,lnpl,urlMR,n};
+}
+
+function drawPBC(){
+  const {mean,mRs,mRbar,unpl,lnpl,urlMR}=computePBC();
+
+  // Update stat cards
+  document.getElementById('pbc-mean-val').innerHTML=`${mean.toFixed(1)}<span>days</span>`;
+  document.getElementById('pbc-mr-val').innerHTML=`${mRbar.toFixed(1)}<span>days</span>`;
+  document.getElementById('pbc-unpl-val').innerHTML=`${unpl.toFixed(1)}<span>days</span>`;
+  document.getElementById('pbc-lnpl-val').innerHTML=`${lnpl.toFixed(1)}<span>days</span>`;
+
+  // Signal badges
+  const signals=PBC_DATA.filter(d=>d.ct>unpl);
+  document.getElementById('pbc-signals-val').textContent=signals.length;
+  const sl=document.getElementById('pbc-signals-list');
+  sl.innerHTML=signals.length===0
+    ? `<span style="font-size:12px;color:var(--green)">✓ No points above UNPL — process appears stable</span>`
+    : signals.map(d=>`<span class="signal-badge">⚠ #${d.id} · ${fmtDate(d.closed)} · ${d.ct}d</span>`).join('');
+
+  drawXChart(mean,unpl,lnpl);
+  drawMRChart(mRs,mRbar,urlMR);
+}
+
+function drawXChart(mean,unpl,lnpl){
+  const svgEl=document.getElementById('pbc-xchart');
+  const W=svgEl.clientWidth||880, H=300;
+  svgEl.setAttribute('height',H); svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.innerHTML='';
+
+  const M={top:16,right:60,bottom:36,left:54};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const n=PBC_DATA.length;
+
+  const maxY=Math.max(unpl*1.12, Math.max(...PBC_DATA.map(d=>d.ct))*1.1);
+  const xS=i=>M.left+(i/(n-1))*iW;
+  const yS=v=>M.top+iH-(v/maxY)*iH;
+
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'rgba(255,255,255,.02)',rx:4}));
+
+  // y grid
+  const yStep=maxY>80?20:10;
+  for(let v=0;v<=maxY;v+=yStep){
+    const y=yS(v); if(y<M.top-1) break;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'rgba(255,255,255,.05)','stroke-width':1}));
+    svgEl.appendChild(el('text',{x:M.left-6,y:y+4,'text-anchor':'end','font-size':9,fill:'#4b5563','font-family':'DM Mono,monospace'},v));
+  }
+
+  // x ticks
+  PBC_DATA.forEach((d,i)=>{
+    if(i%5===0||i===n-1){
+      const x=xS(i);
+      svgEl.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+4,stroke:'rgba(255,255,255,.15)'}));
+      svgEl.appendChild(el('text',{x,y:M.top+iH+14,'text-anchor':'middle','font-size':9,fill:'#4b5563'},d.id));
+    }
+  });
+  svgEl.appendChild(el('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle','font-size':10,fill:'#6b7280'},'Item #'));
+
+  // shaded zone between lnpl and unpl
+  const zoneTop=yS(unpl), zoneBot=yS(lnpl);
+  svgEl.appendChild(el('rect',{x:M.left,y:zoneTop,width:iW,height:zoneBot-zoneTop,fill:'rgba(79,142,247,.04)'}));
+
+  // Limit lines
+  [[unpl,'var(--red)'],[mean,'var(--yellow)'],[lnpl,'var(--red)']].forEach(([v,col])=>{
+    const y=yS(v);
+    if(y<M.top||y>M.top+iH) return;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:col,'stroke-width':1.5,'stroke-dasharray':'6,3',opacity:.7}));
+    const lbl=v===mean?`X̄=${mean.toFixed(1)}`:v===unpl?`UNPL=${unpl.toFixed(1)}`:`LNPL=${lnpl.toFixed(1)}`;
+    svgEl.appendChild(el('text',{x:M.left+iW+4,y:y+4,'font-size':8.5,fill:col,'font-weight':700,'font-family':'DM Mono,monospace'},lbl));
+  });
+
+  // Line connecting data points
+  const pts=PBC_DATA.map((d,i)=>[xS(i),yS(d.ct)]);
+  svgEl.appendChild(poly(pts,{fill:'none',stroke:'var(--accent)','stroke-width':1.8,'stroke-linejoin':'round'}));
+
+  // Dots
+  const tip=document.getElementById('pbc-tooltip');
+  PBC_DATA.forEach((d,i)=>{
+    const cx=xS(i), cy=yS(d.ct);
+    const isSignal=d.ct>unpl;
+    if(isSignal){
+      svgEl.appendChild(el('circle',{cx,cy,r:10,fill:'rgba(240,82,82,.12)'}));
+    }
+    const c=el('circle',{cx,cy,r:isSignal?5.5:4,fill:isSignal?'var(--red)':'var(--accent)',stroke:'var(--bg)','stroke-width':1.5,opacity:.95,style:'cursor:pointer'});
+    svgEl.appendChild(c);
+    if(isSignal){
+      svgEl.appendChild(el('text',{x:cx,y:cy-9,'text-anchor':'middle','font-size':9,fill:'var(--red)','font-weight':700},'▲'));
+    }
+    c.addEventListener('mouseenter',()=>{
+      c.setAttribute('r',isSignal?8:6.5); c.setAttribute('opacity',1);
+      tip.innerHTML=`<strong>#${d.id}</strong> · ${fmtDate(d.closed)}<br>Cycle time: <strong>${d.ct} days</strong>${isSignal?'<br><span style="color:var(--red);font-size:10px">▲ above UNPL ('+unpl.toFixed(1)+'d)</span>':''}`;
+      tip.style.display='block';
+    });
+    c.addEventListener('mousemove',e=>{
+      let l=e.clientX+14,t=e.clientY-48;
+      if(l+200>window.innerWidth) l=e.clientX-215;
+      if(t<0) t=e.clientY+10;
+      tip.style.left=l+'px'; tip.style.top=t+'px';
+    });
+    c.addEventListener('mouseleave',()=>{ c.setAttribute('r',isSignal?5.5:4); c.setAttribute('opacity',.95); tip.style.display='none'; });
+  });
+
+  // border
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'rgba(255,255,255,.08)',rx:4}));
+}
+
+function drawMRChart(mRs,mRbar,urlMR){
+  const svgEl=document.getElementById('pbc-mrchart');
+  const W=svgEl.clientWidth||880, H=200;
+  svgEl.setAttribute('height',H); svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.innerHTML='';
+
+  const M={top:14,right:60,bottom:34,left:54};
+  const iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  const n=mRs.length; // n-1 items
+
+  const maxY=Math.max(urlMR*1.12, Math.max(...mRs)*1.1);
+  const xS=i=>M.left+((i+0.5)/n)*iW; // shift by 0.5 so mR[0] aligns between points 1-2
+  const yS=v=>M.top+iH-(v/maxY)*iH;
+
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'rgba(255,255,255,.02)',rx:4}));
+
+  // y grid
+  const yStep=maxY>80?20:maxY>40?10:5;
+  for(let v=0;v<=maxY;v+=yStep){
+    const y=yS(v); if(y<M.top-1) break;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:'rgba(255,255,255,.05)','stroke-width':1}));
+    svgEl.appendChild(el('text',{x:M.left-6,y:y+4,'text-anchor':'end','font-size':9,fill:'#4b5563','font-family':'DM Mono,monospace'},Math.round(v)));
+  }
+
+  // x ticks
+  mRs.forEach((_,i)=>{
+    if(i%5===0||i===n-1){
+      const x=xS(i);
+      svgEl.appendChild(el('line',{x1:x,x2:x,y1:M.top+iH,y2:M.top+iH+4,stroke:'rgba(255,255,255,.15)'}));
+      svgEl.appendChild(el('text',{x,y:M.top+iH+14,'text-anchor':'middle','font-size':9,fill:'#4b5563'},i+2));
+    }
+  });
+  svgEl.appendChild(el('text',{x:M.left+iW/2,y:H-2,'text-anchor':'middle','font-size':10,fill:'#6b7280'},'Item #'));
+
+  // limit lines
+  [[urlMR,'var(--red)',`URL=${urlMR.toFixed(1)}`],[mRbar,'var(--yellow)',`mR̄=${mRbar.toFixed(1)}`]].forEach(([v,col,lbl])=>{
+    const y=yS(v); if(y<M.top||y>M.top+iH) return;
+    svgEl.appendChild(el('line',{x1:M.left,x2:M.left+iW,y1:y,y2:y,stroke:col,'stroke-width':1.5,'stroke-dasharray':'6,3',opacity:.7}));
+    svgEl.appendChild(el('text',{x:M.left+iW+4,y:y+4,'font-size':8.5,fill:col,'font-weight':700,'font-family':'DM Mono,monospace'},lbl));
+  });
+
+  // bars
+  const barW=iW/n*0.55;
+  mRs.forEach((v,i)=>{
+    const x=xS(i)-barW/2, barH=iH-(yS(v)-M.top);
+    const isHigh=v>urlMR;
+    svgEl.appendChild(el('rect',{x,y:yS(v),width:barW,height:barH,fill:isHigh?'rgba(240,82,82,.7)':'rgba(79,142,247,.5)',rx:2}));
+  });
+
+  svgEl.appendChild(el('rect',{x:M.left,y:M.top,width:iW,height:iH,fill:'none',stroke:'rgba(255,255,255,.08)',rx:4}));
+}
+
+/* ── Shared helpers ── */
+function fmtDate(s){
+  return new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+
+/* ── Init ── */
+drawLT();
+window.addEventListener('resize',()=>{
+  if(document.getElementById('tab-lt').classList.contains('active')) drawLT();
+  if(document.getElementById('tab-pbc').classList.contains('active')) drawPBC();
+});
 </script>
 </body>
 </html>
