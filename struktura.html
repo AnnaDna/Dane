@@ -1,1 +1,309 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warianty Struktury Organizacyjnej</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; color: #1a202c; }
+  .header { background: linear-gradient(135deg, #1e3a5f, #2d5f8a); color: white; padding: 24px 36px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header p { font-size: 13px; opacity: 0.75; margin-top: 6px; }
+  .tabs { display: flex; gap: 6px; padding: 16px 36px 0; background: #dce8f5; flex-wrap: wrap; }
+  .tab { padding: 11px 22px; border-radius: 10px 10px 0 0; cursor: pointer; font-size: 13px; font-weight: 600; background: #bdd2e8; color: #2d4a6e; border: none; transition: all 0.2s; outline: none; }
+  .tab.active { background: white; color: #1e3a5f; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); }
+  .tab:hover:not(.active) { background: #a8c2da; }
+  .content { background: white; padding: 32px 36px 36px; min-height: 520px; border-top: 3px solid #2563eb; }
+  .variant-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 22px; }
+  .variant-badge { background: #2563eb; color: white; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 700; white-space: nowrap; margin-top: 3px; }
+  .variant-title { font-size: 18px; font-weight: 700; color: #1e3a5f; }
+  .variant-desc { font-size: 13px; color: #4a6080; margin-top: 6px; line-height: 1.65; margin-bottom: 20px; }
+  .org { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 24px 0 10px; }
+  .org-row { display: flex; gap: 10px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .org-row + .org-row { margin-top: 20px; }
+  .connector-v { width: 2px; height: 20px; background: #94a3b8; margin: 0 auto; }
+  .node { padding: 10px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; text-align: center; min-width: 108px; line-height: 1.45; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .node-cto  { background: #2563eb; color: white; }
+  .node-cz   { background: #7c3aed; color: white; }
+  .node-sm   { background: #0891b2; color: white; }
+  .node-dx   { background: #059669; color: white; }
+  .node-ai   { background: #d97706; color: white; }
+  .node-ghost { background: #f1f5f9; color: #94a3b8; border: 2px dashed #cbd5e1; box-shadow: none; }
+  .badge { display: inline-block; background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px; margin-top: 5px; font-weight: 500; }
+  .badge-dark { background: rgba(0,0,0,0.15); }
+  .area-col { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .highlight-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; padding: 12px 16px; font-size: 12.5px; color: #1e40af; margin: 20px 0 0; line-height: 1.65; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .leg { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #4a5568; }
+  .leg-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; border-top: 2px solid #e2e8f0; padding-top: 24px; }
+  .pros { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 18px; }
+  .cons { background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; padding: 18px; }
+  .pros h3 { color: #166534; font-size: 13px; margin-bottom: 12px; }
+  .cons h3 { color: #9a3412; font-size: 13px; margin-bottom: 12px; }
+  .pros ul, .cons ul { list-style: none; }
+  .pros li, .cons li { font-size: 12.5px; padding: 5px 0; line-height: 1.55; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .pros li:last-child, .cons li:last-child { border-bottom: none; }
+  .pros li::before { content: '✓ '; color: #16a34a; font-weight: 700; }
+  .cons li::before { content: '✗ '; color: #dc2626; font-weight: 700; }
+  .toggle-row { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+  .toggle-btn { padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #7c3aed; background: white; color: #7c3aed; transition: all 0.2s; }
+  .toggle-btn.active { background: #7c3aed; color: white; }
+  .toggle-btn.change-btn { border-color: #2563eb; color: #2563eb; }
+  .toggle-btn.change-btn.active { background: #2563eb; color: white; }
+  @media (max-width: 700px) { .pros-cons { grid-template-columns: 1fr; } .tabs { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🏗 Warianty Struktury Centrum Zwinności</h1>
+  <p>Kliknij zakładkę, aby zobaczyć strukturę, opis i ocenę każdego wariantu</p>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="showVariant(1)">Wariant 1 – Stan obecny / Zmiana</button>
+  <button class="tab" onclick="showVariant(2)">Wariant 2 – SM z nowymi rolami</button>
+  <button class="tab" onclick="showVariant(3)">Wariant 3a – Rebrand CZ</button>
+  <button class="tab" onclick="showVariant(4)">Wariant 3b – Spec. w obszarach</button>
+</div>
+<div class="content" id="content"></div>
 
+<script>
+// ══════════════════════════════
+// WARIANT 1
+// ══════════════════════════════
+function renderV1(mode) {
+  var isChange = mode === 'change';
+
+  var toggleRow = '<div class="toggle-row">'
+    + '<button class="toggle-btn' + (!isChange ? ' active' : '') + '" onclick="renderV1Mode(\'current\')">📍 Stan obecny</button>'
+    + '<button class="toggle-btn change-btn' + (isChange ? ' active' : '') + '" onclick="renderV1Mode(\'change\')">🔄 Po zmianie</button>'
+    + '</div>';
+
+  var header = '<div class="variant-header"><div class="variant-badge">Wariant 1</div>'
+    + '<div><div class="variant-title">' + (isChange ? 'Po zmianie' : 'Stan obecny – Centrum Zwinności pod CTO #1') + '</div></div></div>';
+
+  if (!isChange) {
+    var nuts = '<div style="display:flex;gap:8px;justify-content:center">'
+      + '<div class="node node-ai" style="min-width:90px;font-size:11px">Nurt AI</div>'
+      + '<div class="node node-dx" style="min-width:90px;font-size:11px">Nurt DevEX</div>'
+      + '<div class="node node-sm" style="min-width:140px;font-size:11px">Zwiększenie efektywności zespołów</div>'
+      + '</div>';
+
+    var restCTOs = '';
+    for (var i = 2; i <= 8; i++) {
+      restCTOs += '<div class="area-col"><div class="node node-cto" style="min-width:98px">CTO #' + i + '</div></div>';
+    }
+
+    var diagram = '<div class="legend">'
+      + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – właściciel CZ</div>'
+      + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Centrum Zwinności (20 os.)</div>'
+      + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
+      + '</div>'
+      + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+      + '<div class="area-col">'
+      + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">właściciel CZ</div></div>'
+      + '<div class="connector-v"></div>'
+      + '<div class="node node-cz" style="min-width:160px">Centrum Zwinności<div class="badge">20 osób</div></div>'
+      + '<div class="connector-v"></div>'
+      + nuts
+      + '</div>'
+      + restCTOs
+      + '</div></div>'
+      + '<div class="highlight-box">📌 Centrum Zwinności jest formalnie w strukturze jednego CTO (#1). 20-osobowy zespół obsługuje zespoły BRI i wybrane zespoły w PTI.</div>';
+
+    return header + toggleRow + diagram;
+  } else {
+    var aiDx = '<div style="display:flex;gap:8px;justify-content:center">'
+      + '<div class="node node-ai" style="min-width:90px;font-size:11px">AI</div>'
+      + '<div class="node node-dx" style="min-width:90px;font-size:11px">DevEX</div>'
+      + '</div>';
+
+    var restChanged = '';
+    for (var j = 2; j <= 8; j++) {
+      restChanged += '<div class="area-col">'
+        + '<div class="node node-cto" style="min-width:100px">CTO #' + j + '</div>'
+        + '<div class="node node-ghost" style="min-width:100px;font-size:11px">opcjonalny<br>członek CZ</div>'
+        + '</div>';
+    }
+
+    var diagramZ = '<div class="legend">'
+      + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – zachowuje część CZ (AI i DevEX)</div>'
+      + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
+      + '<div class="leg"><div class="leg-dot" style="background:#f1f5f9;border:2px dashed #cbd5e1;width:14px;height:14px;border-radius:4px;display:inline-block"></div>Opcjonalne przejęcie członków CZ</div>'
+      + '</div>'
+      + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+      + '<div class="area-col">'
+      + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">zachowuje część CZ</div></div>'
+      + '<div class="connector-v"></div>'
+      + aiDx
+      + '</div>'
+      + restChanged
+      + '</div></div>'
+      + '<div class="highlight-box">📌 Część Centrum Zwinności zmieni nazwę i zostaje pod CTO #1, zajmują się AI i DevEX. Pozostali CTO mogą – jeśli chcą – przejąć członków CZ ustalając zakres ich odpowiedzialności.</div>';
+
+    var pros = ['Tematy strategiczne mają swoich odpowiedzialnych opiekunów',
+                'Elastyczność – pozostali CTO autonomicznie decydują o odpowiedzialności ludzi którzy dołączą do ich struktury'];
+    var cons = ['Nierówny dostęp do kompetencji między obszarami CTO',
+                'Centrum Zwinności stopniowo traci zasoby, znaczenie i zakres wpływu',
+                'Brak spójności – każdy CTO ustala zakres odpowiedzialności na własnych warunkach',
+                'Ryzyko powstawania silosów i duplikacji pracy'];
+
+    var pc = '<div class="pros-cons">'
+      + '<div class="pros"><h3>✅ Zalety</h3><ul>' + pros.map(function(p){ return '<li>'+p+'</li>'; }).join('') + '</ul></div>'
+      + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + cons.map(function(c){ return '<li>'+c+'</li>'; }).join('') + '</ul></div>'
+      + '</div>';
+
+    return header + toggleRow + diagramZ + pc;
+  }
+}
+
+function renderV1Mode(mode) {
+  document.getElementById('content').innerHTML = renderV1(mode);
+}
+
+// ══════════════════════════════
+// WARIANT 2 – SM z nowymi rolami (dawny Wariant 3)
+// ══════════════════════════════
+function buildV2() {
+  var cols = '';
+  for (var i = 1; i <= 8; i++) {
+    cols += '<div class="area-col">'
+      + '<div class="node node-cto" style="min-width:105px">CTO #' + i + '</div>'
+      + '<div class="node node-sm" style="min-width:105px;font-size:11px">SM<br><span style="opacity:0.85">+ AI Adoption</span><br><span style="opacity:0.85">+ DX</span></div>'
+      + '</div>';
+  }
+  return '<div class="legend">'
+    + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Centrum Zwinności (20 os.)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO (8 obszarów)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#0891b2"></div>SM + rola AI Adoption + rola DX</div>'
+    + '</div>'
+    + '<div class="org">'
+    + '<div class="org-row"><div class="node node-cz" style="min-width:200px">Centrum Zwinności<div class="badge">20 osób – bez zmian</div></div></div>'
+    + '<div class="connector-v"></div>'
+    + '<div class="org-row">' + cols + '</div>'
+    + '</div>'
+    + '<div class="highlight-box">💡 Zero nowych etatów. SM-owie poszerzają zakres obowiązków o dwa nowe obszary. Centrum koordynuje, standaryzuje i wspiera.</div>';
+}
+
+// ══════════════════════════════
+// WARIANT 3a – Rebrand CZ (dawny 2a)
+// ══════════════════════════════
+function buildV3a() {
+  var cols = '';
+  for (var i = 1; i <= 8; i++) {
+    cols += '<div class="area-col">'
+      + '<div class="node node-cto" style="min-width:98px">CTO #' + i + '</div>'
+      + '<div class="node node-ai" style="min-width:98px;font-size:11px">Spec. AI<div class="badge badge-dark">z Centrum</div></div>'
+      + '<div class="node node-dx" style="min-width:98px;font-size:11px">Spec. DX<div class="badge badge-dark">z Centrum</div></div>'
+      + '</div>';
+  }
+  return '<div class="legend">'
+    + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Centrum AI & DX (dawne CZ)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO (8 obszarów)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#d97706"></div>Specjalista AI</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#059669"></div>Specjalista DX</div>'
+    + '</div>'
+    + '<div class="org">'
+    + '<div class="org-row"><div class="node node-cz" style="min-width:220px">Centrum AI & DX<span style="font-size:10px;opacity:0.8;display:block">(dawne Centrum Zwinności)</span></div></div>'
+    + '<div class="connector-v"></div>'
+    + '<div class="org-row">' + cols + '</div>'
+    + '</div>'
+    + '<div class="highlight-box">📌 Formalna przynależność: Centrum AI & DX. Operacyjna praca: przy konkretnym CTO. Centrum koordynuje standardy i wymianę wiedzy między wszystkimi obszarami.</div>';
+}
+
+// ══════════════════════════════
+// WARIANT 3b – Spec. w obszarach (dawny 2b)
+// ══════════════════════════════
+function buildV3b() {
+  var cols = '';
+  for (var i = 1; i <= 8; i++) {
+    cols += '<div class="area-col">'
+      + '<div class="node node-cto" style="min-width:100px">CTO #' + i + '<span style="display:block;font-size:10px;opacity:0.8;margin-top:2px">własny obszar</span></div>'
+      + '<div class="node node-ai" style="min-width:100px;font-size:11px">Spec. AI<div class="badge badge-dark">tu zatrudniony</div></div>'
+      + '<div class="node node-dx" style="min-width:100px;font-size:11px">Spec. DX<div class="badge badge-dark">tu zatrudniony</div></div>'
+      + '</div>';
+  }
+  return '<div class="legend">'
+    + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO (8 obszarów)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#d97706"></div>Spec. AI – zatrudniony w obszarze</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#059669"></div>Spec. DX – zatrudniony w obszarze</div>'
+    + '</div>'
+    + '<div class="org">'
+    + '<div class="org-row">' + cols + '</div>'
+    + '</div>'
+    + '<div class="highlight-box">📌 Specjaliści raportują wyłącznie do swojego CTO. Brak centralnej koordynacji. Centrum Zwinności przestaje działać.</div>';
+}
+
+// ══════════════════════════════
+// DANE
+// ══════════════════════════════
+var variantData = {
+  2: {
+    badge: 'Wariant 2',
+    title: 'Centrum Zwinności + Scrum Masterzy z rozszerzonymi rolami',
+    desc: 'Centrum Zwinności rozszerza zakres odpowiedzialności każdego Scrum Mastera o (1) wdrażanie adaptacji AI oraz (2) poprawę efektywności developerskiej (DX). Bez nowych zatrudnień.',
+    pros: ['Brak dodatkowych kosztów zatrudnienia',
+           'SM-owie blisko zespołów – naturalne osadzenie zmian',
+           'Centrum Zwinności zachowuje pełne uzasadnienie istnienia',
+           'Spójna metodologia dzięki koordynacji centralnej'],
+    cons: ['Ryzyko przeciążenia SM-ów – 3 odpowiedzialności naraz'],
+    diagramFn: buildV2
+  },
+  3: {
+    badge: 'Wariant 3a',
+    title: 'Rebrand Centrum Zwinności + Specjaliści przy każdym CTO',
+    desc: 'Centrum Zwinności zmienia nazwę (np. Centrum AI & DX) i rozszerza zakres odpowiedzialności. Każdy z 8 CTO otrzymuje dedykowanego specjalistę AI i specjalistę DX. Specjaliści zatrudnieni centralnie, operacyjnie działają przy konkretnym obszarze. Struktura formalna bez zmian.',
+    pros: ['Każdy CTO ma dedykowane wsparcie AI i DX',
+           'Centrum zyskuje nową, wyraźniejszą misję strategiczną',
+           'Spójna kultura i standard pracy dot. AI i DevEX w BRI',
+           'Łatwa wymiana wiedzy między specjalistami (centralnie)'],
+    cons: ['Nowy zespół nie ma w odpowiedzialności dbania o zwinność i dojrzałość zespołów',
+           'Brak zrozumienia odpowiedzialności specjalisty AI i DX',
+           'Zespoły przestają mieć Scrum Masterów'],
+    diagramFn: buildV3a
+  },
+  4: {
+    badge: 'Wariant 3b',
+    title: 'Specjaliści AI i DX zatrudnieni bezpośrednio w obszarach CTO',
+    desc: 'Każdy CTO sam zatrudnia i zarządza specjalistą AI i specjalistą DX w swoim obszarze. Pełna decentralizacja kompetencji AI i DX.',
+    pros: ['Pełna autonomia i szybkość decyzji u każdego CTO',
+           'Specjalista głęboko rozumie kontekst swojego obszaru',
+           'Brak konfliktu lojalności – jasna linia raportowania',
+           'Silna motywacja specjalisty przez bliskie osadzenie w obszarze'],
+    cons: ['Brak spójności standardów AI/DX w BRI',
+           'Ryzyko wynajdowania koła osobno w każdym z 8 obszarów',
+           'Utrata efektu skali i centralnego zarządzania wiedzą'],
+    diagramFn: buildV3b
+  }
+};
+
+// ══════════════════════════════
+// ROUTER
+// ══════════════════════════════
+function showVariant(n) {
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    t.classList.toggle('active', [1,2,3,4][i] === n);
+  });
+  if (n === 1) {
+    document.getElementById('content').innerHTML = renderV1('current');
+    return;
+  }
+  var v = variantData[n];
+  var html = '<div class="variant-header"><div class="variant-badge">' + v.badge + '</div>'
+    + '<div><div class="variant-title">' + v.title + '</div></div></div>';
+  html += '<div class="variant-desc">' + v.desc + '</div>';
+  html += v.diagramFn();
+  var p = v.pros.map(function(x){ return '<li>'+x+'</li>'; }).join('');
+  var c = v.cons.map(function(x){ return '<li>'+x+'</li>'; }).join('');
+  html += '<div class="pros-cons">'
+    + '<div class="pros"><h3>✅ Zalety</h3><ul>' + p + '</ul></div>'
+    + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + c + '</ul></div>'
+    + '</div>';
+  document.getElementById('content').innerHTML = html;
+}
+
+showVariant(1);
+</script>
+</body>
+</html>
