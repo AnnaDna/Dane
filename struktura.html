@@ -47,11 +47,6 @@
   .pros li:last-child, .cons li:last-child { border-bottom: none; }
   .pros li::before { content: '✓ '; color: #16a34a; font-weight: 700; }
   .cons li::before { content: '✗ '; color: #dc2626; font-weight: 700; }
-  .toggle-row { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
-  .toggle-btn { padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #7c3aed; background: white; color: #7c3aed; transition: all 0.2s; }
-  .toggle-btn.active { background: #7c3aed; color: white; }
-  .toggle-btn.change-btn { border-color: #2563eb; color: #2563eb; }
-  .toggle-btn.change-btn.active { background: #2563eb; color: white; }
   @media (max-width: 700px) { .pros-cons { grid-template-columns: 1fr; } .tabs { flex-direction: column; } }
 </style>
 </head>
@@ -61,113 +56,103 @@
   <p>Kliknij zakładkę, aby zobaczyć strukturę, opis i ocenę każdego wariantu</p>
 </div>
 <div class="tabs">
-  <button class="tab active" onclick="showVariant(1)">Wariant 1 – Stan obecny / Zmiana</button>
-  <button class="tab" onclick="showVariant(2)">Wariant 2 – SM z nowymi rolami</button>
-  <button class="tab" onclick="showVariant(3)">Wariant 3a – Rebrand CZ</button>
-  <button class="tab" onclick="showVariant(4)">Wariant 3b – Spec. w obszarach</button>
+  <button class="tab active" onclick="showVariant(0)">Stan obecny</button>
+  <button class="tab" onclick="showVariant(1)">Wariant 1</button>
+  <button class="tab" onclick="showVariant(2)">Wariant 2 – Rozwój CZ</button>
+  <button class="tab" onclick="showVariant(4)">Wariant 3 – Spec. w obszarach</button>
 </div>
 <div class="content" id="content"></div>
 
 <script>
 // ══════════════════════════════
-// WARIANT 1
+// STAN OBECNY
 // ══════════════════════════════
-function renderV1(mode) {
-  var isChange = mode === 'change';
-
-  var toggleRow = '<div class="toggle-row">'
-    + '<button class="toggle-btn' + (!isChange ? ' active' : '') + '" onclick="renderV1Mode(\'current\')">📍 Stan obecny</button>'
-    + '<button class="toggle-btn change-btn' + (isChange ? ' active' : '') + '" onclick="renderV1Mode(\'change\')">🔄 Po zmianie</button>'
+function buildV0() {
+  var nuts = '<div style="display:flex;gap:8px;justify-content:center">'
+    + '<div class="node node-ai" style="min-width:90px;font-size:11px">Nurt AI</div>'
+    + '<div class="node node-dx" style="min-width:90px;font-size:11px">Nurt DevEX</div>'
+    + '<div class="node node-sm" style="min-width:140px;font-size:11px">Zwiększenie efektywności zespołów</div>'
     + '</div>';
 
-  var header = '<div class="variant-header"><div class="variant-badge">Wariant 1</div>'
-    + '<div><div class="variant-title">' + (isChange ? 'Po zmianie' : 'Stan obecny – Centrum Zwinności pod CTO #1') + '</div></div></div>';
-
-  if (!isChange) {
-    var nuts = '<div style="display:flex;gap:8px;justify-content:center">'
-      + '<div class="node node-ai" style="min-width:90px;font-size:11px">Nurt AI</div>'
-      + '<div class="node node-dx" style="min-width:90px;font-size:11px">Nurt DevEX</div>'
-      + '<div class="node node-sm" style="min-width:140px;font-size:11px">Zwiększenie efektywności zespołów</div>'
-      + '</div>';
-
-    var restCTOs = '';
-    for (var i = 2; i <= 8; i++) {
-      restCTOs += '<div class="area-col"><div class="node node-cto" style="min-width:98px">CTO #' + i + '</div></div>';
-    }
-
-    var diagram = '<div class="legend">'
-      + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – właściciel CZ</div>'
-      + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Centrum Zwinności (20 os.)</div>'
-      + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
-      + '</div>'
-      + '<div class="org"><div class="org-row" style="align-items:flex-start">'
-      + '<div class="area-col">'
-      + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">właściciel CZ</div></div>'
-      + '<div class="connector-v"></div>'
-      + '<div class="node node-cz" style="min-width:160px">Centrum Zwinności<div class="badge">20 osób</div></div>'
-      + '<div class="connector-v"></div>'
-      + nuts
-      + '</div>'
-      + restCTOs
-      + '</div></div>'
-      + '<div class="highlight-box">📌 Centrum Zwinności jest formalnie w strukturze jednego CTO (#1). 20-osobowy zespół obsługuje zespoły BRI i wybrane zespoły w PTI.</div>';
-
-    return header + toggleRow + diagram;
-  } else {
-    var aiDx = '<div style="display:flex;gap:8px;justify-content:center">'
-      + '<div class="node node-ai" style="min-width:90px;font-size:11px">AI</div>'
-      + '<div class="node node-dx" style="min-width:90px;font-size:11px">DevEX</div>'
-      + '</div>';
-
-    var restChanged = '';
-    for (var j = 2; j <= 8; j++) {
-      restChanged += '<div class="area-col">'
-        + '<div class="node node-cto" style="min-width:100px">CTO #' + j + '</div>'
-        + '<div class="node node-ghost" style="min-width:100px;font-size:11px">opcjonalny<br>członek CZ</div>'
-        + '</div>';
-    }
-
-    var diagramZ = '<div class="legend">'
-      + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – zachowuje część CZ (AI i DevEX)</div>'
-      + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
-      + '<div class="leg"><div class="leg-dot" style="background:#f1f5f9;border:2px dashed #cbd5e1;width:14px;height:14px;border-radius:4px;display:inline-block"></div>Opcjonalne przejęcie członków CZ</div>'
-      + '</div>'
-      + '<div class="org"><div class="org-row" style="align-items:flex-start">'
-      + '<div class="area-col">'
-      + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">zachowuje część CZ</div></div>'
-      + '<div class="connector-v"></div>'
-      + aiDx
-      + '</div>'
-      + restChanged
-      + '</div></div>'
-      + '<div class="highlight-box">📌 Część Centrum Zwinności zmieni nazwę i zostaje pod CTO #1, zajmują się AI i DevEX. Pozostali CTO mogą – jeśli chcą – przejąć członków CZ ustalając zakres ich odpowiedzialności.</div>';
-
-    var pros = ['Tematy strategiczne mają swoich odpowiedzialnych opiekunów',
-                'Elastyczność – pozostali CTO autonomicznie decydują o odpowiedzialności ludzi którzy dołączą do ich struktury'];
-    var cons = ['Nierówny dostęp do kompetencji między obszarami CTO',
-                'Centrum Zwinności stopniowo traci zasoby, znaczenie i zakres wpływu',
-                'Brak spójności – każdy CTO ustala zakres odpowiedzialności na własnych warunkach',
-                'Ryzyko powstawania silosów i duplikacji pracy'];
-
-    var pc = '<div class="pros-cons">'
-      + '<div class="pros"><h3>✅ Zalety</h3><ul>' + pros.map(function(p){ return '<li>'+p+'</li>'; }).join('') + '</ul></div>'
-      + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + cons.map(function(c){ return '<li>'+c+'</li>'; }).join('') + '</ul></div>'
-      + '</div>';
-
-    return header + toggleRow + diagramZ + pc;
+  var restCTOs = '';
+  for (var i = 2; i <= 8; i++) {
+    restCTOs += '<div class="area-col"><div class="node node-cto" style="min-width:98px">CTO #' + i + '</div></div>';
   }
-}
 
-function renderV1Mode(mode) {
-  document.getElementById('content').innerHTML = renderV1(mode);
+  return '<div class="variant-header"><div class="variant-badge" style="background:#475569">Stan obecny</div>'
+    + '<div><div class="variant-title">Centrum Zwinności pod CTO #1</div></div></div>'
+    + '<div class="legend">'
+    + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – właściciel CZ</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Centrum Zwinności (20 os.)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
+    + '</div>'
+    + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+    + '<div class="area-col">'
+    + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">właściciel CZ</div></div>'
+    + '<div class="connector-v"></div>'
+    + '<div class="node node-cz" style="min-width:160px">Centrum Zwinności<div class="badge">20 osób</div></div>'
+    + '<div class="connector-v"></div>'
+    + nuts
+    + '</div>'
+    + restCTOs
+    + '</div></div>'
+    + '<div class="highlight-box">📌 Centrum Zwinności jest formalnie w strukturze jednego CTO (#1). 20-osobowy zespół obsługuje zespoły BRI i wybrane zespoły w PTI.</div>';
 }
 
 // ══════════════════════════════
-// WARIANT 2 – SM z nowymi rolami (dawny Wariant 3)
+// WARIANT 1 – Po zmianie
+// ══════════════════════════════
+function buildV1() {
+  var aiDx = '<div style="display:flex;gap:8px;justify-content:center">'
+    + '<div class="node node-ai" style="min-width:90px;font-size:11px">AI</div>'
+    + '<div class="node node-dx" style="min-width:90px;font-size:11px">DevEX</div>'
+    + '</div>';
+
+  var restChanged = '';
+  for (var j = 2; j <= 8; j++) {
+    restChanged += '<div class="area-col">'
+      + '<div class="node node-cto" style="min-width:100px">CTO #' + j + '</div>'
+      + '<div class="node node-ghost" style="min-width:100px;font-size:11px">opcjonalny<br>członek CZ</div>'
+      + '</div>';
+  }
+
+  var diagram = '<div class="legend">'
+    + '<div class="leg"><div class="leg-dot" style="background:#1d4ed8"></div>CTO #1 – zachowuje część CZ (AI i DevEX)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO #2–8</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#f1f5f9;border:2px dashed #cbd5e1;width:14px;height:14px;border-radius:4px;display:inline-block"></div>Opcjonalne przejęcie członków CZ</div>'
+    + '</div>'
+    + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+    + '<div class="area-col">'
+    + '<div class="node" style="background:#1d4ed8;color:white;min-width:160px">CTO #1<div class="badge badge-dark">zachowuje część CZ</div></div>'
+    + '<div class="connector-v"></div>'
+    + aiDx
+    + '</div>'
+    + restChanged
+    + '</div></div>'
+    + '<div class="highlight-box">📌 Część Centrum Zwinności zmieni nazwę i zostaje pod CTO #1, zajmują się AI i DevEX. Pozostali CTO mogą – jeśli chcą – przejąć członków CZ ustalając zakres ich odpowiedzialności.</div>';
+
+  var pros = ['Tematy strategiczne mają swoich odpowiedzialnych opiekunów',
+              'Elastyczność – pozostali CTO autonomicznie decydują o odpowiedzialności ludzi którzy dołączą do ich struktury'];
+  var cons = ['Nierówny dostęp do kompetencji między obszarami CTO',
+              'Centrum Zwinności stopniowo traci zasoby, znaczenie i zakres wpływu',
+              'Brak spójności – każdy CTO ustala zakres odpowiedzialności na własnych warunkach',
+              'Ryzyko powstawania silosów i duplikacji pracy'];
+
+  return '<div class="variant-header"><div class="variant-badge">Wariant 1</div>'
+    + '<div><div class="variant-title">Po zmianie</div></div></div>'
+    + diagram
+    + '<div class="pros-cons">'
+    + '<div class="pros"><h3>✅ Zalety</h3><ul>' + pros.map(function(p){ return '<li>'+p+'</li>'; }).join('') + '</ul></div>'
+    + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + cons.map(function(c){ return '<li>'+c+'</li>'; }).join('') + '</ul></div>'
+    + '</div>';
+}
+
+// ══════════════════════════════
+// WARIANT 2 – SM z nowymi rolami
 // ══════════════════════════════
 function buildV2() {
   var cols = '';
-  for (var i = 1; i <= 8; i++) {
+  for (var i = 2; i <= 8; i++) {
     cols += '<div class="area-col">'
       + '<div class="node node-cto" style="min-width:105px">CTO #' + i + '</div>'
       + '<div class="node node-sm" style="min-width:105px;font-size:11px">SM<br><span style="opacity:0.85">+ AI Adoption</span><br><span style="opacity:0.85">+ DX</span></div>'
@@ -178,16 +163,19 @@ function buildV2() {
     + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO (8 obszarów)</div>'
     + '<div class="leg"><div class="leg-dot" style="background:#0891b2"></div>SM + rola AI Adoption + rola DX</div>'
     + '</div>'
-    + '<div class="org">'
-    + '<div class="org-row"><div class="node node-cz" style="min-width:200px">Centrum Zwinności<div class="badge">20 osób – bez zmian</div></div></div>'
+    + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+    + '<div class="area-col">'
+    + '<div class="node node-cto" style="min-width:160px">CTO #1</div>'
     + '<div class="connector-v"></div>'
-    + '<div class="org-row">' + cols + '</div>'
+    + '<div class="node node-cz" style="min-width:160px;font-size:11px">20 osób SM<br>wdrażanie adaptacji AI<br>poprawa efektywności (DX)</div>'
     + '</div>'
+    + cols
+    + '</div></div>'
     + '<div class="highlight-box">💡 Zero nowych etatów. SM-owie poszerzają zakres obowiązków o dwa nowe obszary. Centrum koordynuje, standaryzuje i wspiera.</div>';
 }
 
 // ══════════════════════════════
-// WARIANT 3a – Rebrand CZ (dawny 2a)
+// WARIANT 3a – Rebrand CZ
 // ══════════════════════════════
 function buildV3a() {
   var cols = '';
@@ -213,25 +201,31 @@ function buildV3a() {
 }
 
 // ══════════════════════════════
-// WARIANT 3b – Spec. w obszarach (dawny 2b)
+// WARIANT 3b – Spec. w obszarach
 // ══════════════════════════════
 function buildV3b() {
+  var cto1col = '<div class="area-col">'
+    + '<div class="node node-cto" style="min-width:100px">CTO #1</div>'
+    + '<div class="node node-cz" style="min-width:160px;font-size:11px">zachowuje część CZ<br>opiekunowie strategicznych tematów</div>'
+    + '</div>';
   var cols = '';
-  for (var i = 1; i <= 8; i++) {
+  for (var i = 2; i <= 8; i++) {
     cols += '<div class="area-col">'
-      + '<div class="node node-cto" style="min-width:100px">CTO #' + i + '<span style="display:block;font-size:10px;opacity:0.8;margin-top:2px">własny obszar</span></div>'
+      + '<div class="node node-cto" style="min-width:100px">CTO #' + i + '</div>'
       + '<div class="node node-ai" style="min-width:100px;font-size:11px">Spec. AI<div class="badge badge-dark">tu zatrudniony</div></div>'
       + '<div class="node node-dx" style="min-width:100px;font-size:11px">Spec. DX<div class="badge badge-dark">tu zatrudniony</div></div>'
       + '</div>';
   }
   return '<div class="legend">'
     + '<div class="leg"><div class="leg-dot" style="background:#2563eb"></div>CTO (8 obszarów)</div>'
+    + '<div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Część CZ – opiekunowie tematów</div>'
     + '<div class="leg"><div class="leg-dot" style="background:#d97706"></div>Spec. AI – zatrudniony w obszarze</div>'
     + '<div class="leg"><div class="leg-dot" style="background:#059669"></div>Spec. DX – zatrudniony w obszarze</div>'
     + '</div>'
-    + '<div class="org">'
-    + '<div class="org-row">' + cols + '</div>'
-    + '</div>'
+    + '<div class="org"><div class="org-row" style="align-items:flex-start">'
+    + cto1col
+    + cols
+    + '</div></div>'
     + '<div class="highlight-box">📌 Specjaliści raportują wyłącznie do swojego CTO. Brak centralnej koordynacji. Centrum Zwinności przestaje działać.</div>';
 }
 
@@ -241,7 +235,7 @@ function buildV3b() {
 var variantData = {
   2: {
     badge: 'Wariant 2',
-    title: 'Centrum Zwinności + Scrum Masterzy z rozszerzonymi rolami',
+    title: 'Centrum Zwinności - Scrum Masterzy z rozszerzonymi rolami',
     desc: 'Centrum Zwinności rozszerza zakres odpowiedzialności każdego Scrum Mastera o (1) wdrażanie adaptacji AI oraz (2) poprawę efektywności developerskiej (DX). Bez nowych zatrudnień.',
     pros: ['Brak dodatkowych kosztów zatrudnienia',
            'SM-owie blisko zespołów – naturalne osadzenie zmian',
@@ -251,7 +245,7 @@ var variantData = {
     diagramFn: buildV2
   },
   3: {
-    badge: 'Wariant 3a',
+    badge: 'Wariant 3',
     title: 'Rebrand Centrum Zwinności + Specjaliści przy każdym CTO',
     desc: 'Centrum Zwinności zmienia nazwę (np. Centrum AI & DX) i rozszerza zakres odpowiedzialności. Każdy z 8 CTO otrzymuje dedykowanego specjalistę AI i specjalistę DX. Specjaliści zatrudnieni centralnie, operacyjnie działają przy konkretnym obszarze. Struktura formalna bez zmian.',
     pros: ['Każdy CTO ma dedykowane wsparcie AI i DX',
@@ -264,9 +258,9 @@ var variantData = {
     diagramFn: buildV3a
   },
   4: {
-    badge: 'Wariant 3b',
+    badge: 'Wariant 3',
     title: 'Specjaliści AI i DX zatrudnieni bezpośrednio w obszarach CTO',
-    desc: 'Każdy CTO sam zatrudnia i zarządza specjalistą AI i specjalistą DX w swoim obszarze. Pełna decentralizacja kompetencji AI i DX.',
+    desc: 'Każdy CTO sam zatrudnia i zarządza specjalistą AI i specjalistą DX w swoim obszarze.',
     pros: ['Pełna autonomia i szybkość decyzji u każdego CTO',
            'Specjalista głęboko rozumie kontekst swojego obszaru',
            'Brak konfliktu lojalności – jasna linia raportowania',
@@ -283,27 +277,30 @@ var variantData = {
 // ══════════════════════════════
 function showVariant(n) {
   document.querySelectorAll('.tab').forEach(function(t, i) {
-    t.classList.toggle('active', [1,2,3,4][i] === n);
+    t.classList.toggle('active', [0,1,2,4][i] === n);
   });
-  if (n === 1) {
-    document.getElementById('content').innerHTML = renderV1('current');
-    return;
+  var html = '';
+  if (n === 0) {
+    html = buildV0();
+  } else if (n === 1) {
+    html = buildV1();
+  } else {
+    var v = variantData[n];
+    html = '<div class="variant-header"><div class="variant-badge">' + v.badge + '</div>'
+      + '<div><div class="variant-title">' + v.title + '</div></div></div>';
+    html += '<div class="variant-desc">' + v.desc + '</div>';
+    html += v.diagramFn();
+    var p = v.pros.map(function(x){ return '<li>'+x+'</li>'; }).join('');
+    var c = v.cons.map(function(x){ return '<li>'+x+'</li>'; }).join('');
+    html += '<div class="pros-cons">'
+      + '<div class="pros"><h3>✅ Zalety</h3><ul>' + p + '</ul></div>'
+      + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + c + '</ul></div>'
+      + '</div>';
   }
-  var v = variantData[n];
-  var html = '<div class="variant-header"><div class="variant-badge">' + v.badge + '</div>'
-    + '<div><div class="variant-title">' + v.title + '</div></div></div>';
-  html += '<div class="variant-desc">' + v.desc + '</div>';
-  html += v.diagramFn();
-  var p = v.pros.map(function(x){ return '<li>'+x+'</li>'; }).join('');
-  var c = v.cons.map(function(x){ return '<li>'+x+'</li>'; }).join('');
-  html += '<div class="pros-cons">'
-    + '<div class="pros"><h3>✅ Zalety</h3><ul>' + p + '</ul></div>'
-    + '<div class="cons"><h3>⚠️ Wyzwania / Ryzyka</h3><ul>' + c + '</ul></div>'
-    + '</div>';
   document.getElementById('content').innerHTML = html;
 }
 
-showVariant(1);
+showVariant(0);
 </script>
 </body>
 </html>
