@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Competency Framework — IT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3250;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e8eaf6;
+    --text-muted: #8b90b8;
+    --text-dim: #5a5f80;
+    --lvl0: #3d2a2a;
+    --lvl1: #3d3320;
+    --lvl2: #1e3a2f;
+    --lvl3: #1a2e4a;
+    --lvl4: #2d1e4a;
+    --lvl0-t: #ff6b6b;
+    --lvl1-t: #ffd166;
+    --lvl2-t: #06d6a0;
+    --lvl3-t: #4cc9f0;
+    --lvl4-t: #b57bee;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+  }
+  nav .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  nav .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+  }
+  nav .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all .2s;
+    border: 1px solid transparent;
+  }
+  nav .tab:hover { color: var(--text); background: var(--surface2); }
+  nav .tab.active { color: var(--accent); background: rgba(108,99,255,.15); border-color: rgba(108,99,255,.3); }
+  nav .badge {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .page { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  h1 span { color: var(--accent); }
+  .hero-sub {
+    color: var(--text-muted);
+    font-size: 14px;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+
+  .flow {
+    display: flex;
+    gap: 0;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .flow::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 40px;
+    right: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 0;
+  }
+  .flow-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+  }
+  .flow-step:nth-child(1) .flow-icon { background: rgba(108,99,255,.15); border-color: rgba(108,99,255,.4); }
+  .flow-step:nth-child(2) .flow-icon { background: rgba(0,212,170,.15); border-color: rgba(0,212,170,.4); }
+  .flow-step:nth-child(3) .flow-icon { background: rgba(255,107,107,.15); border-color: rgba(255,107,107,.4); }
+  .flow-step:nth-child(4) .flow-icon { background: rgba(255,209,102,.15); border-color: rgba(255,209,102,.4); }
+  .flow-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .flow-sub { font-size: 11px; color: var(--text-muted); max-width: 120px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 11px; color: var(--text-muted); }
+
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+  .role-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color .2s;
+  }
+  .role-card:hover { border-color: var(--accent); }
+  .role-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .role-icon { font-size: 20px; }
+  .role-name { font-weight: 600; font-size: 13px; }
+  .role-count { font-size: 11px; color: var(--text-muted); }
+  .role-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(108,99,255,.12);
+    color: #a89fff;
+    border: 1px solid rgba(108,99,255,.2);
+  }
+
+  .levels-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .lt-header {
+    display: grid;
+    grid-template-columns: 80px 120px 1fr;
+    padding: 12px 20px;
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .lt-row {
+    display: grid;
+    grid-template-columns: 80px 120px 1fr;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background .2s;
+  }
+  .lt-row:last-child { border-bottom: none; }
+  .lt-row:hover { background: var(--surface2); }
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .level-name { font-weight: 500; font-size: 12px; }
+  .level-desc { font-size: 12px; color: var(--text-muted); }
+
+  /* SURVEY */
+  .survey-intro {
+    background: linear-gradient(135deg, rgba(108,99,255,.15), rgba(0,212,170,.08));
+    border: 1px solid rgba(108,99,255,.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .survey-intro p { color: var(--text-muted); font-size: 13px; }
+  .survey-intro strong { color: var(--text); }
+  .survey-section { margin-bottom: 32px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .section-title { font-weight: 600; font-size: 14px; }
+  .section-sub { font-size: 11px; color: var(--text-muted); }
+  .q-list { display: flex; flex-direction: column; gap: 12px; }
+  .q-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .q-text { font-size: 13px; margin-bottom: 12px; font-weight: 500; }
+  .q-note { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; font-style: italic; }
+  .q-options { display: flex; gap: 6px; flex-wrap: wrap; }
+  .q-opt {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .q-opt:hover, .q-opt.selected {
+    background: rgba(108,99,255,.2);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .q-opt.freq-never { border-left: 3px solid var(--lvl0-t); }
+  .q-opt.freq-rare { border-left: 3px solid var(--lvl1-t); }
+  .q-opt.freq-weekly { border-left: 3px solid var(--lvl2-t); }
+  .q-opt.freq-daily { border-left: 3px solid var(--lvl3-t); }
+  .q-opt.freq-champion { border-left: 3px solid var(--lvl4-t); }
+
+  /* MATRIX */
+  .matrix-container { overflow-x: auto; margin-bottom: 32px; }
+  .matrix-table {
+    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .matrix-table th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .matrix-table th:last-child { border-right: none; }
+  .matrix-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .matrix-table tr:last-child td { border-bottom: none; }
+  .matrix-table td:last-child { border-right: none; }
+  .matrix-table td:first-child { font-weight: 500; white-space: nowrap; }
+  .cell-lvl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform .1s;
+  }
+  .cell-lvl:hover { transform: scale(1.2); }
+  .cell-0 { background: var(--lvl0); color: var(--lvl0-t); }
+  .cell-1 { background: var(--lvl1); color: var(--lvl1-t); }
+  .cell-2 { background: var(--lvl2); color: var(--lvl2-t); }
+  .cell-3 { background: var(--lvl3); color: var(--lvl3-t); }
+  .cell-4 { background: var(--lvl4); color: var(--lvl4-t); }
+
+  /* HEATMAP */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .gap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .gap-area { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .gap-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .gap-label { font-size: 10px; color: var(--text-dim); }
+  .gap-bar { height: 4px; border-radius: 2px; margin-top: 10px; background: var(--border); overflow: hidden; }
+  .gap-fill { height: 100%; border-radius: 2px; }
+  .heat-table { width: 100%; border-collapse: separate; border-spacing: 4px; margin-bottom: 32px; }
+  .heat-table th {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 6px 8px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .heat-table th:first-child { text-align: left; }
+  .heat-table td {
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: default;
+    transition: transform .15s;
+  }
+  .heat-table td:first-child {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: none !important;
+    padding-left: 0;
+  }
+  .heat-table td:hover { transform: scale(1.05); }
+  .h-0 { background: #3d1a1a; color: #ff8080; }
+  .h-1 { background: #3a2d10; color: #ffc44d; }
+  .h-2 { background: #1a3028; color: #4dffc9; }
+  .h-3 { background: #142340; color: #7dd3fc; }
+  .h-4 { background: #241640; color: #c084fc; }
+
+  /* PROGRAM */
+  .tracks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+  .track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .track::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .track.green::before { background: linear-gradient(90deg, #06d6a0, #4dffa0); }
+  .track.yellow::before { background: linear-gradient(90deg, #ffd166, #ffb347); }
+  .track.purple::before { background: linear-gradient(90deg, #b57bee, #6c63ff); }
+  .track-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .track.green .track-badge { background: rgba(6,214,160,.15); color: #06d6a0; }
+  .track.yellow .track-badge { background: rgba(255,209,102,.15); color: #ffd166; }
+  .track.purple .track-badge { background: rgba(181,123,238,.15); color: #b57bee; }
+  .track-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .track-target { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+  .track-modules { display: flex; flex-direction: column; gap: 6px; }
+  .module-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .module-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .track.green .module-dot { background: #06d6a0; }
+  .track.yellow .module-dot { background: #ffd166; }
+  .track.purple .module-dot { background: #b57bee; }
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    margin-bottom: 32px;
+  }
+  .tl-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .tl-week { font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
+  .tl-task { font-size: 11px; font-weight: 500; margin-bottom: 4px; }
+  .tl-detail { font-size: 10px; color: var(--text-muted); }
+  .legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+  .info-box {
+    background: rgba(108,99,255,.08);
+    border: 1px solid rgba(108,99,255,.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .info-box strong { color: var(--accent); }
+
+  @media (max-width: 700px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .roles-grid { grid-template-columns: 1fr; }
+    .tracks { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: repeat(2, 1fr); }
+    .gap-grid { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><div class="logo-dot"></div>AI Competency Framework</div>
+  <div class="tab active" onclick="showPage('overview')">📋 Przegląd</div>
+  <div class="tab" onclick="showPage('survey')">📝 Ankieta</div>
+  <div class="tab" onclick="showPage('matrix')">🧩 Matryca</div>
+  <div class="tab" onclick="showPage('heatmap')">🔥 Gap Analysis</div>
+  <div class="tab" onclick="showPage('program')">🎓 Program</div>
+  <div class="badge">IT · 500 osób · 8 obszarów</div>
+</nav>
+
+<!-- OVERVIEW -->
+<div class="page active" id="overview">
+  <div class="hero-label">Transformacja AI · IT</div>
+  <h1>Matryca kompetencji AI<br><span>dla zespołów IT</span></h1>
+  <p class="hero-sub">Narzędzie do oceny poziomu dojrzałości AI w 8 obszarach IT — od gap analysis do spersonalizowanego programu szkoleń dla 500 osób.</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-icon">📝</div>
+      <div class="flow-title">Ankieta</div>
+      <div class="flow-sub">Samoocena per rola i obszar</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon">🧩</div>
+      <div class="flow-title">Matryca</div>
+      <div class="flow-sub">Poziomy 0–4 per kompetencja</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon">🔥</div>
+      <div class="flow-title">Gap Analysis</div>
+      <div class="flow-sub">Heatmapa obszar × kompetencja</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon">🎓</div>
+      <div class="flow-title">Program</div>
+      <div class="flow-sub">3 ścieżki rozwojowe</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" style="color:#6c63ff">500</div>
+      <div class="stat-label">Pracowników objętych oceną</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#00d4aa">8</div>
+      <div class="stat-label">Obszarów IT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#ffd166">6</div>
+      <div class="stat-label">Głównych ról</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#ff6b6b">5</div>
+      <div class="stat-label">Poziomów dojrzałości AI (0–4)</div>
+    </div>
+  </div>
+
+  <h2>Role objęte oceną</h2>
+  <div class="roles-grid">
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">💻</div><div><div class="role-name">Developer</div><div class="role-count">~150 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Code generation</span><span class="tag">Copilot</span><span class="tag">Review</span><span class="tag">Testy</span></div>
+    </div>
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">🧪</div><div><div class="role-name">Tester / QA</div><div class="role-count">~80 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Test cases AI</span><span class="tag">Defekty</span><span class="tag">Automatyzacja</span></div>
+    </div>
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">📊</div><div><div class="role-name">Analityk</div><div class="role-count">~100 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Analiza danych</span><span class="tag">Specyfikacje</span><span class="tag">Synteza</span></div>
+    </div>
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">🗂️</div><div><div class="role-name">PM / Scrum Master</div><div class="role-count">~50 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Planowanie</span><span class="tag">Raporty</span><span class="tag">Summarization</span></div>
+    </div>
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">🏗️</div><div><div class="role-name">Architekt</div><div class="role-count">~30 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Projektowanie sys.</span><span class="tag">Ocena narzędzi AI</span></div>
+    </div>
+    <div class="role-card">
+      <div class="role-header"><div class="role-icon">⚙️</div><div><div class="role-name">DevOps / IT Ops</div><div class="role-count">~90 osób</div></div></div>
+      <div class="role-tags"><span class="tag">Monitoring AI</span><span class="tag">Skrypty</span><span class="tag">Automatyzacja</span></div>
+    </div>
+  </div>
+
+  <h2>Skala poziomów dojrzałości</h2>
+  <div class="levels-table">
+    <div class="lt-header"><div>Poziom</div><div>Nazwa</div><div>Kryterium zachowania</div></div>
+    <div class="lt-row"><div><span class="level-badge cell-0">0</span></div><div class="level-name">Brak</div><div class="level-desc">Nie używa AI w pracy. Brak świadomości narzędzi dostępnych w organizacji.</div></div>
+    <div class="lt-row"><div><span class="level-badge cell-1">1</span></div><div class="level-name">Świadomy</div><div class="level-desc">Wie, że AI istnieje. Sporadycznie wypróbowuje narzędzia, ale nie integruje ich w codziennej pracy.</div></div>
+    <div class="lt-row"><div><span class="level-badge cell-2">2</span></div><div class="level-name">Użytkownik</div><div class="level-desc">Regularnie używa AI do prostych, powtarzalnych zadań. Świadomy ograniczeń modeli.</div></div>
+    <div class="lt-row"><div><span class="level-badge cell-3">3</span></div><div class="level-name">Zaawansowany</div><div class="level-desc">Projektuje prompty, automatyzuje zadania z użyciem AI, integruje narzędzia w workflow zespołu.</div></div>
+    <div class="lt-row"><div><span class="level-badge cell-4">4</span></div><div class="level-name">Champion</div><div class="level-desc">Wdraża rozwiązania AI, szkoli innych, proponuje nowe zastosowania, jest punktem odniesienia w obszarze.</div></div>
+  </div>
+</div>
+
+<!-- SURVEY -->
+<div class="page" id="survey">
+  <div class="hero-label">Ankieta samooceny</div>
+  <h1>Pytania do <span>ankiety</span></h1>
+  <p class="hero-sub">Czas wypełnienia: ok. 10 minut. Odpowiedzi dotyczą Twojej codziennej pracy — nie wiedzy teoretycznej.</p>
+
+  <div class="survey-intro">
+    <p><strong>Instrukcja dla respondenta:</strong> Odpowiadaj szczerze — wyniki służą wyłącznie planowaniu szkoleń, nie ocenie pracownika. Nie ma odpowiedzi złych. Każda odpowiedź pomaga lepiej dopasować program rozwojowy do Twoich potrzeb.</p>
+  </div>
+
+  <div class="survey-section">
+    <div class="section-header">
+      <div class="section-num">M</div>
+      <div><div class="section-title">Metryczka (dane kontekstowe)</div><div class="section-sub">Potrzebne do agregacji wyników — nie identyfikują osoby w raportach zbiorczych</div></div>
+    </div>
+    <div class="q-list">
+      <div class="q-item">
+        <div class="q-text">M1. Obszar IT, w którym pracujesz</div>
+        <div class="q-options">
+          <span class="q-opt">Majątek</span><span class="q-opt">Szkody</span><span class="q-opt">Życie i zdrowie</span><span class="q-opt">Finance IT</span><span class="q-opt">Infrastruktura</span><span class="q-opt">Data & Analytics</span><span class="q-opt">CX / Digital</span><span class="q-opt">Inny</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">M2. Twoja rola</div>
+        <div class="q-options">
+          <span class="q-opt">Developer</span><span class="q-opt">Tester / QA</span><span class="q-opt">Analityk</span><span class="q-opt">PM / Scrum Master</span><span class="q-opt">Architekt</span><span class="q-opt">DevOps / IT Ops</span><span class="q-opt">Inne</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">M3. Staż pracy w IT</div>
+        <div class="q-options">
+          <span class="q-opt">do 2 lat</span><span class="q-opt">2–5 lat</span><span class="q-opt">5–10 lat</span><span class="q-opt">powyżej 10 lat</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-section">
+    <div class="section-header">
+      <div class="section-num" style="background:#00d4aa">A</div>
+      <div><div class="section-title">Blok A — Core AI Literacy (wszystkie role)</div><div class="section-sub">Ogólne kompetencje związane z używaniem AI w pracy</div></div>
+    </div>
+    <div class="q-list">
+      <div class="q-item">
+        <div class="q-text">A1. Jak często korzystasz z narzędzi AI w codziennej pracy (np. ChatGPT, Copilot, Gemini)?</div>
+        <div class="q-options">
+          <span class="q-opt freq-never">Nigdy</span><span class="q-opt freq-rare">Kilka razy w miesiącu</span><span class="q-opt freq-weekly">Kilka razy w tygodniu</span><span class="q-opt freq-daily">Codziennie</span><span class="q-opt freq-champion">Codziennie + pomagam innym</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">A2. Kiedy AI podaje Ci odpowiedź, co robisz z wynikiem?</div>
+        <div class="q-options">
+          <span class="q-opt">Używam bez weryfikacji</span><span class="q-opt">Sprawdzam pobieżnie</span><span class="q-opt">Zawsze weryfikuję kluczowe fakty</span><span class="q-opt">Wiem jak testować halucynacje</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">A3. Jak budujesz zapytania do AI (prompt engineering)?</div>
+        <div class="q-options">
+          <span class="q-opt">Nie wiem co to prompt engineering</span><span class="q-opt">Wpisuję pytania naturalnym językiem</span><span class="q-opt">Stosuję kontekst, rolę, format odpowiedzi</span><span class="q-opt">Projektuję złożone prompty, chain-of-thought</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">A4. Jak podchodzisz do bezpieczeństwa danych przy korzystaniu z AI?</div>
+        <div class="q-options">
+          <span class="q-opt">Nie myślałem/am o tym</span><span class="q-opt">Staram się nie wklejać danych klientów</span><span class="q-opt">Znam politykę firmy i się do niej stosuję</span><span class="q-opt">Doradzam innym w tym zakresie</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">A5. Jak oceniasz swoją wiedzę o ograniczeniach modeli AI (np. data cutoff, bias)?</div>
+        <div class="q-options">
+          <span class="q-opt">Nie znam</span><span class="q-opt">Słyszałem/am o tym</span><span class="q-opt">Rozumiem i uwzględniam w pracy</span><span class="q-opt">Potrafię to wyjaśnić innym</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-section">
+    <div class="section-header">
+      <div class="section-num" style="background:#ffd166; color:#1a1d27">B</div>
+      <div><div class="section-title">Blok B — Kompetencje roli (przykład: Developer)</div><div class="section-sub">Pytania zmieniają się zależnie od wybranej roli w metryczce</div></div>
+    </div>
+    <div class="q-list">
+      <div class="q-item">
+        <div class="q-text">B1. [DEV] Jak często używasz AI do pisania lub uzupełniania kodu?</div>
+        <div class="q-options">
+          <span class="q-opt freq-never">Nigdy</span><span class="q-opt freq-rare">Rzadko</span><span class="q-opt freq-weekly">Regularnie</span><span class="q-opt freq-daily">Jest moim głównym narzędziem</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">B2. [DEV] Czy używasz AI do review kodu (znajdowanie błędów, sugestie refaktoryzacji)?</div>
+        <div class="q-options">
+          <span class="q-opt">Nie</span><span class="q-opt">Próbowałem/am, ale nie regularnie</span><span class="q-opt">Tak, regularnie</span><span class="q-opt">Tak, i dostosowuję prompty pod konkretne przypadki</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">B3. [DEV] Czy generujesz testy automatyczne z pomocą AI?</div>
+        <div class="q-options">
+          <span class="q-opt">Nie</span><span class="q-opt">Czasem generuję jednostkowe</span><span class="q-opt">Regularnie — unit i integracyjne</span><span class="q-opt">Mam własny workflow AI → test</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">B4. [DEV] Jak dokumentujesz kod z AI?</div>
+        <div class="q-note">Analogiczne pytania istnieją dla testerów, analityków, PM/SM, DevOps i architektów — dostosowane do specyfiki roli.</div>
+        <div class="q-options">
+          <span class="q-opt">Nie używam AI do dokumentacji</span><span class="q-opt">Generuję docstringi</span><span class="q-opt">Tworzę pełną dokumentację techniczną z AI</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-section">
+    <div class="section-header">
+      <div class="section-num" style="background:#ff6b6b">C</div>
+      <div><div class="section-title">Blok C — Aspiracje i potrzeby rozwojowe</div><div class="section-sub">Pomaga projektować program szkoleń dopasowany do oczekiwań</div></div>
+    </div>
+    <div class="q-list">
+      <div class="q-item">
+        <div class="q-text">C1. Jakie obszary AI chciałbyś/chciałabyś rozwinąć w najbliższych 6 miesiącach?</div>
+        <div class="q-options">
+          <span class="q-opt">Podstawy AI i prompt engineering</span><span class="q-opt">Automatyzacja zadań w mojej roli</span><span class="q-opt">Integracje i API AI</span><span class="q-opt">Zarządzanie projektami AI</span><span class="q-opt">Bezpieczeństwo i compliance AI</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">C2. Preferowany format szkoleń</div>
+        <div class="q-options">
+          <span class="q-opt">Warsztaty stacjonarne</span><span class="q-opt">Webinary online</span><span class="q-opt">E-learning (samodzielnie)</span><span class="q-opt">Mentoring / buddy</span><span class="q-opt">Hack day / praktyka</span>
+        </div>
+      </div>
+      <div class="q-item">
+        <div class="q-text">C3. Czy chciałbyś/chciałabyś pełnić rolę AI Championa w swoim obszarze?</div>
+        <div class="q-options">
+          <span class="q-opt">Tak, zdecydowanie</span><span class="q-opt">Być może, chcę dowiedzieć się więcej</span><span class="q-opt">Na razie nie</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATRIX -->
+<div class="page" id="matrix">
+  <div class="hero-label">Matryca kompetencji</div>
+  <h1>Szablon <span>matrycy</span></h1>
+  <p class="hero-sub">Każda komórka = oczekiwany poziom docelowy dla danej roli. Kliknij komórkę, aby zobaczyć opis. Po zebraniu danych ankiety — zastąp wartościami rzeczywistymi.</p>
+
+  <div class="info-box">
+    <strong>Jak czytać matrycę:</strong> Liczba w komórce to <strong>oczekiwany minimalny poziom (target)</strong> dla danej roli i kompetencji. Po ankiecie wpisujesz rzeczywisty poziom — różnica to luka szkoleniowa.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot cell-0"></div>0 — Brak</div>
+    <div class="legend-item"><div class="legend-dot cell-1"></div>1 — Świadomy</div>
+    <div class="legend-item"><div class="legend-dot cell-2"></div>2 — Użytkownik</div>
+    <div class="legend-item"><div class="legend-dot cell-3"></div>3 — Zaawansowany</div>
+    <div class="legend-item"><div class="legend-dot cell-4"></div>4 — Champion</div>
+  </div>
+
+  <div class="matrix-container">
+    <table class="matrix-table" id="matrixTable">
+      <thead>
+        <tr>
+          <th>Kompetencja</th>
+          <th>Developer</th>
+          <th>Tester</th>
+          <th>Analityk</th>
+          <th>PM / SM</th>
+          <th>Architekt</th>
+          <th>DevOps</th>
+        </tr>
+      </thead>
+      <tbody id="matrixBody"></tbody>
+    </table>
+  </div>
+
+  <div id="cellTooltip" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-top:12px; font-size:12px; color:var(--text-muted); max-width:500px;">
+    <strong id="tooltipTitle" style="color:var(--text); display:block; margin-bottom:6px;"></strong>
+    <span id="tooltipDesc"></span>
+  </div>
+</div>
+
+<!-- HEATMAP -->
+<div class="page" id="heatmap">
+  <div class="hero-label">Gap Analysis</div>
+  <h1>Wizualizacja <span>luk kompetencyjnych</span></h1>
+  <p class="hero-sub">Dane przykładowe — po zebraniu ankiet ta heatmapa wypełni się rzeczywistymi wynikami. Ciemniejszy kolor = większa luka.</p>
+
+  <div class="info-box">
+    <strong>Dane poglądowe:</strong> Poniższe liczby są przykładowe i pokazują docelowy wygląd dashboardu po zebraniu wyników od 500 osób.
+  </div>
+
+  <h2>Średni poziom AI per obszar IT</h2>
+  <div class="gap-grid" id="gapGrid"></div>
+
+  <h2>Heatmapa: Rola × Kompetencja</h2>
+  <div class="matrix-container">
+    <table class="heat-table" id="heatTable"></table>
+  </div>
+
+  <h2>Priorytety szkoleń (największe luki)</h2>
+  <div id="priorityList" style="display:flex; flex-direction:column; gap:8px;"></div>
+</div>
+
+<!-- PROGRAM -->
+<div class="page" id="program">
+  <div class="hero-label">Program rozwojowy</div>
+  <h1>3 ścieżki <span>szkoleniowe</span></h1>
+  <p class="hero-sub">Segmentacja uczestników na podstawie wyników ankiety. Każda osoba trafia automatycznie do właściwej ścieżki.</p>
+
+  <div class="tracks">
+    <div class="track green">
+      <div class="track-badge">🟢 Poziom 0–1</div>
+      <div class="track-title">Ścieżka Podstawowa</div>
+      <div class="track-target">Target: Świadomy → Użytkownik</div>
+      <div class="track-modules">
+        <div class="module-item"><div class="module-dot"></div>Czym jest AI i jak działa (1h)</div>
+        <div class="module-item"><div class="module-dot"></div>Narzędzia AI dostępne w firmie (2h)</div>
+        <div class="module-item"><div class="module-dot"></div>Prompt engineering — podstawy (2h)</div>
+        <div class="module-item"><div class="module-dot"></div>Bezpieczeństwo i compliance AI (1h)</div>
+        <div class="module-item"><div class="module-dot"></div>Pierwsze zadanie w swojej roli z AI (warsztat 3h)</div>
+      </div>
+    </div>
+    <div class="track yellow">
+      <div class="track-badge">🟡 Poziom 2</div>
+      <div class="track-title">Ścieżka Zaawansowana</div>
+      <div class="track-target">Target: Użytkownik → Zaawansowany</div>
+      <div class="track-modules">
+        <div class="module-item"><div class="module-dot"></div>Advanced prompt engineering (3h)</div>
+        <div class="module-item"><div class="module-dot"></div>Automatyzacja roli z AI — role-specific (4h)</div>
+        <div class="module-item"><div class="module-dot"></div>Weryfikacja jakości outputów AI (2h)</div>
+        <div class="module-item"><div class="module-dot"></div>Integracje: Copilot, n8n, Zapier (3h)</div>
+        <div class="module-item"><div class="module-dot"></div>Hack day — projekt z AI (8h)</div>
+      </div>
+    </div>
+    <div class="track purple">
+      <div class="track-badge">🔴 Poziom 3–4</div>
+      <div class="track-title">Ścieżka Champion</div>
+      <div class="track-target">Target: Zaawansowany → Champion</div>
+      <div class="track-modules">
+        <div class="module-item"><div class="module-dot"></div>Projektowanie rozwiązań AI (4h)</div>
+        <div class="module-item"><div class="module-dot"></div>Ocena i wdrażanie narzędzi AI (3h)</div>
+        <div class="module-item"><div class="module-dot"></div>Train-the-trainer: jak uczyć innych (3h)</div>
+        <div class="module-item"><div class="module-dot"></div>Community of Practice — moderacja (ongoing)</div>
+        <div class="module-item"><div class="module-dot"></div>Projekt AI dla swojego obszaru (sprint)</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Harmonogram wdrożenia</h2>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-week">Tydzień 1–2</div><div class="tl-task">Definicja kompetencji</div><div class="tl-detail">Finalizacja pytań, pilotaż na 1 obszarze</div></div>
+    <div class="tl-item"><div class="tl-week">Tydzień 3–4</div><div class="tl-task">Rollout ankiety</div><div class="tl-detail">500 osób, zbieranie danych, przypomnienia</div></div>
+    <div class="tl-item"><div class="tl-week">Tydzień 5</div><div class="tl-task">Analiza i heatmapa</div><div class="tl-detail">Gap analysis per obszar i rola</div></div>
+    <div class="tl-item"><div class="tl-week">Tydzień 6</div><div class="tl-task">Propozycja programu</div><div class="tl-detail">Prezentacja dla stakeholderów, akceptacja</div></div>
+    <div class="tl-item"><div class="tl-week">Mies. 2–3</div><div class="tl-task">Pilotaż szkoleń</div><div class="tl-detail">Ścieżka podstawowa i zaawansowana, Champions</div></div>
+    <div class="tl-item"><div class="tl-week">Mies. 4+</div><div class="tl-task">Skalowanie i mierzenie</div><div class="tl-detail">Kolejna runda ankiety, CoP, re-assessment</div></div>
+  </div>
+
+  <div class="info-box" style="border-color:rgba(0,212,170,.3); background:rgba(0,212,170,.06);">
+    <strong style="color:#00d4aa">💡 Model Champions:</strong> Każdy obszar IT wyłania 1–2 Championów (poziom 3–4), którzy stają się wewnętrznymi trenerami i punktem kontaktu dla kolegów. To obniża koszt szkoleń i utrzymuje momentum transformacji AI po zakończeniu programu.
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav .tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabs = ['overview','survey','matrix','heatmap','program'];
+  document.querySelectorAll('nav .tab')[tabs.indexOf(id)].classList.add('active');
+}
+
+// --- MATRIX ---
+const competencies = [
+  { name: "Prompt engineering", desc: "Tworzenie skutecznych zapytań do modeli AI." },
+  { name: "Weryfikacja outputów AI", desc: "Ocena jakości odpowiedzi, wykrywanie halucynacji." },
+  { name: "Bezpieczeństwo / compliance", desc: "Znajomość polityk firmy, ochrona danych przy użyciu AI." },
+  { name: "Code generation", desc: "Generowanie i uzupełnianie kodu z pomocą AI (Copilot itp.)." },
+  { name: "Test case generation", desc: "Tworzenie przypadków testowych z AI." },
+  { name: "Analiza wymagań z AI", desc: "Wsparcie AI w zbieraniu i syntezie wymagań." },
+  { name: "Raportowanie z AI", desc: "Generowanie raportów, podsumowań, notatek z AI." },
+  { name: "Automatyzacja procesów", desc: "Budowanie przepływów pracy z użyciem AI." },
+  { name: "Ocena narzędzi AI", desc: "Dobór i ewaluacja narzędzi AI dla zespołu / obszaru." },
+];
+// [Dev, Tester, Analityk, PM/SM, Architekt, DevOps]
+const targetLevels = [
+  [3, 2, 2, 2, 2, 2],
+  [3, 3, 3, 2, 3, 2],
+  [2, 2, 2, 2, 3, 2],
+  [4, 1, 1, 0, 2, 2],
+  [2, 4, 2, 1, 1, 1],
+  [1, 1, 4, 2, 2, 1],
+  [1, 1, 2, 3, 1, 1],
+  [2, 2, 2, 2, 3, 4],
+  [2, 1, 2, 2, 4, 2],
+];
+const levelDesc = {
+  0: "Nie wymagane dla tej roli lub brak użycia.",
+  1: "Świadomość istnienia, podstawowe użycie.",
+  2: "Regularne stosowanie w typowych zadaniach.",
+  3: "Zaawansowane użycie, optymalizacja workflow.",
+  4: "Ekspert — wdraża, uczy, projektuje rozwiązania.",
+};
+
+const tbody = document.getElementById('matrixBody');
+competencies.forEach((comp, ci) => {
+  const tr = document.createElement('tr');
+  let html = `<td>${comp.name}</td>`;
+  targetLevels[ci].forEach(lvl => {
+    html += `<td><span class="cell-lvl cell-${lvl}" onclick="showTooltip('${comp.name}',${lvl},'${comp.desc}')">${lvl}</span></td>`;
+  });
+  tr.innerHTML = html;
+  tbody.appendChild(tr);
+});
+
+function showTooltip(name, lvl, desc) {
+  const box = document.getElementById('cellTooltip');
+  document.getElementById('tooltipTitle').textContent = name + ' — Poziom ' + lvl;
+  document.getElementById('tooltipDesc').textContent = desc + ' ' + levelDesc[lvl];
+  box.style.display = 'block';
+}
+
+// --- HEATMAP / GAP ---
+const areas = ['Majątek','Szkody','Życie','Finance IT','Infra','Data & AI','CX/Digital','Inny'];
+const areaScores = [1.4, 1.8, 1.2, 2.1, 1.6, 2.8, 2.3, 1.1];
+const areaColors = ['#ff6b6b','#ffd166','#ff6b6b','#06d6a0','#ffd166','#b57bee','#4cc9f0','#ff6b6b'];
+
+const gapGrid = document.getElementById('gapGrid');
+areas.forEach((a, i) => {
+  const pct = (areaScores[i] / 4) * 100;
+  gapGrid.innerHTML += `<div class="gap-card">
+    <div class="gap-area">${a}</div>
+    <div class="gap-val" style="color:${areaColors[i]}">${areaScores[i].toFixed(1)}</div>
+    <div class="gap-label">śr. poziom / 4</div>
+    <div class="gap-bar"><div class="gap-fill" style="width:${pct}%;background:${areaColors[i]}"></div></div>
+  </div>`;
+});
+
+const heatComps = ['Prompt eng.','Weryfikacja','Bezpieczeństwo','Code gen.','Test gen.','Analiza wym.','Raportowanie','Automatyzacja'];
+const roles6 = ['Dev','Tester','Analityk','PM/SM','Architekt','DevOps'];
+const heatData = [
+  [2.1,1.3,1.5,1.8,2.4,1.6],
+  [1.8,2.0,1.6,1.4,2.1,1.3],
+  [1.2,1.5,1.0,1.1,2.0,1.2],
+  [3.1,0.8,0.7,0.4,1.6,1.9],
+  [1.4,3.2,1.3,0.9,0.8,0.6],
+  [0.8,0.9,2.8,1.5,1.4,0.7],
+  [0.6,0.8,1.6,2.4,0.9,0.8],
+  [1.5,1.7,1.5,1.6,2.6,3.1],
+];
+function heatClass(v) {
+  if (v < 1) return 'h-0';
+  if (v < 1.8) return 'h-1';
+  if (v < 2.5) return 'h-2';
+  if (v < 3.2) return 'h-3';
+  return 'h-4';
+}
+const ht = document.getElementById('heatTable');
+let thRow = '<tr><th></th>';
+roles6.forEach(r => thRow += `<th>${r}</th>`);
+thRow += '</tr>';
+ht.innerHTML = thRow;
+heatData.forEach((row, ri) => {
+  let tr = `<tr><td>${heatComps[ri]}</td>`;
+  row.forEach(v => { tr += `<td class="${heatClass(v)}">${v.toFixed(1)}</td>`; });
+  tr += '</tr>';
+  ht.innerHTML += tr;
+});
+
+const priorities = [
+  { label: "Analiza wymagań z AI — PM/SM", gap: 1.6, color: "#ff6b6b" },
+  { label: "Automatyzacja procesów — Tester", gap: 1.3, color: "#ff6b6b" },
+  { label: "Bezpieczeństwo/compliance — Analityk", gap: 1.0, color: "#ffd166" },
+  { label: "Code generation — Tester", gap: 0.7, color: "#ffd166" },
+  { label: "Test generation — Developer", gap: 0.6, color: "#06d6a0" },
+];
+const pl = document.getElementById('priorityList');
+priorities.forEach((p, i) => {
+  pl.innerHTML += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;">
+    <div style="font-size:16px;font-weight:700;color:var(--text-muted);width:20px">${i+1}</div>
+    <div style="flex:1;font-size:13px;font-weight:500">${p.label}</div>
+    <div style="font-size:11px;color:var(--text-muted)">luka: <strong style="color:${p.color}">${p.gap.toFixed(1)} pkt</strong></div>
+    <div style="width:100px;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${(p.gap/2)*100}%;background:${p.color};border-radius:3px"></div>
+    </div>
+  </div>`;
+});
+
+// Q-OPT click
+document.querySelectorAll('.q-opt').forEach(opt => {
+  opt.addEventListener('click', function() {
+    this.parentElement.querySelectorAll('.q-opt').forEach(s => s.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+</script>
+</body>
+</html>
