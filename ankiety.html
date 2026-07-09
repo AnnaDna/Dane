@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Badania doświadczenia zespołów — Product Ownerzy i Analitycy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#141C33;
+    --navy-2:#1E2A47;
+    --slate:#5B6B84;
+    --slate-light:#94A0B4;
+    --paper:#F6F5F1;
+    --card:#FFFFFF;
+    --line:#E4E1D8;
+    --wave1:#A8AEC2;
+    --wave2:#2A4CE0;
+    --pos:#1A8754;
+    --neg:#C23B33;
+    --amber:#D98E2C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--navy);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px;}
+  header.hero{
+    padding:56px 28px 0;
+    max-width:1180px;
+    margin:0 auto;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--slate);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:40px;
+    line-height:1.1;
+    margin:0 0 14px;
+    max-width:820px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:15.5px;
+    color:var(--slate);
+    max-width:660px;
+    line-height:1.55;
+    margin-bottom:28px;
+  }
+  .wave-legend{
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--navy);
+    margin-bottom:28px;
+  }
+  .wave-legend .item{display:flex;align-items:center;gap:8px;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .dot.w1{background:var(--wave1);}
+  .dot.w2{background:var(--wave2);}
+
+  .tabs{
+    display:flex;
+    gap:4px;
+    border-bottom:1px solid var(--line);
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+  .tab-btn{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:16px;
+    background:none;
+    border:none;
+    padding:14px 22px;
+    cursor:pointer;
+    color:var(--slate);
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    transition:color .15s;
+  }
+  .tab-btn:hover{color:var(--navy);}
+  .tab-btn.active{color:var(--navy);border-bottom-color:var(--wave2);}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  section{padding:52px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:24px;flex-wrap:wrap;}
+  .section-head h2{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    font-weight:600;
+    margin:0;
+  }
+  .section-head p{color:var(--slate);font-size:14.5px;max-width:560px;margin:6px 0 0;line-height:1.5;}
+  .tag-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--slate-light);
+    white-space:nowrap;
+  }
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .kpi{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:20px 18px;
+    position:relative;
+  }
+  .kpi .label{font-size:12.5px;color:var(--slate);margin-bottom:12px;line-height:1.35;min-height:32px;}
+  .kpi .value-row{display:flex;align-items:baseline;gap:10px;}
+  .kpi .value{font-family:'Fraunces',serif;font-size:32px;font-weight:600;}
+  .kpi .delta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    font-weight:600;
+    padding:2px 6px;
+    border-radius:3px;
+  }
+  .delta.pos{color:var(--pos);background:rgba(26,135,84,0.1);}
+  .delta.neg{color:var(--neg);background:rgba(194,59,51,0.1);}
+  .delta.flat{color:var(--slate);background:rgba(91,107,132,0.1);}
+  .kpi .scale{font-size:11px;color:var(--slate-light);margin-top:8px;}
+
+  .chart-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:24px 24px 12px;
+  }
+  .two-col{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:stretch;}
+  canvas{max-width:100%;}
+
+  .insight-box{
+    background:var(--navy);
+    color:#EDEBE3;
+    border-radius:4px;
+    padding:26px 28px;
+    margin-top:20px;
+  }
+  .insight-box h3{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:#fff;
+  }
+  .insight-box ul{margin:0;padding-left:18px;line-height:1.65;font-size:14px;color:#CBD0DE;}
+  .insight-box li{margin-bottom:6px;}
+  .insight-box b{color:#fff;font-weight:600;}
+  .insight-box.light{background:var(--card); color:var(--navy); border:1px solid var(--line);}
+  .insight-box.light h3{color:var(--navy);}
+  .insight-box.light ul{color:var(--slate);}
+
+  footer{padding:36px 0 0;color:var(--slate-light);font-size:12px;text-align:center;}
+
+  @media (max-width:820px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .two-col{grid-template-columns:1fr;}
+    h1{font-size:30px;}
+    .tabs{padding:0 16px;overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Badania doświadczenia zespołów</div>
+  <h1>Dwie fale, dwie role — co zmieniło się w doświadczeniu Product Ownerów i Analityków</h1>
+  <div class="sub">Porównanie wyników ankiet: badania pierwotnego oraz jego powtórzenia z czerwca 2026 („06.26”), przeprowadzonych osobno wśród Product Ownerów i Analityków. Odpowiedzi opisowe przeliczono na skale liczbowe, aby móc śledzić kierunek zmian.</div>
+</header>
+
+<div class="wrap" style="padding-bottom:0;">
+  <section id="ai-cross-cutting" style="padding-top:0;">
+    <div class="section-head">
+      <div>
+        <h2>Jak AI zmieniało pracę — wnioski przekrojowe</h2>
+        <p>Niezależnie od pełnionej roli: co dwie fale obu badań mówią wspólnie o wpływie AI na sposób pracy, satysfakcję i codzienne obciążenie.</p>
+      </div>
+      <span class="tag-num">synteza obu badań łącznie, 243 odpowiedzi</span>
+    </div>
+    <div class="insight-box">
+      <h3>Pięć wzorców widocznych w obu badanych grupach</h3>
+      <ul id="crossAiInsightList"></ul>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="po">Product Ownerzy</button>
+  <button class="tab-btn" data-tab="an">Analitycy</button>
+</nav>
+
+<div class="wrap">
+
+  <!-- ========================= PO TAB ========================= -->
+  <div id="tab-po" class="tab-panel active">
+
+    <section>
+      <div class="wave-legend" style="margin-top:32px;">
+        <div class="item"><span class="dot w1"></span>Fala 1 — badanie pierwotne (n=46)</div>
+        <div class="item"><span class="dot w2"></span>Fala 2 — powtórzenie 06.26 (n=36)</div>
+      </div>
+      <div class="section-head">
+        <div>
+          <h2>Kluczowe wskaźniki</h2>
+          <p>Średnie na skalach 1–5, tam gdzie wyższa wartość oznacza lepszy wynik — poza „przerywnikami”, gdzie niżej jest lepiej.</p>
+        </div>
+      </div>
+      <div class="kpi-grid" id="kpiGrid-po"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>12 obszarów doświadczenia PO</h2>
+          <p>Średnia ocena każdego stwierdzenia ankiety (1 = Nigdy, 5 = Zawsze). Posortowane wg wielkości zmiany między falami.</p>
+        </div>
+        <span class="tag-num">skala 1–5</span>
+      </div>
+      <div class="chart-card"><canvas id="likertChart-po" height="115"></canvas></div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="section-head" style="margin-bottom:16px;"><div><h2 style="font-size:20px;">Profil obszarów — nakładka fal</h2></div></div>
+          <canvas id="radarChart-po" height="290"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="section-head" style="margin-bottom:16px;"><div><h2 style="font-size:20px;">Dodatkowe metryki jakościowe</h2>
+          <p>Satysfakcja, stabilność, tempo, łatwość pracy, użycie AI, przerywniki i decyzje zastępcze.</p></div></div>
+          <canvas id="extraChart-po" height="290"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Na co realnie schodzi czas PO</h2>
+        <p>Średni deklarowany podział czasu pracy (%) na kategorie działań — porównanie obu fal.</p></div>
+        <span class="tag-num">średnia z deklaracji, % czasu</span>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><canvas id="allocChart-po" height="230"></canvas></div>
+        <div class="chart-card"><canvas id="allocDeltaChart-po" height="230"></canvas></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Co PO chcieliby usprawnić najbardziej</h2>
+        <p>Odsetek respondentów, którzy wskazali dany obszar w głosowaniu „max 3 obszary do poprawy”.</p></div>
+        <span class="tag-num">% wskazań, wielokrotny wybór</span>
+      </div>
+      <div class="chart-card"><canvas id="votesChart-po" height="220"></canvas></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Pogłębiona analiza: AI w pracy Product Ownera</h2>
+        <p>Jak zmieniło się korzystanie z AI, gdzie jest stosowane, ile czasu oszczędza i czy wiąże się z lepszymi wynikami.</p></div>
+        <span class="tag-num">fala 1 (n=46) vs fala 2 · 06.26 (n=36)</span>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><canvas id="aiFreqChart-po" height="230"></canvas></div>
+        <div class="chart-card"><canvas id="aiHoursChart-po" height="230"></canvas></div>
+      </div>
+      <div class="chart-card" style="margin-top:16px;"><canvas id="aiAreaChart-po" height="180"></canvas></div>
+      <div class="chart-card" style="margin-top:16px;"><canvas id="aiOutcomeChart-po" height="200"></canvas></div>
+      <div class="insight-box"><h3>AI: było → jest</h3><ul id="aiInsightList-po"></ul></div>
+      <div class="insight-box light"><h3>Głosy respondentów o AI</h3><ul id="aiQuoteList-po"></ul></div>
+    </section>
+
+    <section>
+      <div class="section-head"><div><h2>Rozkład satysfakcji</h2><p>Jak zmienił się rozkład ocen poziomu satysfakcji z pracy PO.</p></div></div>
+      <div class="chart-card"><canvas id="satisfDistChart-po" height="200"></canvas></div>
+    </section>
+
+    <section>
+      <div class="section-head"><div><h2>Wnioski</h2></div></div>
+      <div class="insight-box"><h3>Kierunek zmian jest niemal jednoznacznie pozytywny</h3><ul id="insightList-po"></ul></div>
+    </section>
+
+  </div>
+
+  <!-- ========================= ANALYSTS TAB ========================= -->
+  <div id="tab-an" class="tab-panel">
+
+    <section>
+      <div class="wave-legend" style="margin-top:32px;">
+        <div class="item"><span class="dot w1"></span>Fala 1 — badanie pierwotne (n=88)</div>
+        <div class="item"><span class="dot w2"></span>Fala 2 — powtórzenie 06.26 (n=73)</div>
+      </div>
+      <div class="section-head">
+        <div>
+          <h2>Kluczowe wskaźniki</h2>
+          <p>Średnie na skalach 1–5, tam gdzie wyższa wartość oznacza lepszy wynik — poza „przerywnikami”, gdzie niżej jest lepiej.</p>
+        </div>
+      </div>
+      <div class="kpi-grid" id="kpiGrid-an"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>11 obszarów doświadczenia analityka</h2>
+          <p>Średnia ocena każdego stwierdzenia ankiety (1 = Nigdy, 5 = Zawsze). Posortowane wg wielkości zmiany między falami.</p>
+        </div>
+        <span class="tag-num">skala 1–5</span>
+      </div>
+      <div class="chart-card"><canvas id="likertChart-an" height="115"></canvas></div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="section-head" style="margin-bottom:16px;"><div><h2 style="font-size:20px;">Profil obszarów — nakładka fal</h2></div></div>
+          <canvas id="radarChart-an" height="290"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="section-head" style="margin-bottom:16px;"><div><h2 style="font-size:20px;">Dodatkowe metryki jakościowe</h2>
+          <p>Satysfakcja, stabilność, tempo, łatwość pracy, AI, przerywniki, zmiany wymagań i blokady decyzjami.</p></div></div>
+          <canvas id="extraChart-an" height="290"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Na co realnie schodzi czas analityka</h2>
+        <p>Średni deklarowany podział czasu pracy (%) na kategorie działań — porównanie obu fal.</p></div>
+        <span class="tag-num">średnia z deklaracji, % czasu</span>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><canvas id="allocChart-an" height="230"></canvas></div>
+        <div class="chart-card"><canvas id="allocDeltaChart-an" height="230"></canvas></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Co analitycy chcieliby usprawnić najbardziej</h2>
+        <p>Odsetek respondentów, którzy wskazali dany obszar w głosowaniu „max 3 obszary do poprawy”.</p></div>
+        <span class="tag-num">% wskazań, wielokrotny wybór</span>
+      </div>
+      <div class="chart-card"><canvas id="votesChart-an" height="260"></canvas></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Pogłębiona analiza: AI w pracy analityka</h2>
+        <p>Jak zmieniło się korzystanie z AI, ile czasu oszczędza i czy wiąże się z lepszymi wynikami.</p></div>
+        <span class="tag-num">fala 1 (n=88) vs fala 2 · 06.26 (n=73)</span>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><canvas id="aiFreqChart-an" height="230"></canvas></div>
+        <div class="chart-card"><canvas id="aiHoursChart-an" height="230"></canvas></div>
+      </div>
+      <div class="chart-card" style="margin-top:16px;"><canvas id="aiOutcomeChart-an" height="200"></canvas></div>
+      <div class="insight-box"><h3>AI: było → jest</h3><ul id="aiInsightList-an"></ul></div>
+      <div class="insight-box light"><h3>Głosy respondentów o AI</h3><ul id="aiQuoteList-an"></ul></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Presja procesowa i rozkład satysfakcji</h2>
+        <p>Częstotliwość spotkań, zmian wymagań w trakcie pracy oraz rozkład ocen satysfakcji.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><canvas id="satisfDistChart-an" height="230"></canvas></div>
+        <div class="chart-card"><canvas id="meetingsDistChart-an" height="230"></canvas></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><div><h2>Wnioski</h2></div></div>
+      <div class="insight-box"><h3>Obraz bardziej mieszany niż u PO</h3><ul id="insightList-an"></ul></div>
+    </section>
+
+  </div>
+
+  <footer>Dashboard wygenerowany na podstawie czterech plików ankietowych • PO: n=46 / n=36 (06.26) • Analitycy: n=88 / n=73 (06.26)</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+function ensureChartLoaded(cb){
+  if (window.Chart) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+  s.onload = cb;
+  s.onerror = function(){
+    const s2 = document.createElement('script');
+    s2.src = 'https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js';
+    s2.onload = cb;
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+}
+
+ensureChartLoaded(function(){
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#5B6B84';
+Chart.defaults.font.size = 12;
+
+const WAVE1 = '#A8AEC2';
+const WAVE2 = '#2A4CE0';
+const POS = '#1A8754';
+const NEG = '#C23B33';
+
+const DATA_PO = {"n_w1": 46, "n_w2": 36, "likert_w1": {"Incydenty i problemy": {"mean": 4.26, "n": 46}, "Decyzyjność": {"mean": 3.83, "n": 46}, "Planowanie pracy": {"mean": 3.74, "n": 46}, "Skupiona praca": {"mean": 2.37, "n": 46}, "Cele i metryki": {"mean": 3.48, "n": 42}, "Jakość backlogu": {"mean": 3.89, "n": 46}, "Zrozumiałość wymagań": {"mean": 3.52, "n": 46}, "Wpływ współpracy międzyzespołowej": {"mean": 3.54, "n": 46}, "Współpraca z interesariuszami": {"mean": 3.54, "n": 46}, "Spójność z wizją": {"mean": 4.0, "n": 42}, "Widoczność postępu": {"mean": 3.89, "n": 44}, "Małe, przyrostowe zmiany": {"mean": 3.78, "n": 45}}, "likert_w2": {"Incydenty i problemy": {"mean": 4.6, "n": 35}, "Decyzyjność": {"mean": 3.86, "n": 36}, "Planowanie pracy": {"mean": 3.67, "n": 36}, "Skupiona praca": {"mean": 2.69, "n": 36}, "Cele i metryki": {"mean": 3.58, "n": 33}, "Jakość backlogu": {"mean": 4.06, "n": 36}, "Zrozumiałość wymagań": {"mean": 3.58, "n": 36}, "Wpływ współpracy międzyzespołowej": {"mean": 3.86, "n": 36}, "Współpraca z interesariuszami": {"mean": 3.86, "n": 36}, "Spójność z wizją": {"mean": 4.21, "n": 34}, "Widoczność postępu": {"mean": 4.19, "n": 36}, "Małe, przyrostowe zmiany": {"mean": 3.97, "n": 36}}, "extra_w1": {"Satysfakcja": {"mean": 3.76, "n": 46}, "Stabilność obszaru": {"mean": 2.35, "n": 46}, "Tempo dostarczania": {"mean": 2.74, "n": 46}, "Łatwość pracy": {"mean": 2.93, "n": 46}, "Wykorzystanie AI": {"mean": 2.85, "n": 46}, "Przerywniki (dziennie)": {"mean": 3.31, "n": 45}, "Decyzje zastępcze": {"mean": 2.86, "n": 44}}, "extra_w2": {"Satysfakcja": {"mean": 3.79, "n": 34}, "Stabilność obszaru": {"mean": 2.5, "n": 36}, "Tempo dostarczania": {"mean": 2.78, "n": 36}, "Łatwość pracy": {"mean": 3.06, "n": 36}, "Wykorzystanie AI": {"mean": 3.03, "n": 36}, "Przerywniki (dziennie)": {"mean": 3.11, "n": 36}, "Decyzje zastępcze": {"mean": 2.77, "n": 35}}, "distributions": {"satysfakcja": {"w1": {"Wysoka satysfakcja": 22, "Średnia satysfakcja": 14, "Bardzo wysoka satysfakcja": 8, "Bardzo niska satysfakcja": 1, "Niska satysfakcja": 1}, "w2": {"Średnia satysfakcja": 14, "Wysoka satysfakcja": 10, "Bardzo wysoka satysfakcja": 9, "Nie wiem/nie dotyczy": 2, "Niska satysfakcja": 1}}, "straty_czasu": {"w1": {"Nie wiem/Nie dotyczy": 14, "30%": 12, "20%": 9, "10%": 6, "40%": 3, "50% lub więcej": 2}, "w2": {"20%": 11, "Nie wiem/Nie dotyczy": 10, "30%": 8, "10%": 4, "50% lub więcej": 2, "0": 1}}, "ai_usage": {"w1": {"Kilka razy w tygodniu": 22, "Codziennie": 11, "Kilka razy w miesiącu": 8, "Rzadko": 5}, "w2": {"Kilka razy w tygodniu": 15, "Codziennie": 13, "Kilka razy w miesiącu": 4, "Rzadko": 4}}, "ai_oszczednosc": {"w1": {"1-2 godziny tygodniowo": 12, "Nie wiem/Nie dotyczy": 12, "2-4 godziny tygodniowo": 8, "Mniej niż 1 godzinę tygodniowo": 7, "4-6 godzin tygodniowo": 5, "6-8 godzin tygodniowo": 1, "Więcej niż 8 godzin tygodniowo": 1}, "w2": {"2-4 godziny tygodniowo": 11, "Mniej niż 1 godzinę tygodniowo": 7, "Nie wiem/Nie dotyczy": 6, "4-6 godzin tygodniowo": 5, "1-2 godziny tygodniowo": 4, "Więcej niż 8 godzin tygodniowo": 2, "6-8 godzin tygodniowo": 1}}, "przerywniki": {"w1": {"4-6 razy dziennie": 16, "1-3 razy dziennie": 11, "7-10 razy dziennie": 11, "Więcej niż 10 razy dziennie": 7, "Nie wiem/Nie dotyczy": 1}, "w2": {"4-6 razy dziennie": 18, "1-3 razy dziennie": 7, "7-10 razy dziennie": 7, "Więcej niż 10 razy dziennie": 3, "Mniej niż raz dziennie": 1}}, "strata_decyzje": {"w1": {"Nie wiem/Nie dotyczy": 17, "2-4 godziny tygodniowo": 13, "30-60 min tygodniowo": 8, "1-2 godziny tygodniowo": 7, "Więcej niż 4 godziny tygodniowo": 1}, "w2": {"2-4 godziny tygodniowo": 9, "1-2 godziny tygodniowo": 9, "Nie wiem/Nie dotyczy": 7, "30-60 min tygodniowo": 4, "Mniej niż 30 min tygodniowo": 4, "Więcej niż 4 godziny tygodniowo": 3}}, "estymaty": {"w1": {"2": 27, "3": 10, "1": 6, "5 i więcej": 2, "4": 1}, "w2": {"2": 24, "1": 7, "3": 3, "4": 2}}}, "alloc_w1": {"Strategia i wizja": 7.7, "Refinement/priorytetyzacja": 20.1, "Współpraca z interesariuszami": 22.1, "Incydenty/wsparcie/eskalacje": 10.3, "Spotkania i koordynacja": 35.4, "Inne": 6.2}, "alloc_w2": {"Strategia i wizja": 8.8, "Refinement/priorytetyzacja": 23.3, "Współpraca z interesariuszami": 20.7, "Incydenty/wsparcie/eskalacje": 13.2, "Spotkania i koordynacja": 30.9, "Inne": 4.2}, "votes_w1": {"Jakość i gotowość backlogu": 9, "Czas na skupioną pracę": 35, "Planowanie i priorytetyzacja produktu": 10, "Jasność celów i miar sukcesu": 12, "Współpraca z innymi zespołami lub działami": 11, "Decyzyjność produktowa": 15, "Spójność wizji z realizacją": 7, "Zaangażowanie interesariuszy i feedback": 11}, "votes_w2": {"Współpraca z innymi zespołami lub działami": 8, "Czas na skupioną pracę": 26, "Zaangażowanie interesariuszy i feedback": 12, "Jakość i gotowość backlogu": 12, "Decyzyjność produktowa": 11, "Planowanie i priorytetyzacja produktu": 11, "Jasność celów i miar sukcesu": 7, "Spójność wizji z realizacją": 4}, "ai_area_w1": {"Strategia i wizja": 8.2, "Refinement/priorytetyzacja": 16.1, "Współpraca z interesariuszami": 14.0, "Incydenty/wsparcie/eskalacje": 4.3, "Spotkania i koordynacja": 26.4, "Inne": 21.6, "Nie używam AI": 9.4}, "ai_area_w2": {"Strategia i wizja": 6.2, "Refinement/priorytetyzacja": 19.4, "Współpraca z interesariuszami": 18.5, "Incydenty/wsparcie/eskalacje": 10.4, "Spotkania i koordynacja": 24.3, "Inne": 13.1, "Nie używam AI": 6.0}, "ai_outcomes": {"Rzadko": {"skupiona": 2.33, "satysf": 3.11, "przerywniki": 3.62, "n": 9}, "Kilka razy w miesiącu": {"skupiona": 2.5, "satysf": 3.83, "przerywniki": 3.42, "n": 12}, "Kilka razy w tygodniu": {"skupiona": 2.65, "satysf": 3.83, "przerywniki": 3.05, "n": 37}, "Codziennie": {"skupiona": 2.38, "satysf": 3.91, "przerywniki": 3.25, "n": 24}}, "ai_hours_saved_avg": {"w1": 2.54, "w2": 3.08}};
+const DATA_AN = {"n_w1": 88, "n_w2": 73, "likert_w1": {"Incydenty i problemy": {"mean": 4.43, "n": 87}, "Bezpieczne zmiany": {"mean": 3.97, "n": 87}, "Planowanie pracy": {"mean": 3.94, "n": 87}, "Skupiona praca": {"mean": 3.3, "n": 88}, "Dokumentacja": {"mean": 3.55, "n": 88}, "Małe, przyrostowe zmiany": {"mean": 3.53, "n": 85}, "Zrozumiałość wymagań": {"mean": 3.64, "n": 84}, "Wpływ współpracy międzyzespołowej": {"mean": 3.7, "n": 87}, "Analiza incydentów": {"mean": 3.74, "n": 85}, "Review analizy": {"mean": 3.91, "n": 77}, "Weryfikacja założeń": {"mean": 3.88, "n": 84}}, "likert_w2": {"Incydenty i problemy": {"mean": 4.56, "n": 73}, "Bezpieczne zmiany": {"mean": 4.29, "n": 73}, "Planowanie pracy": {"mean": 3.96, "n": 73}, "Skupiona praca": {"mean": 3.33, "n": 73}, "Dokumentacja": {"mean": 3.59, "n": 73}, "Małe, przyrostowe zmiany": {"mean": 3.46, "n": 71}, "Zrozumiałość wymagań": {"mean": 3.53, "n": 73}, "Wpływ współpracy międzyzespołowej": {"mean": 3.56, "n": 72}, "Analiza incydentów": {"mean": 3.86, "n": 66}, "Review analizy": {"mean": 3.91, "n": 68}, "Weryfikacja założeń": {"mean": 4.01, "n": 73}}, "extra_w1": {"Satysfakcja": {"mean": 3.89, "n": 88}, "Stabilność obszaru": {"mean": 3.84, "n": 86}, "Tempo dostarczania": {"mean": 3.01, "n": 84}, "Łatwość pracy": {"mean": 3.31, "n": 88}, "Wykorzystanie AI": {"mean": 3.57, "n": 88}, "Przerywniki (dziennie)": {"mean": 2.62, "n": 86}, "Zmiany wymagań w trakcie": {"mean": 2.9, "n": 81}, "Blokady decyzjami biznesowymi": {"mean": 2.88, "n": 81}}, "extra_w2": {"Satysfakcja": {"mean": 3.96, "n": 72}, "Stabilność obszaru": {"mean": 3.79, "n": 73}, "Tempo dostarczania": {"mean": 3.01, "n": 70}, "Łatwość pracy": {"mean": 3.16, "n": 70}, "Wykorzystanie AI": {"mean": 4.07, "n": 73}, "Przerywniki (dziennie)": {"mean": 2.38, "n": 72}, "Zmiany wymagań w trakcie": {"mean": 2.99, "n": 73}, "Blokady decyzjami biznesowymi": {"mean": 2.82, "n": 72}}, "distributions": {"satysfakcja": {"w1": {"Wysoka satysfakcja": 52, "Średnia satysfakcja": 20, "Bardzo wysoka satysfakcja": 14, "Niska satysfakcja": 2}, "w2": {"Wysoka satysfakcja": 46, "Bardzo wysoka satysfakcja": 13, "Średnia satysfakcja": 11, "Niska satysfakcja": 1, "Bardzo niska satysfakcja": 1, "Nie wiem/nie dotyczy": 1}}, "straty_czasu": {"w1": {"Nie wiem/Nie dotyczy": 27, "20%": 17, "10%": 16, "30%": 12, "0": 8, "50% lub więcej": 6, "40%": 2}, "w2": {"Nie wiem/Nie dotyczy": 25, "20%": 20, "10%": 15, "30%": 7, "50% lub więcej": 4, "40%": 2}}, "ai_usage": {"w1": {"Kilka razy w tygodniu": 34, "Codziennie": 19, "Kilka razy w miesiącu": 17, "Rzadko": 14, "Nigdy": 4}, "w2": {"Codziennie": 29, "Kilka razy w tygodniu": 26, "Kilka razy w miesiącu": 12, "Rzadko": 6}}, "ai_oszczednosc": {"w1": {"Mniej niż 1 godzinę tygodniowo": 22, "Nie wiem/Nie dotyczy": 21, "2-4 godziny tygodniowo": 19, "1-2 godziny tygodniowo": 17, "4-6 godzin tygodniowo": 6, "6-8 godzin tygodniowo": 2, "Więcej niż 8 godzin tygodniowo": 1}, "w2": {"Nie wiem/Nie dotyczy": 19, "1-2 godziny tygodniowo": 15, "4-6 godzin tygodniowo": 13, "2-4 godziny tygodniowo": 12, "Mniej niż 1 godzinę tygodniowo": 6, "Więcej niż 8 godzin tygodniowo": 5, "6-8 godzin tygodniowo": 3}}, "przerywniki": {"w1": {"4-6 razy dziennie": 38, "1-3 razy dziennie": 31, "Mniej niż raz dziennie": 8, "Więcej niż 10 razy dziennie": 5, "7-10 razy dziennie": 4, "Nie wiem/Nie dotyczy": 2}, "w2": {"1-3 razy dziennie": 38, "4-6 razy dziennie": 27, "Mniej niż raz dziennie": 5, "Więcej niż 10 razy dziennie": 1, "Nie wiem/Nie dotyczy": 1, "7-10 razy dziennie": 1}}, "dokumentacja_strata": {"w1": {"Nie wiem/Nie dotyczy": 26, "30-60 min tygodniowo": 19, "2-4 godziny tygodniowo": 13, "1-2 godziny tygodniowo": 12, "Mniej niż 30 min tygodniowo": 10, "Więcej niż 4 godziny tygodniowo": 8}, "w2": {"Nie wiem/Nie dotyczy": 20, "1-2 godziny tygodniowo": 16, "Mniej niż 30 min tygodniowo": 14, "30-60 min tygodniowo": 11, "Więcej niż 4 godziny tygodniowo": 7, "2-4 godziny tygodniowo": 5}}, "estymaty": {"w1": {"W dwóch": 29, "Nie wiem/Nie dotyczy": 23, "W trzech": 19, "W jednej": 13, "W więcej niż 5": 2, "W czterech": 2}, "w2": {"W dwóch": 29, "W jednej": 20, "Nie wiem/Nie dotyczy": 15, "W trzech": 7, "W więcej niż 5": 2}}, "spotkania": {"w1": {"3 dni w tygodniu": 32, "2 dni w tygodniu": 19, "4 i więcej ": 18, "1 dzień w tygodniu": 10, "Więcej niż 4 dni w tygodniu": 6, "0 dni w tygodniu": 3}, "w2": {"3 dni w tygodniu": 27, "2 dni w tygodniu": 19, "4 i więcej ": 17, "1 dzień w tygodniu": 8, "0 dni w tygodniu": 2}}}, "alloc_w1": {"Analiza i doprecyzowanie wymagań": 17.4, "Dokumentacja i komunikacja": 28.1, "Analiza i walidacja danych": 19.0, "Inne": 26.8}, "alloc_w2": {"Analiza i doprecyzowanie wymagań": 29.1, "Dokumentacja i komunikacja": 36.0, "Analiza i walidacja danych": 18.2, "Inne": 16.4}, "votes_w1": {"Współpraca z innymi zespołami lub działami": 15, "Czas uzyskiwania review i feedbacku": 10, "Proces planowania (priorytetyzacja, zakres, refinement)": 19, "Dokumentacja wewnętrzna": 42, "Jasność i stabilność wymagań wynikających ze współpracy z interesariuszami": 37, "Możliwość weryfikacji założeń i danych": 15, "Praca nad małymi, przyrostowymi zmianami": 5, "Czas na skupioną pracę analityczną": 40, "Obsługa problemów i incydentów": 16}, "votes_w2": {"Dokumentacja wewnętrzna": 24, "Współpraca z innymi zespołami lub działami": 15, "Jasność i stabilność wymagań wynikających ze współpracy z interesariuszami": 34, "Czas na skupioną pracę analityczną": 39, "Proces planowania (priorytetyzacja, zakres, refinement)": 16, "Praca nad małymi, przyrostowymi zmianami": 7, "Możliwość weryfikacji założeń i danych": 11, "Obsługa problemów i incydentów": 6, "Czas uzyskiwania review i feedbacku": 7}, "ai_outcomes": {"Nigdy": {"skupiona": 3.5, "satysf": 3.75, "przerywniki": 3.0, "n": 4}, "Rzadko": {"skupiona": 3.3, "satysf": 3.75, "przerywniki": 2.61, "n": 20}, "Kilka razy w miesiącu": {"skupiona": 3.52, "satysf": 3.93, "przerywniki": 2.52, "n": 29}, "Kilka razy w tygodniu": {"skupiona": 3.35, "satysf": 4.02, "przerywniki": 2.51, "n": 60}, "Codziennie": {"skupiona": 3.12, "satysf": 3.87, "przerywniki": 2.42, "n": 48}}, "ai_hours_saved_avg": {"w1": 2.19, "w2": 3.56}};
+
+function fmtDelta(v, higherIsBetter=true){
+  const good = higherIsBetter ? v > 0.02 : v < -0.02;
+  const bad = higherIsBetter ? v < -0.02 : v > 0.02;
+  const cls = good ? 'pos' : (bad ? 'neg' : 'flat');
+  const sign = v > 0 ? '+' : '';
+  return `<span class="delta ${cls}">${sign}${v.toFixed(2)}</span>`;
+}
+
+function buildKPIs(gridId, defs){
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = defs.map(d=>{
+    const delta = +(d.v2-d.v1).toFixed(2);
+    return `<div class="kpi">
+      <div class="label">${d.label}</div>
+      <div class="value-row"><div class="value">${d.v2.toFixed(2)}</div>${fmtDelta(delta, d.higher)}</div>
+      <div class="scale">${d.scale} · fala 1: ${d.v1.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function legendOpt(){ return {position:'top', align:'end', labels:{boxWidth:11, usePointStyle:true, pointStyle:'circle'}}; }
+function titleOpt(text){ return {display:true, text, font:{size:13, family:"'Fraunces', serif", weight:600}, color:'#141C33', align:'start'}; }
+
+function buildLikertChart(canvasId, likertW1, likertW2, maxScale=5){
+  const keys = Object.keys(likertW1);
+  const rows = keys.map(k=>({label:k, v1:likertW1[k].mean, v2:likertW2[k].mean}))
+    .sort((a,b)=> Math.abs(b.v2-b.v1) - Math.abs(a.v2-a.v1));
+  new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels: rows.map(r=>r.label),
+      datasets:[
+        {label:'Fala 1', data: rows.map(r=>r.v1), backgroundColor:WAVE1, borderRadius:2, barThickness:11},
+        {label:'Fala 2', data: rows.map(r=>r.v2), backgroundColor:WAVE2, borderRadius:2, barThickness:11},
+      ]},
+    options:{ indexAxis:'y', responsive:true,
+      scales:{ x:{min:0,max:maxScale, grid:{color:'#EEEBE2'}, title:{display:true,text:'średnia ocena (1–5)'}}, y:{grid:{display:false}} },
+      plugins:{legend:legendOpt()} }
+  });
+  return keys;
+}
+
+function buildRadarChart(canvasId, likertW1, likertW2, keys){
+  new Chart(document.getElementById(canvasId), {
+    type:'radar',
+    data:{ labels: keys.map(k=>k.length>18? k.slice(0,16)+'…':k),
+      datasets:[
+        {label:'Fala 1', data: keys.map(k=>likertW1[k].mean), backgroundColor:'rgba(168,174,194,0.25)', borderColor:WAVE1, pointBackgroundColor:WAVE1},
+        {label:'Fala 2', data: keys.map(k=>likertW2[k].mean), backgroundColor:'rgba(42,76,224,0.15)', borderColor:WAVE2, pointBackgroundColor:WAVE2},
+      ]},
+    options:{ scales:{ r:{ min:0, max:5, ticks:{stepSize:1, backdropColor:'transparent'}, grid:{color:'#EEEBE2'}, pointLabels:{font:{size:10.5}} } },
+      plugins:{legend:{position:'bottom', labels:{boxWidth:11, usePointStyle:true, pointStyle:'circle'}}} }
+  });
+}
+
+function buildGroupedBar(canvasId, labels, v1arr, v2arr, opts={}){
+  new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label: opts.l1 || 'Fala 1', data:v1arr, backgroundColor:WAVE1, borderRadius:2},
+      {label: opts.l2 || 'Fala 2', data:v2arr, backgroundColor:WAVE2, borderRadius:2},
+    ]},
+    options:{
+      indexAxis: opts.horizontal ? 'y' : 'x',
+      scales:{
+        [opts.horizontal?'x':'y']:{min:opts.min ?? 0, max:opts.max, grid:{color:'#EEEBE2'}, title:{display:!!opts.axisTitle,text:opts.axisTitle||''}},
+        [opts.horizontal?'y':'x']:{grid:{display:false}, ticks: opts.rotate ? {font:{size:10}, maxRotation:opts.rotate, minRotation:opts.rotate} : {font:{size: opts.tickSize||11}}}
+      },
+      plugins:{legend:legendOpt(), title: opts.title ? titleOpt(opts.title) : undefined}
+    }
+  });
+}
+
+function buildDeltaBar(canvasId, labels, deltaArr, opts={}){
+  new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Zmiana', data:deltaArr, backgroundColor: deltaArr.map(v=> v>=0?POS:NEG), borderRadius:2 }]},
+    options:{ indexAxis:'y',
+      scales:{ x:{grid:{color:'#EEEBE2'}, title:{display:true,text:opts.axisTitle||'zmiana'}}, y:{grid:{display:false}} },
+      plugins:{legend:{display:false}, title: opts.title? titleOpt(opts.title): undefined} }
+  });
+}
+
+function toPct(distObj, order, n1, n2){
+  const w1=distObj.w1, w2=distObj.w2;
+  const labels = order || Array.from(new Set([...Object.keys(w1), ...Object.keys(w2)]));
+  return { labels, p1: labels.map(l=>Math.round(100*(w1[l]||0)/n1)), p2: labels.map(l=>Math.round(100*(w2[l]||0)/n2)) };
+}
+
+function buildAIOutcomeChart(canvasId, aiOutcomes, order){
+  const keys = order.filter(k=>aiOutcomes[k]);
+  new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels:keys, datasets:[
+      {label:'Skupiona praca (1–5)', data:keys.map(k=>aiOutcomes[k].skupiona), backgroundColor:'#8FA6F2', borderRadius:2},
+      {label:'Satysfakcja (1–5)', data:keys.map(k=>aiOutcomes[k].satysf), backgroundColor:WAVE2, borderRadius:2},
+      {label:'Przerywniki (1–5, niżej=lepiej)', data:keys.map(k=>aiOutcomes[k].przerywniki), backgroundColor:'#D98E2C', borderRadius:2},
+    ]},
+    options:{ scales:{ y:{min:0,max:5, grid:{color:'#EEEBE2'}}, x:{grid:{display:false}} },
+      plugins:{legend:legendOpt(), title:titleOpt('Wyniki wg częstotliwości korzystania z AI (obie fale łącznie)')} }
+  });
+}
+
+function setList(id, items){ document.getElementById(id).innerHTML = items.map(i=>`<li>${i}</li>`).join(''); }
+
+// =================== PO TAB ===================
+(function(){
+  const D = DATA_PO;
+  buildKPIs('kpiGrid-po', [
+    {label:'Satysfakcja z pracy PO', v1:D.extra_w1['Satysfakcja'].mean, v2:D.extra_w2['Satysfakcja'].mean, scale:'skala 1–5', higher:true},
+    {label:'Decyzyjność', v1:D.likert_w1['Decyzyjność'].mean, v2:D.likert_w2['Decyzyjność'].mean, scale:'skala 1–5', higher:true},
+    {label:'Czas na skupioną pracę', v1:D.likert_w1['Skupiona praca'].mean, v2:D.likert_w2['Skupiona praca'].mean, scale:'skala 1–5', higher:true},
+    {label:'Przerywanie pracy (częstość)', v1:D.extra_w1['Przerywniki (dziennie)'].mean, v2:D.extra_w2['Przerywniki (dziennie)'].mean, scale:'1=rzadko…5=b.często', higher:false},
+  ]);
+
+  const likertKeys = buildLikertChart('likertChart-po', D.likert_w1, D.likert_w2);
+  buildRadarChart('radarChart-po', D.likert_w1, D.likert_w2, likertKeys);
+
+  const extraKeys = Object.keys(D.extra_w1);
+  buildGroupedBar('extraChart-po', extraKeys, extraKeys.map(k=>D.extra_w1[k].mean), extraKeys.map(k=>D.extra_w2[k].mean), {max:5, rotate:38, tickSize:10});
+
+  const allocLabels = Object.keys(D.alloc_w1);
+  buildGroupedBar('allocChart-po', allocLabels, allocLabels.map(k=>D.alloc_w1[k]), allocLabels.map(k=>D.alloc_w2[k]), {horizontal:true, max:40, axisTitle:'% czasu pracy', title:'Średni podział czasu pracy wg kategorii'});
+  const allocDeltas = allocLabels.map(k=>+(D.alloc_w2[k]-D.alloc_w1[k]).toFixed(1));
+  buildDeltaBar('allocDeltaChart-po', allocLabels, allocDeltas, {axisTitle:'zmiana w p.p.', title:'Zmiana udziału czasu (fala 2 − fala 1)'});
+
+  const voteKeys = Array.from(new Set([...Object.keys(D.votes_w1), ...Object.keys(D.votes_w2)]));
+  const vp1 = voteKeys.map(k=>Math.round(100*(D.votes_w1[k]||0)/D.n_w1));
+  const vp2 = voteKeys.map(k=>Math.round(100*(D.votes_w2[k]||0)/D.n_w2));
+  const vOrder = voteKeys.map((k,i)=>({k,i,m:Math.max(vp1[i],vp2[i])})).sort((a,b)=>b.m-a.m);
+  buildGroupedBar('votesChart-po', vOrder.map(o=>o.k), vOrder.map(o=>vp1[o.i]), vOrder.map(o=>vp2[o.i]), {horizontal:true, max:80, axisTitle:'% respondentów wskazujących obszar'});
+
+  const aiOrder = ['Rzadko','Kilka razy w miesiącu','Kilka razy w tygodniu','Codziennie'];
+  const aiD = toPct(D.distributions.ai_usage, aiOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('aiFreqChart-po', aiD.labels, aiD.p1, aiD.p2, {max:100, axisTitle:'% respondentów', title:'Częstotliwość korzystania z AI'});
+
+  const hoursOrder = ['Nie wiem/Nie dotyczy','Mniej niż 1 godzinę tygodniowo','1-2 godziny tygodniowo','2-4 godziny tygodniowo','4-6 godzin tygodniowo','6-8 godzin tygodniowo','Więcej niż 8 godzin tygodniowo'];
+  const hoursD = toPct(D.distributions.ai_oszczednosc, hoursOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('aiHoursChart-po', hoursD.labels.map(l=>l.replace(' tygodniowo','').replace('Nie wiem/Nie dotyczy','Nie wiem')), hoursD.p1, hoursD.p2, {max:100, rotate:28, tickSize:9.5, axisTitle:'% respondentów', title:`Ile czasu tygodniowo oszczędza AI (śr. ${D.ai_hours_saved_avg.w1}h → ${D.ai_hours_saved_avg.w2}h)`});
+
+  const aiAreaLabels = Object.keys(D.ai_area_w1);
+  buildGroupedBar('aiAreaChart-po', aiAreaLabels, aiAreaLabels.map(k=>D.ai_area_w1[k]), aiAreaLabels.map(k=>D.ai_area_w2[k]), {horizontal:true, axisTitle:'średni % "udziału AI" deklarowany', title:'W jakich obszarach pracy PO stosują AI'});
+
+  buildAIOutcomeChart('aiOutcomeChart-po', D.ai_outcomes, ['Rzadko','Kilka razy w miesiącu','Kilka razy w tygodniu','Codziennie']);
+
+  const satOrder = ['Bardzo niska satysfakcja','Niska satysfakcja','Średnia satysfakcja','Wysoka satysfakcja','Bardzo wysoka satysfakcja','Nie wiem/nie dotyczy'];
+  const satD = toPct(D.distributions.satysfakcja, satOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('satisfDistChart-po', satD.labels, satD.p1, satD.p2, {max:100, rotate:20, axisTitle:'% respondentów', title:'Rozkład poziomu satysfakcji'});
+
+  setList('aiInsightList-po', [
+    `<b>Częstsze codzienne użycie AI</b>: odsetek PO korzystających z AI codziennie wzrósł z 24% do 36%.`,
+    `<b>Mniej osób w ogóle nie korzysta z AI</b> w żadnym obszarze pracy — średni udział „Nie używam AI” spadł z 9.4% do 6.0%.`,
+    `<b>Zastosowanie AI przesuwa się w stronę bardziej „produktowych” zadań</b>: wzrost udziału w refinemencie (16.1%→19.4%), współpracy z interesariuszami (14.0%→18.5%) i obsłudze incydentów (4.3%→10.4%); spadek w kategorii „inne” (21.6%→13.1%).`,
+    `<b>Deklarowana oszczędność czasu rośnie</b>: średnio 2.54h/tydz. → 3.08h/tydz. (wśród osób, które potrafiły to oszacować).`,
+    `<b>Częstsze korzystanie z AI koreluje z wyższą satysfakcją</b> — codzienni/tygodniowi użytkownicy raportują 3.83–3.91 wobec 3.11 u osób korzystających rzadko.`,
+    `<b>Brak wyraźnego związku AI z czasem na skupioną pracę</b> — oceny „skupionej pracy” są zbliżone niezależnie od częstotliwości korzystania z AI.`,
+  ]);
+  setList('aiQuoteList-po', [
+    `„AI wspiera, ale nie zastępuje człowieka” — respondent opisuje ok. 2× szybszą dużą analizę dzięki Copilotowi (fala 1).`,
+    `„To raczej kwestia, że mogę zrobić więcej lub lepiej, niż że oszczędzam czas” (fala 1).`,
+    `„AI nie oszczędza czasu, daje dodatkową informację w porównywalnym czasie — trzeba uważać, bo słabe materiały mogą sprowadzić na manowce” (fala 2).`,
+    `Kilka osób w fali 2 wprost pisze, że <b>dopiero zaczyna</b> eksplorować narzędzia AI w codziennej pracy.`,
+  ]);
+
+  setList('insightList-po', [
+    `<b>Prawie wszystkie 12 obszarów doświadczenia PO poprawiło się</b> między falami — jedynym lekkim spadkiem jest „Planowanie pracy” (3.74→3.67).`,
+    `Największa poprawa: <b>obsługa incydentów</b> (4.26→4.60), <b>skupiona praca</b> (2.37→2.69) oraz <b>współpraca</b> — międzyzespołowa i z interesariuszami (obie +0.32).`,
+    `<b>Przerywanie pracy spadło</b> (3.31→3.11) — mniej PO deklaruje bycie odrywanym >10 razy dziennie.`,
+    `Mimo poprawy, <b>„czas na skupioną pracę”</b> wciąż najsłabiej oceniany (2.37 i 2.69/5) i najczęściej wskazywany priorytet do poprawy (ok. 70–75% głosów).`,
+    `<b>Podział czasu</b> przesuwa się w stronę refinementu i incydentów, kosztem spotkań i „innych” zadań.`,
+    `<b>Satysfakcja</b> stabilna (3.76→3.79), z większym udziałem ocen „bardzo wysoka” (17%→26%).`,
+  ]);
+})();
+
+// =================== ANALYSTS TAB ===================
+(function(){
+  const D = DATA_AN;
+  buildKPIs('kpiGrid-an', [
+    {label:'Satysfakcja z pracy analitycznej', v1:D.extra_w1['Satysfakcja'].mean, v2:D.extra_w2['Satysfakcja'].mean, scale:'skala 1–5', higher:true},
+    {label:'Bezpieczeństwo wprowadzania zmian', v1:D.likert_w1['Bezpieczne zmiany'].mean, v2:D.likert_w2['Bezpieczne zmiany'].mean, scale:'skala 1–5', higher:true},
+    {label:'Czas na skupioną pracę', v1:D.likert_w1['Skupiona praca'].mean, v2:D.likert_w2['Skupiona praca'].mean, scale:'skala 1–5', higher:true},
+    {label:'Przerywanie pracy (częstość)', v1:D.extra_w1['Przerywniki (dziennie)'].mean, v2:D.extra_w2['Przerywniki (dziennie)'].mean, scale:'1=rzadko…5=b.często', higher:false},
+  ]);
+
+  const likertKeys = buildLikertChart('likertChart-an', D.likert_w1, D.likert_w2);
+  buildRadarChart('radarChart-an', D.likert_w1, D.likert_w2, likertKeys);
+
+  const extraKeys = Object.keys(D.extra_w1);
+  buildGroupedBar('extraChart-an', extraKeys, extraKeys.map(k=>D.extra_w1[k].mean), extraKeys.map(k=>D.extra_w2[k].mean), {max:5, rotate:38, tickSize:9.5});
+
+  const allocLabels = Object.keys(D.alloc_w1);
+  buildGroupedBar('allocChart-an', allocLabels, allocLabels.map(k=>D.alloc_w1[k]), allocLabels.map(k=>D.alloc_w2[k]), {horizontal:true, max:45, axisTitle:'% czasu pracy', title:'Średni podział czasu pracy wg kategorii'});
+  const allocDeltas = allocLabels.map(k=>+(D.alloc_w2[k]-D.alloc_w1[k]).toFixed(1));
+  buildDeltaBar('allocDeltaChart-an', allocLabels, allocDeltas, {axisTitle:'zmiana w p.p.', title:'Zmiana udziału czasu (fala 2 − fala 1)'});
+
+  const voteKeys = Array.from(new Set([...Object.keys(D.votes_w1), ...Object.keys(D.votes_w2)]));
+  const vp1 = voteKeys.map(k=>Math.round(100*(D.votes_w1[k]||0)/D.n_w1));
+  const vp2 = voteKeys.map(k=>Math.round(100*(D.votes_w2[k]||0)/D.n_w2));
+  const vOrder = voteKeys.map((k,i)=>({k,i,m:Math.max(vp1[i],vp2[i])})).sort((a,b)=>b.m-a.m);
+  buildGroupedBar('votesChart-an', vOrder.map(o=>o.k), vOrder.map(o=>vp1[o.i]), vOrder.map(o=>vp2[o.i]), {horizontal:true, max:60, axisTitle:'% respondentów wskazujących obszar', tickSize:10.5});
+
+  const aiOrder = ['Nigdy','Rzadko','Kilka razy w miesiącu','Kilka razy w tygodniu','Codziennie'];
+  const aiD = toPct(D.distributions.ai_usage, aiOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('aiFreqChart-an', aiD.labels, aiD.p1, aiD.p2, {max:100, axisTitle:'% respondentów', title:'Częstotliwość korzystania z AI'});
+
+  const hoursOrder = ['Nie wiem/Nie dotyczy','Mniej niż 1 godzinę tygodniowo','1-2 godziny tygodniowo','2-4 godziny tygodniowo','4-6 godzin tygodniowo','6-8 godzin tygodniowo','Więcej niż 8 godzin tygodniowo'];
+  const hoursD = toPct(D.distributions.ai_oszczednosc, hoursOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('aiHoursChart-an', hoursD.labels.map(l=>l.replace(' tygodniowo','').replace('Nie wiem/Nie dotyczy','Nie wiem')), hoursD.p1, hoursD.p2, {max:100, rotate:28, tickSize:9.5, axisTitle:'% respondentów', title:`Ile czasu tygodniowo oszczędza AI (śr. ${D.ai_hours_saved_avg.w1}h → ${D.ai_hours_saved_avg.w2}h)`});
+
+  buildAIOutcomeChart('aiOutcomeChart-an', D.ai_outcomes, ['Nigdy','Rzadko','Kilka razy w miesiącu','Kilka razy w tygodniu','Codziennie']);
+
+  const satOrder = ['Bardzo niska satysfakcja','Niska satysfakcja','Średnia satysfakcja','Wysoka satysfakcja','Bardzo wysoka satysfakcja','Nie wiem/nie dotyczy'];
+  const satD = toPct(D.distributions.satysfakcja, satOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('satisfDistChart-an', satD.labels, satD.p1, satD.p2, {max:100, rotate:20, axisTitle:'% respondentów', title:'Rozkład poziomu satysfakcji'});
+
+  const meetOrder = ['0 dni w tygodniu','1 dzień w tygodniu','2 dni w tygodniu','3 dni w tygodniu','4 i więcej ','Więcej niż 4 dni w tygodniu'];
+  const meetD = toPct(D.distributions.spotkania, meetOrder, D.n_w1, D.n_w2);
+  buildGroupedBar('meetingsDistChart-an', meetD.labels.map(l=>l.trim()), meetD.p1, meetD.p2, {max:100, rotate:20, axisTitle:'% respondentów', title:'Dni w tygodniu z >2 spotkaniami (poza daily)'});
+
+  setList('aiInsightList-an', [
+    `<b>Wyraźny wzrost intensywności korzystania z AI</b>: „Codziennie” wzrosło z 22% do 40%, a kategoria „Nigdy” zniknęła w fali 2 (4%→0%).`,
+    `<b>Deklarowana oszczędność czasu wyraźnie rośnie</b>: średnio 2.19h/tydz. → 3.56h/tydz. wśród osób, które potrafiły to oszacować — to największy wzrost spośród obu badanych grup.`,
+    `<b>Korzystanie z AI koreluje z wyższą satysfakcją</b>, ale zależność nie jest liniowa — szczyt satysfakcji przypada na „kilka razy w tygodniu” (4.02), a nie na korzystanie codzienne (3.87).`,
+    `<b>Najczęstsi użytkownicy AI zgłaszają nieco mniej czasu na skupioną pracę</b> (3.12 przy „codziennie” vs 3.3–3.52 przy rzadszym użyciu) — sugeruje to, że intensywne korzystanie z AI bywa też odpowiedzią na przeciążenie, a nie tylko jego lekarstwem.`,
+    `Komentarze wskazują na <b>rosnącą, ale niejednoznaczną ocenę wartości AI</b>: część analityków chwali sobie wsparcie przy analizie kodu i rekompensowaniu braków w dokumentacji, inni zgłaszają, że AI bywa „zgadywanką” co do kosztów (limity/kredyty) lub w niektórych zadaniach wydłuża pracę zamiast ją skracać.`,
+  ]);
+  setList('aiQuoteList-an', [
+    `„Wykorzystanie wtyczki GitHub Copilot w IntelliJ to świetne rozwiązanie nie tylko dla programistów, ale też dla analityków” (fala 1).`,
+    `„Na ten moment są to raczej próby znalezienia dla AI jakiegoś sensownego zastosowania — bezpośrednio w analizie raczej go nie wykorzystuję” (fala 1).`,
+    `„Przy braku dokumentacji bardzo pomaga skorzystanie z AI, które potrafi przeanalizować kod i dostarczyć aktualnej informacji — zrekompensowało to już kilka braków w dokumentacji” (fala 2).`,
+    `„Aktualnie z korzystaniem z AI jest problem, bo jest obawa przed przekroczeniem limitu/kredytów” (fala 2).`,
+    `„Oszczędność czasu przez AI średnio wychodzi na zero — czasem zyskuję, czasem samodzielnie wyszłoby szybciej” (fala 2).`,
+  ]);
+
+  setList('insightList-an', [
+    `<b>Obraz zmian jest bardziej mieszany niż u Product Ownerów</b>: poprawa w „bezpieczeństwie wprowadzania zmian” (3.97→4.29), obsłudze incydentów (4.43→4.56) i weryfikacji założeń (3.88→4.01), ale spadki w „zrozumiałości wymagań” (3.64→3.53), „współpracy międzyzespołowej” (3.70→3.56) i „łatwości pracy” (3.31→3.16).`,
+    `<b>Przerywanie pracy wyraźnie spadło</b> (2.62→2.38) i spadł też odsetek dni z >2 spotkaniami.`,
+    `<b>Podział czasu pracy</b> przesuwa się mocno w stronę doprecyzowania wymagań (+11.7 p.p.) i dokumentacji/komunikacji (+7.9 p.p.), kosztem kategorii „inne” (−10.4 p.p.) — sugeruje to, że coraz więcej czasu idzie na jasno nazwane zadania analityczne, a mniej na czynności poboczne.`,
+    `<b>Najczęściej wskazywane priorytety do poprawy</b> to nadal „dokumentacja wewnętrzna” i „czas na skupioną pracę analityczną” — mimo drobnej poprawy oceny dokumentacji (3.55→3.59), problem pozostaje dominujący (dokumentacja: 48%→33% głosów, ale wciąż na szczycie rankingu wraz z jasnością wymagań).`,
+    `<b>Satysfakcja lekko rośnie</b> (3.89→3.96), z podobnym rozkładem odpowiedzi w obu falach — większość ocenia pracę jako „wysoką” satysfakcję.`,
+    `<b>Presja biznesowa (zmiany wymagań w trakcie, blokady decyzjami)</b> pozostaje na zbliżonym poziomie między falami — to obszar, w którym nie widać istotnej poprawy.`,
+  ]);
+})();
+
+// =================== CROSS-CUTTING AI CONCLUSIONS ===================
+(function(){
+  setList('crossAiInsightList', [
+    `<b>Korzystanie z AI stało się codziennością, a nie ciekawostką.</b> Odsetek osób sięgających po AI codziennie wzrósł w obu badaniach o ok. 12–18 punktów procentowych (23,9%→36,1% i 21,6%→39,7%), a grupa, która w ogóle z AI nie korzysta, niemal zniknęła (m.in. kategoria „Nigdy” spadła do zera w drugiej fali). To sugeruje, że w tym okresie AI przeszło z fazy eksperymentu do fazy narzędzia „domyślnego”.`,
+    `<b>Zwiększona częstotliwość korzystania szła w parze z rosnącą, choć trudną do precyzyjnego wyliczenia, oszczędnością czasu.</b> Średni deklarowany czas zaoszczędzony tygodniowo wzrósł w obu badaniach (2,54h→3,08h oraz 2,19h→3,56h). Jednocześnie w obu falach spora część respondentów odpowiadała „nie wiem/nie dotyczy” — komentarze wskazują, że efekt AI bywa jakościowy (lepsza jakość, więcej możliwości) a nie tylko czasowy, co utrudnia jego prostą kwantyfikację.`,
+    `<b>Częstsze korzystanie z AI wiąże się z wyższą satysfakcją z pracy — ale zależność nie jest liniowa.</b> W obu badaniach najwyższą satysfakcję deklarują osoby korzystające z AI „kilka razy w tygodniu”, a nie ci, którzy robią to najczęściej („codziennie”). Może to oznaczać, że intensywne, codzienne poleganie na AI bywa też odpowiedzią na przeciążenie pracą, a nie wyłącznie jego remedium.`,
+    `<b>AI na razie nie chroni czasu na głęboką, skupioną pracę.</b> W żadnym z badań częstsze korzystanie z AI nie przekłada się na wyraźnie wyższe oceny „skupionej pracy” — a wśród najintensywniejszych użytkowników w drugim badaniu ocena ta jest wręcz nieco niższa niż u umiarkowanych użytkowników. AI wygląda dziś na wsparcie głównie zadań komunikacyjnych, analitycznych i dokumentacyjnych, a nie na tarczę przed przerywnikami.`,
+    `<b>Spadek liczby przerywników w czasie jest widoczny w obu badaniach równolegle ze wzrostem użycia AI</b> (odpowiednio 3,31→3,11 oraz 2,62→2,38 na skali częstości) — to zbieżność w czasie, a nie dowód związku przyczynowego; komentarze respondentów łączą to raczej ze zmianami organizacyjnymi i procesowymi niż bezpośrednio z AI.`,
+    `<b>Ton wypowiedzi ewoluuje od „testowania” do „ostrożnego polegania”.</b> W pierwszej fali komentarze częściej opisują AI jako coś, co dopiero próbuje się wpleść w pracę i trudno ocenić efekt. W drugiej fali pojawia się więcej konkretnych zastosowań (uzupełnianie luk w dokumentacji, wsparcie w analizie) obok nowych obaw — głównie o koszt/limity korzystania oraz o jakość wyników bez weryfikacji człowieka.`,
+  ]);
+})();
+
+}); // end ensureChartLoaded
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
