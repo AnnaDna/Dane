@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matryca Kompetencji AI – Dashboard Luk</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f2f7;
+  --surface: #ffffff;
+  --surface2: #f7f8fc;
+  --border: #e2e5ef;
+  --text: #111827;
+  --text2: #374151;
+  --muted: #6b7280;
+  --muted2: #9ca3af;
+  --red: #dc2626; --red-bg: #fef2f2; --red-border: #fca5a5;
+  --orange: #ea580c; --orange-bg: #fff7ed; --orange-border: #fdba74;
+  --amber: #d97706; --amber-bg: #fffbeb; --amber-border: #fcd34d;
+  --green: #16a34a; --green-bg: #f0fdf4; --green-border: #86efac;
+  --blue: #2563eb; --blue-bg: #eff6ff; --blue-border: #93c5fd;
+  --purple: #7c3aed; --purple-bg: #f5f3ff; --purple-border: #c4b5fd;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 12px; --shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.06);
+}
+
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%);
+  padding: 28px 36px;
+  border-bottom: 3px solid #3b82f6;
+}
+.header-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+.header-left h1 { font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: -.03em; }
+.header-left h1 span { color: #60a5fa; }
+.header-sub { font-size: .8rem; color: #94a3b8; margin-top: 4px; letter-spacing: .02em; }
+.header-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.hpill { font-family: var(--mono); font-size: .72rem; padding: 4px 11px; border-radius: 20px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: #cbd5e1; }
+.hpill.hi { background: rgba(59,130,246,.2); border-color: rgba(59,130,246,.4); color: #93c5fd; }
+
+/* NAV TABS */
+.tabs-wrap { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.tabs { max-width: 1400px; margin: 0 auto; display: flex; gap: 0; padding: 0 36px; }
+.tab-btn { font-family: var(--font); font-size: .82rem; font-weight: 600; padding: 14px 20px; border: none; background: none; color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .18s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* PAGE */
+.page { max-width: 1400px; margin: 0 auto; padding: 24px 36px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* KPI STRIP */
+.kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--kc); }
+.kpi-label { font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text); font-family: var(--mono); letter-spacing: -.03em; line-height: 1; }
+.kpi-sub { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+.kpi-pct { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-top: 6px; }
+
+/* SECTION HEADER */
+.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; margin-top: 28px; }
+.sec-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+.sec-sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* CARD */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--shadow); }
+.card-title { font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+
+/* BAR CHART */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-label { font-size: .78rem; font-weight: 600; color: var(--text2); width: 160px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; height: 20px; background: #f1f3f8; border-radius: 4px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; display: flex; align-items: center; padding: 0 8px; }
+.bar-fill .bval { font-size: .7rem; font-weight: 700; color: #fff; white-space: nowrap; }
+.bar-meta { font-family: var(--mono); font-size: .72rem; color: var(--muted); width: 55px; text-align: right; flex-shrink: 0; }
+
+/* HEATMAP */
+.heatmap-wrap { overflow-x: auto; }
+.heatmap { border-collapse: collapse; width: 100%; font-size: .78rem; }
+.heatmap th { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; background: var(--surface2); border-bottom: 2px solid var(--border); text-align: center; white-space: nowrap; }
+.heatmap th:first-child { text-align: left; min-width: 180px; }
+.heatmap td { padding: 9px 12px; border-bottom: 1px solid #f0f2f7; text-align: center; font-family: var(--mono); font-size: .8rem; font-weight: 600; }
+.heatmap td:first-child { text-align: left; font-family: var(--font); font-weight: 600; color: var(--text); font-size: .8rem; }
+.heatmap tr:hover td { background: #f7f8fc; }
+.cell-heat { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 30px; border-radius: 6px; font-size: .78rem; font-weight: 700; }
+.heat-0 { background: var(--green-bg); color: var(--green); }
+.heat-1 { background: #fef9c3; color: #854d0e; }
+.heat-2 { background: var(--orange-bg); color: var(--orange); }
+.heat-3 { background: var(--red-bg); color: var(--red); }
+
+/* DUAL BAR (actual vs target) */
+.dual-bar { display: flex; flex-direction: column; gap: 14px; }
+.dual-item { }
+.dual-label { display: flex; justify-content: space-between; font-size: .75rem; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+.dual-track { height: 10px; background: #e9ebf2; border-radius: 20px; position: relative; overflow: hidden; }
+.dual-actual { height: 100%; border-radius: 20px; position: relative; }
+.dual-target-line { position: absolute; top: -3px; bottom: -3px; width: 2.5px; border-radius: 2px; background: var(--red); }
+.level-pills { display: flex; gap: 4px; margin-top: 4px; }
+.lp { font-size: .65rem; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+.lp-actual { background: var(--blue-bg); color: var(--blue); }
+.lp-target { background: var(--red-bg); color: var(--red); }
+.lp-gap { background: var(--orange-bg); color: var(--orange); }
+
+/* GAP DISTRIBUTION */
+.gap-bars { display: flex; flex-direction: column; gap: 8px; }
+.gap-bar-row { display: flex; align-items: center; gap: 8px; }
+.gap-lbl { font-family: var(--mono); font-size: .72rem; color: var(--muted); width: 28px; text-align: center; flex-shrink: 0; }
+.gap-track { flex: 1; height: 22px; background: #f1f3f8; border-radius: 4px; overflow: hidden; }
+.gap-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; transition: width .4s; }
+.gap-fill .gval { font-size: .7rem; font-weight: 700; color: #fff; }
+.gap-n { font-family: var(--mono); font-size: .72rem; color: var(--muted); width: 45px; text-align: right; }
+
+/* ROLE TABLE */
+.role-table { width: 100%; border-collapse: collapse; }
+.role-table th { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px 14px; background: var(--surface2); border-bottom: 2px solid var(--border); text-align: left; white-space: nowrap; }
+.role-table td { padding: 10px 14px; border-bottom: 1px solid #f0f2f7; font-size: .8rem; }
+.role-table tr:hover td { background: #f7f8fc; }
+.progress-mini { display: flex; align-items: center; gap: 6px; }
+.pm-track { flex: 1; height: 8px; background: #e9ebf2; border-radius: 20px; overflow: hidden; min-width: 60px; }
+.pm-fill { height: 100%; border-radius: 20px; }
+
+/* LEGEND */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: .72rem; color: var(--muted); }
+.leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* RISK BADGE */
+.risk { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.risk-high { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.risk-med  { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.risk-low  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+/* SUMMARY BOX */
+.summary-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--r); padding: 16px 20px; margin-bottom: 20px; }
+.summary-box p { font-size: .83rem; color: #1e40af; line-height: 1.65; }
+.summary-box strong { font-weight: 700; }
+
+@media (max-width:1100px) { .kpi-strip { grid-template-columns: repeat(3,1fr); } .grid-2 { grid-template-columns:1fr; } }
+@media (max-width:768px) { .page{padding:16px;} .tabs{padding:0 16px;} .header{padding:20px 16px;} .kpi-strip{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <h1>Matryca Kompetencji <span>AI</span> — Dashboard Luk</h1>
+      <div class="header-sub">Wyniki samooceny działu IT vs. oczekiwane poziomy kompetencji</div>
+    </div>
+    <div class="header-pills">
+      <span class="hpill hi">675 respondentów</span>
+      <span class="hpill">8 profili ról</span>
+      <span class="hpill">5 obszarów</span>
+      <span class="hpill">P0–P4</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Przegląd ogólny</button>
+    <button class="tab-btn" onclick="switchTab('areas', this)">🎯 Obszary kompetencji</button>
+    <button class="tab-btn" onclick="switchTab('roles', this)">👥 Profile ról</button>
+    <button class="tab-btn" onclick="switchTab('gaps', this)">⚠️ Analiza luk</button>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════ TAB: OVERVIEW ══════════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="summary-box">
+    <p><strong>Kluczowy wniosek:</strong> Spośród 675 osób objętych badaniem, <strong>niemal każdy wymaga szkoleń w co najmniej jednym obszarze</strong>.
+    Największa luka dotyczy <strong>Optymalizacji kosztów AI</strong> (83,9% osób poniżej oczekiwanego poziomu) oraz <strong>Bezpieczeństwa</strong> (80,3%).
+    Najlepiej wypadają obszary <strong>MCP</strong> (61,6% wymaga szkoleń) i <strong>Narzędzia deweloperskie</strong> (67,4%).</p>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="kpi-strip">
+    <div class="kpi" style="--kc:#dc2626">
+      <div class="kpi-label">Opt. kosztów AI</div>
+      <div class="kpi-value">566</div>
+      <div class="kpi-sub">osób wymaga szkolenia</div>
+      <div class="kpi-pct" style="background:#fef2f2;color:#dc2626">83,9%</div>
+    </div>
+    <div class="kpi" style="--kc:#ea580c">
+      <div class="kpi-label">Bezpieczeństwo</div>
+      <div class="kpi-value">542</div>
+      <div class="kpi-sub">osób wymaga szkolenia</div>
+      <div class="kpi-pct" style="background:#fff7ed;color:#ea580c">80,3%</div>
+    </div>
+    <div class="kpi" style="--kc:#d97706">
+      <div class="kpi-label">Budow. kontekstu</div>
+      <div class="kpi-value">490</div>
+      <div class="kpi-sub">osób wymaga szkolenia</div>
+      <div class="kpi-pct" style="background:#fffbeb;color:#d97706">72,6%</div>
+    </div>
+    <div class="kpi" style="--kc:#2563eb">
+      <div class="kpi-label">Narzędzia (GIT/IDE)</div>
+      <div class="kpi-value">455</div>
+      <div class="kpi-sub">osób wymaga szkolenia</div>
+      <div class="kpi-pct" style="background:#eff6ff;color:#2563eb">67,4%</div>
+    </div>
+    <div class="kpi" style="--kc:#16a34a">
+      <div class="kpi-label">MCP</div>
+      <div class="kpi-value">416</div>
+      <div class="kpi-sub">osób wymaga szkolenia</div>
+      <div class="kpi-pct" style="background:#f0fdf4;color:#16a34a">61,6%</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- People needing training by area -->
+    <div class="card">
+      <div class="card-title">Liczba osób wymagających szkolenia wg obszaru</div>
+      <div id="bar-overall"></div>
+    </div>
+
+    <!-- Avg actual vs target by area -->
+    <div class="card">
+      <div class="card-title">Średni poziom aktualny vs. oczekiwany (skala P0–P4)</div>
+      <div class="dual-bar" id="dual-overall"></div>
+    </div>
+  </div>
+
+  <!-- Heatmap by role -->
+  <div class="sec-header" style="margin-top:28px">
+    <div><div class="sec-title">Macierz luk: profil roli × obszar kompetencji</div><div class="sec-sub">% osób poniżej oczekiwanego poziomu</div></div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="legend" style="padding:16px 20px 0">
+      <div class="leg-item"><div class="leg-dot" style="background:#f0fdf4;border:1px solid #86efac"></div>0–30% (OK)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#fef9c3;border:1px solid #fcd34d"></div>31–60% (uwaga)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#fff7ed;border:1px solid #fdba74"></div>61–80% (wysokie ryzyko)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#fef2f2;border:1px solid #fca5a5"></div>81–100% (krytyczne)</div>
+    </div>
+    <div class="heatmap-wrap" style="padding:8px 0 4px">
+      <table class="heatmap" id="heatmap-main"></table>
+    </div>
+  </div>
+
+</div><!-- /overview -->
+
+<!-- ══════════════════════════ TAB: AREAS ══════════════════════════ -->
+<div id="tab-areas" class="tab-panel">
+
+  <div id="areas-content"></div>
+
+</div>
+
+<!-- ══════════════════════════ TAB: ROLES ══════════════════════════ -->
+<div id="tab-roles" class="tab-panel">
+
+  <div class="sec-header">
+    <div><div class="sec-title">Szczegółowy widok per profil roli</div><div class="sec-sub">Kliknij profil aby zobaczyć szczegóły</div></div>
+    <div id="role-selector" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+  <div id="role-detail"></div>
+
+</div>
+
+<!-- ══════════════════════════ TAB: GAPS ══════════════════════════ -->
+<div id="tab-gaps" class="tab-panel">
+
+  <div class="sec-header">
+    <div><div class="sec-title">Rozkład wielkości luk kompetencyjnych</div><div class="sec-sub">Jak duże są luki? (różnica między oczekiwanym a deklarowanym poziomem)</div></div>
+  </div>
+
+  <div class="grid-2" id="gap-charts"></div>
+
+  <div class="sec-header" style="margin-top:28px">
+    <div><div class="sec-title">Ranking priorytetów szkoleń</div><div class="sec-sub">Obszary i profile z największym ryzykiem</div></div>
+  </div>
+  <div class="card" style="padding:0">
+    <table class="role-table" id="priority-table">
+      <thead><tr>
+        <th>Profil roli</th><th>Obszar kompetencji</th>
+        <th>Osób do szkolenia</th><th>% wymaga szkolenia</th>
+        <th>Śr. aktualny</th><th>Śr. oczekiwany</th><th>Śr. luka</th><th>Priorytet</th>
+      </tr></thead>
+      <tbody id="priority-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+</div><!-- /page -->
+
+<script>
+/* ═══════════════════════ DATA ═══════════════════════ */
+const DATA = {
+  total: 675,
+  areas: { CB:'Budowanie kontekstu', Cost:'Opt. kosztów AI', Sec:'Bezpieczeństwo', MCP:'MCP', Env:'Narzędzia (GIT/IDE)' },
+  overall: {
+    CB:   { name:'Budowanie kontekstu', needs_training:490, pct:72.6, avg_gap:1.32, avg_actual:1.51, avg_target:2.83 },
+    Cost: { name:'Opt. kosztów AI',     needs_training:566, pct:83.9, avg_gap:1.55, avg_actual:1.03, avg_target:2.58 },
+    Sec:  { name:'Bezpieczeństwo',      needs_training:542, pct:80.3, avg_gap:1.30, avg_actual:1.22, avg_target:2.52 },
+    MCP:  { name:'MCP',                 needs_training:416, pct:61.6, avg_gap:0.89, avg_actual:1.22, avg_target:2.11 },
+    Env:  { name:'Narzędzia (GIT/IDE)', needs_training:455, pct:67.4, avg_gap:1.29, avg_actual:2.01, avg_target:3.30 },
+  },
+  by_role: {
+    'Analityk':              { n:129, areas:{ CB:{needs:116,pct:89.9,avg_actual:1.04,avg_target:3.0}, Cost:{needs:105,pct:81.4,avg_actual:0.66,avg_target:2.0}, Sec:{needs:86,pct:66.7,avg_actual:1.04,avg_target:2.0}, MCP:{needs:95,pct:73.6,avg_actual:0.92,avg_target:2.0}, Env:{needs:119,pct:92.2,avg_actual:0.93,avg_target:3.0} } },
+    'Architekt':             { n:78,  areas:{ CB:{needs:54,pct:69.2,avg_actual:1.60,avg_target:3.0}, Cost:{needs:66,pct:84.6,avg_actual:1.22,avg_target:3.0}, Sec:{needs:69,pct:88.5,avg_actual:1.35,avg_target:3.0}, MCP:{needs:63,pct:80.8,avg_actual:1.37,avg_target:3.0}, Env:{needs:41,pct:52.6,avg_actual:2.68,avg_target:4.0} } },
+    'Developer':             { n:229, areas:{ CB:{needs:128,pct:55.9,avg_actual:2.07,avg_target:3.0}, Cost:{needs:196,pct:85.6,avg_actual:1.48,avg_target:3.0}, Sec:{needs:204,pct:89.1,avg_actual:1.55,avg_target:3.0}, MCP:{needs:100,pct:43.7,avg_actual:1.62,avg_target:2.0}, Env:{needs:113,pct:49.3,avg_actual:3.27,avg_target:4.0} } },
+    'Koordynator operacyjny':{ n:33,  areas:{ CB:{needs:32,pct:97.0,avg_actual:0.30,avg_target:2.0}, Cost:{needs:33,pct:100.0,avg_actual:0.06,avg_target:2.0}, Sec:{needs:32,pct:97.0,avg_actual:0.21,avg_target:2.0}, MCP:{needs:31,pct:93.9,avg_actual:0.18,avg_target:2.0}, Env:{needs:33,pct:100.0,avg_actual:0.18,avg_target:3.0} } },
+    'Lider / Menedżer':      { n:42,  areas:{ CB:{needs:33,pct:78.6,avg_actual:1.12,avg_target:2.0}, Cost:{needs:41,pct:97.6,avg_actual:0.69,avg_target:3.0}, Sec:{needs:25,pct:59.5,avg_actual:1.05,avg_target:2.0}, MCP:{needs:12,pct:28.6,avg_actual:1.07,avg_target:1.0}, Env:{needs:16,pct:38.1,avg_actual:1.19,avg_target:1.0} } },
+    'Platforma / DevOps':    { n:41,  areas:{ CB:{needs:27,pct:65.9,avg_actual:1.34,avg_target:2.0}, Cost:{needs:39,pct:95.1,avg_actual:0.93,avg_target:3.0}, Sec:{needs:39,pct:95.1,avg_actual:1.34,avg_target:3.0}, MCP:{needs:37,pct:90.2,avg_actual:0.98,avg_target:3.0}, Env:{needs:30,pct:73.2,avg_actual:2.22,avg_target:4.0} } },
+    'Product Owner':         { n:64,  areas:{ CB:{needs:50,pct:78.1,avg_actual:1.42,avg_target:3.0}, Cost:{needs:52,pct:81.2,avg_actual:0.77,avg_target:2.0}, Sec:{needs:50,pct:78.1,avg_actual:0.92,avg_target:2.0}, MCP:{needs:38,pct:59.4,avg_actual:1.14,avg_target:2.0}, Env:{needs:55,pct:85.9,avg_actual:0.56,avg_target:2.0} } },
+    'Tester':                { n:59,  areas:{ CB:{needs:50,pct:84.7,avg_actual:1.42,avg_target:3.0}, Cost:{needs:34,pct:57.6,avg_actual:1.02,avg_target:2.0}, Sec:{needs:37,pct:62.7,avg_actual:1.08,avg_target:2.0}, MCP:{needs:40,pct:67.8,avg_actual:1.05,avg_target:2.0}, Env:{needs:48,pct:81.4,avg_actual:1.61,avg_target:3.0} } },
+  },
+  gap_dist: {
+    CB:   { '-2':5, '-1':52, '0':128, '1':127, '2':266, '3':97 },
+    Cost: { '-2':2, '-1':25, '0':82,  '1':182, '2':262, '3':122 },
+    Sec:  { '-2':1, '-1':21, '0':111, '1':234, '2':259, '3':49 },
+    MCP:  { '-2':10,'-1':57, '0':192, '1':190, '2':187, '3':39 },
+    Env:  { '-3':3, '-2':5,  '-1':8,  '0':204, '1':185, '2':124,'3':120,'4':26 },
+  }
+};
+
+const AREA_KEYS = ['CB','Cost','Sec','MCP','Env'];
+const AREA_COLORS = { CB:'#7c3aed', Cost:'#dc2626', Sec:'#ea580c', MCP:'#2563eb', Env:'#0f766e' };
+
+function pctColor(p){
+  if(p >= 81) return { bg:'#fef2f2', color:'#dc2626' };
+  if(p >= 61) return { bg:'#fff7ed', color:'#ea580c' };
+  if(p >= 31) return { bg:'#fef9c3', color:'#854d0e' };
+  return { bg:'#f0fdf4', color:'#15803d' };
+}
+
+function riskLevel(p){
+  if(p>=81) return '<span class="risk risk-high">⬆ Krytyczny</span>';
+  if(p>=61) return '<span class="risk risk-med">⚠ Wysoki</span>';
+  return '<span class="risk risk-low">✓ Umiarkowany</span>';
+}
+
+/* ═══ OVERVIEW: bar chart ═══ */
+function buildBarOverall(){
+  const el = document.getElementById('bar-overall');
+  const sorted = AREA_KEYS.slice().sort((a,b) => DATA.overall[b].pct - DATA.overall[a].pct);
+  el.innerHTML = sorted.map(k => {
+    const d = DATA.overall[k];
+    const w = d.pct;
+    const c = AREA_COLORS[k];
+    return `<div class="bar-row">
+      <div class="bar-label" title="${d.name}">${d.name}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${w}%;background:${c}">
+          <span class="bval">${d.needs_training}</span>
+        </div>
+      </div>
+      <div class="bar-meta">${d.pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ OVERVIEW: dual bar ═══ */
+function buildDualOverall(){
+  const el = document.getElementById('dual-overall');
+  el.innerHTML = AREA_KEYS.map(k => {
+    const d = DATA.overall[k];
+    const maxVal = 4;
+    const actPct = (d.avg_actual / maxVal) * 100;
+    const tgtPct = (d.avg_target / maxVal) * 100;
+    const col = AREA_COLORS[k];
+    return `<div class="dual-item">
+      <div class="dual-label"><span>${d.name}</span><span style="font-size:.7rem;color:var(--muted)">luka: −${d.avg_gap.toFixed(2)}</span></div>
+      <div class="dual-track">
+        <div class="dual-actual" style="width:${actPct}%;background:${col};opacity:.75"></div>
+        <div class="dual-target-line" style="left:${tgtPct}%"></div>
+      </div>
+      <div class="level-pills">
+        <span class="lp lp-actual">Aktualnie: P${d.avg_actual.toFixed(1)}</span>
+        <span class="lp lp-target">Cel: P${d.avg_target.toFixed(1)}</span>
+        <span class="lp lp-gap">Luka: −${d.avg_gap.toFixed(2)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ HEATMAP ═══ */
+function buildHeatmap(){
+  const el = document.getElementById('heatmap-main');
+  const roles = Object.keys(DATA.by_role);
+  const hdrCells = AREA_KEYS.map(k => `<th>${DATA.areas[k]}</th>`).join('');
+  let html = `<thead><tr><th>Profil roli (n)</th>${hdrCells}<th>Łącznie osób</th></tr></thead><tbody>`;
+  roles.forEach(r => {
+    const rd = DATA.by_role[r];
+    const cells = AREA_KEYS.map(k => {
+      const a = rd.areas[k];
+      const p = a.pct;
+      let cls = 'heat-0';
+      if(p>=81) cls='heat-3'; else if(p>=61) cls='heat-2'; else if(p>=31) cls='heat-1';
+      return `<td><span class="cell-heat ${cls}">${p.toFixed(0)}%</span></td>`;
+    }).join('');
+    const totalNeeds = AREA_KEYS.reduce((s,k) => s + rd.areas[k].needs, 0);
+    html += `<tr><td>${r} <span style="color:var(--muted);font-weight:400">(${rd.n})</span></td>${cells}<td style="font-family:var(--mono);font-weight:700;color:var(--text2)">${rd.n} ×</td></tr>`;
+  });
+  html += '</tbody>';
+  el.innerHTML = html;
+}
+
+/* ═══ AREAS TAB ═══ */
+function buildAreasTab(){
+  const el = document.getElementById('areas-content');
+  let html = '<div class="grid-2">';
+  AREA_KEYS.forEach(k => {
+    const d = DATA.overall[k];
+    const gd = DATA.gap_dist[k];
+    const col = AREA_COLORS[k];
+    const maxN = Math.max(...Object.values(gd));
+    const gapsHtml = Object.entries(gd).map(([g, n]) => {
+      const gNum = parseInt(g);
+      const w = (n/maxN)*100;
+      let fc = gNum < 0 ? '#16a34a' : gNum === 0 ? '#9ca3af' : gNum === 1 ? '#d97706' : gNum === 2 ? '#ea580c' : '#dc2626';
+      const lbl = gNum > 0 ? `+${g}` : g;
+      return `<div class="gap-bar-row">
+        <div class="gap-lbl">${lbl}</div>
+        <div class="gap-track"><div class="gap-fill" style="width:${w}%;background:${fc}"><span class="gval">${n}</span></div></div>
+        <div class="gap-n">${((n/DATA.total)*100).toFixed(0)}%</div>
+      </div>`;
+    }).join('');
+    html += `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div style="font-size:1rem;font-weight:800;color:${col}">${d.name}</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:2px">Szkolenia: ${d.needs_training}/${DATA.total} · ${d.pct}%</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:${col}">${d.needs_training}</div>
+          <div style="font-size:.68rem;color:var(--muted)">osób do szkolenia</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Śr. aktualny</div>
+          <div style="font-size:1.2rem;font-weight:800;color:var(--text);font-family:var(--mono)">P${d.avg_actual.toFixed(1)}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Cel (std)</div>
+          <div style="font-size:1.2rem;font-weight:800;color:var(--red);font-family:var(--mono)">P${d.avg_target.toFixed(1)}</div>
+        </div>
+        <div style="background:#fff7ed;border-radius:8px;padding:10px 12px;text-align:center">
+          <div style="font-size:.65rem;color:var(--orange);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Śr. luka</div>
+          <div style="font-size:1.2rem;font-weight:800;color:var(--orange);font-family:var(--mono)">−${d.avg_gap.toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="card-title">Rozkład luki (liczba poziomów poniżej celu)</div>
+      <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:6px"><span>← powyżej celu</span><span>0 = na poziomie</span><span>poniżej celu →</span></div>
+      <div class="gap-bars">${gapsHtml}</div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+/* ═══ ROLES TAB ═══ */
+let activeRole = null;
+function buildRolesTab(){
+  const roles = Object.keys(DATA.by_role);
+  const selEl = document.getElementById('role-selector');
+  selEl.innerHTML = roles.map(r =>
+    `<button onclick="showRole('${r}')" id="rbtn-${r.replace(/[^a-zA-Z]/g,'_')}" style="font-family:var(--font);font-size:.75rem;font-weight:600;padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s">${r} (${DATA.by_role[r].n})</button>`
+  ).join('');
+  showRole(roles[0]);
+}
+
+function showRole(r){
+  activeRole = r;
+  const rd = DATA.by_role[r];
+  const slug = r.replace(/[^a-zA-Z]/g,'_');
+  document.querySelectorAll('#role-selector button').forEach(b => {
+    b.style.background = 'var(--surface)'; b.style.color = 'var(--muted)'; b.style.borderColor = 'var(--border)';
+  });
+  const btn = document.getElementById('rbtn-'+slug);
+  if(btn){ btn.style.background='#eff6ff'; btn.style.color='#1d4ed8'; btn.style.borderColor='#93c5fd'; }
+
+  let html = `<div class="grid-2">`;
+  // Bar chart for this role
+  const sorted = AREA_KEYS.slice().sort((a,b)=> rd.areas[b].pct - rd.areas[a].pct);
+  let barsHtml = sorted.map(k => {
+    const a = rd.areas[k];
+    const col = AREA_COLORS[k];
+    return `<div class="bar-row">
+      <div class="bar-label">${DATA.areas[k]}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${a.pct}%;background:${col}"><span class="bval">${a.needs}</span></div></div>
+      <div class="bar-meta">${a.pct.toFixed(0)}%</div>
+    </div>`;
+  }).join('');
+  html += `<div class="card">
+    <div class="card-title">Osoby wymagające szkolenia — ${r} (n=${rd.n})</div>
+    ${barsHtml}
+  </div>`;
+  // Dual bar actual vs target
+  let dualHtml = AREA_KEYS.map(k => {
+    const a = rd.areas[k];
+    const col = AREA_COLORS[k];
+    const actPct = (a.avg_actual/4)*100;
+    const tgtPct = (a.avg_target/4)*100;
+    const gap = (a.avg_target - a.avg_actual).toFixed(1);
+    return `<div class="dual-item">
+      <div class="dual-label"><span>${DATA.areas[k]}</span><span style="font-size:.7rem;color:var(--muted)">cel: P${a.avg_target}</span></div>
+      <div class="dual-track">
+        <div class="dual-actual" style="width:${actPct}%;background:${col};opacity:.7"></div>
+        <div class="dual-target-line" style="left:${tgtPct}%"></div>
+      </div>
+      <div class="level-pills">
+        <span class="lp lp-actual">P${a.avg_actual.toFixed(1)}</span>
+        <span class="lp lp-target">cel P${a.avg_target}</span>
+        <span class="lp lp-gap">luka −${gap}</span>
+      </div>
+    </div>`;
+  }).join('');
+  html += `<div class="card">
+    <div class="card-title">Aktualny vs. oczekiwany poziom — ${r}</div>
+    <div class="dual-bar">${dualHtml}</div>
+  </div></div>`;
+
+  // Summary table
+  html += `<div class="card" style="margin-top:16px;padding:0">
+    <table class="role-table">
+      <thead><tr><th>Obszar</th><th>Osób do szkolenia</th><th>% grupy</th><th>Śr. aktualny</th><th>Śr. cel</th><th>Luka</th><th>Postęp</th></tr></thead>
+      <tbody>`;
+  AREA_KEYS.forEach(k => {
+    const a = rd.areas[k];
+    const col = AREA_COLORS[k];
+    const gap = (a.avg_target - a.avg_actual);
+    const { bg, color } = pctColor(a.pct);
+    html += `<tr>
+      <td style="font-weight:600;color:${col}">${DATA.areas[k]}</td>
+      <td style="font-family:var(--mono);font-weight:700">${a.needs}</td>
+      <td><span style="background:${bg};color:${color};padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700">${a.pct.toFixed(1)}%</span></td>
+      <td style="font-family:var(--mono)">P${a.avg_actual.toFixed(1)}</td>
+      <td style="font-family:var(--mono)">P${a.avg_target}</td>
+      <td style="font-family:var(--mono);color:${gap>1?'#dc2626':gap>0?'#ea580c':'#16a34a'}">−${gap.toFixed(1)}</td>
+      <td>
+        <div class="progress-mini">
+          <div class="pm-track"><div class="pm-fill" style="width:${(a.avg_actual/a.avg_target*100).toFixed(0)}%;background:${col}"></div></div>
+          <span style="font-size:.7rem;color:var(--muted)">${(a.avg_actual/a.avg_target*100).toFixed(0)}%</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('role-detail').innerHTML = html;
+}
+
+/* ═══ GAPS TAB ═══ */
+function buildGapsTab(){
+  // Gap distribution charts
+  const gcEl = document.getElementById('gap-charts');
+  gcEl.innerHTML = AREA_KEYS.map(k => {
+    const gd = DATA.gap_dist[k];
+    const col = AREA_COLORS[k];
+    const maxN = Math.max(...Object.values(gd));
+    const rows = Object.entries(gd).map(([g,n]) => {
+      const gNum = parseInt(g);
+      const w = (n/maxN)*100;
+      let fc = gNum<0?'#16a34a':gNum===0?'#9ca3af':gNum===1?'#d97706':gNum===2?'#ea580c':'#dc2626';
+      const lbl = gNum>0?`+${g}`:g;
+      const desc = gNum<0?'Powyżej celu':gNum===0?'Na poziomie celu':`${g} poz. poniżej celu`;
+      return `<div class="gap-bar-row" title="${n} osób: ${desc}">
+        <div class="gap-lbl" style="font-weight:${gNum>0?700:400}">${lbl}</div>
+        <div class="gap-track"><div class="gap-fill" style="width:${w}%;background:${fc}"><span class="gval">${n}</span></div></div>
+        <div class="gap-n">${((n/DATA.total)*100).toFixed(0)}%</div>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title" style="color:${col}">${DATA.areas[k]}</div>
+      <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:8px">
+        <span style="color:#16a34a">← powyżej celu</span>
+        <span>na poziomie</span>
+        <span style="color:#dc2626">poniżej celu →</span>
+      </div>
+      <div class="gap-bars">${rows}</div>
+    </div>`;
+  }).join('');
+
+  // Priority table
+  const tbody = document.getElementById('priority-tbody');
+  let rows = [];
+  Object.entries(DATA.by_role).forEach(([role, rd]) => {
+    AREA_KEYS.forEach(k => {
+      const a = rd.areas[k];
+      const gap = a.avg_target - a.avg_actual;
+      rows.push({ role, area:k, areaName:DATA.areas[k], needs:a.needs, pct:a.pct, actual:a.avg_actual, target:a.avg_target, gap, n:rd.n });
+    });
+  });
+  rows.sort((a,b) => (b.pct - a.pct) || (b.gap - a.gap));
+  tbody.innerHTML = rows.slice(0,20).map(r => {
+    const col = AREA_COLORS[r.area];
+    const {bg,color} = pctColor(r.pct);
+    return `<tr>
+      <td style="font-weight:600">${r.role} <span style="color:var(--muted);font-weight:400">(${r.n})</span></td>
+      <td><span style="color:${col};font-weight:600">${r.areaName}</span></td>
+      <td style="font-family:var(--mono);font-weight:700">${r.needs}</td>
+      <td><span style="background:${bg};color:${color};padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700">${r.pct.toFixed(1)}%</span></td>
+      <td style="font-family:var(--mono)">P${r.actual.toFixed(1)}</td>
+      <td style="font-family:var(--mono)">P${r.target.toFixed(1)}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:${r.gap>=2?'#dc2626':r.gap>=1?'#ea580c':'#d97706'}">−${r.gap.toFixed(1)}</td>
+      <td>${riskLevel(r.pct)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══ TABS ═══ */
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ═══ INIT ═══ */
+buildBarOverall();
+buildDualOverall();
+buildHeatmap();
+buildAreasTab();
+buildRolesTab();
+buildGapsTab();
+</script>
+</body>
+</html>
