@@ -469,6 +469,108 @@ function buildAreasTab(){
   el.innerHTML = html;
 }
 
+/* ═══ AREAS-NEEDED DISTRIBUTION ═══ */
+const AREAS_DIST = {
+  "Analityk":                {"0":5,"1":5,"2":7,"3":16,"4":26,"5":70},
+  "Architekt":               {"0":6,"1":5,"2":4,"3":8,"4":19,"5":36},
+  "Developer":               {"0":16,"1":17,"2":34,"3":48,"4":58,"5":56},
+  "Koordynator wsparcia":    {"3":2,"5":31},
+  "Lider / Menedżer":        {"0":1,"1":6,"2":12,"3":5,"4":8,"5":10},
+  "Platforma / DevOps":      {"0":2,"2":2,"3":5,"4":7,"5":25},
+  "Product Owner":           {"0":2,"1":5,"2":2,"3":9,"4":21,"5":25},
+  "Tester":                  {"0":3,"1":4,"2":9,"3":9,"4":10,"5":24},
+};
+
+const AREAS_LABEL = {
+  "0": { label: "Żadnego",      icon: "✅", desc: "Na poziomie lub powyżej celu we wszystkich obszarach",  col: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
+  "1": { label: "1 obszar",     icon: "🟡", desc: "Luka w jednym obszarze kompetencji",                   col: "#d97706", bg: "#fffbeb", border: "#fcd34d" },
+  "2": { label: "2 obszary",    icon: "🟠", desc: "Luki w dwóch obszarach kompetencji",                   col: "#ea580c", bg: "#fff7ed", border: "#fdba74" },
+  "3": { label: "3 obszary",    icon: "🔴", desc: "Luki w trzech obszarach — istotny nakład szkoleniowy", col: "#dc2626", bg: "#fef2f2", border: "#fca5a5" },
+  "4": { label: "4 obszary",    icon: "🔴", desc: "Luki w czterech obszarach — wysoki priorytet",         col: "#b91c1c", bg: "#fef2f2", border: "#fca5a5" },
+  "5": { label: "Wszystkie 5",  icon: "🚨", desc: "Luki we wszystkich 5 obszarach — pełna ścieżka szkol.", col: "#7f1d1d", bg: "#fdf0f0", border: "#f87171" },
+};
+
+function buildAreasDistTable(role) {
+  const dist = AREAS_DIST[role];
+  if (!dist) return '';
+  const total = Object.values(dist).reduce((s, v) => s + v, 0);
+  const maxN = Math.max(...Object.values(dist));
+
+  // Summary numbers for mini-KPIs
+  const noTraining = dist["0"] || 0;
+  const needsAny   = total - noTraining;
+  const critical   = (dist["4"] || 0) + (dist["5"] || 0); // 4 or 5 areas
+
+  let rows = [0,1,2,3,4,5].map(n => {
+    const key = String(n);
+    const count = dist[key] || 0;
+    if (count === 0) return '';
+    const pct = (count / total * 100).toFixed(1);
+    const barW = (count / maxN * 100).toFixed(1);
+    const info = AREAS_LABEL[key];
+    return `<tr>
+      <td style="text-align:center;font-size:1rem">${info.icon}</td>
+      <td style="font-weight:700;color:${info.col}">${info.label}</td>
+      <td style="font-size:.73rem;color:var(--muted)">${info.desc}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:18px;background:var(--surface2);border-radius:3px;overflow:hidden;min-width:80px">
+            <div style="width:${barW}%;height:100%;background:${info.col};border-radius:3px;display:flex;align-items:center;padding:0 7px">
+              ${count > maxN * 0.2 ? `<span style="font-size:.67rem;font-weight:700;color:#fff">${count}</span>` : ''}
+            </div>
+          </div>
+          <span style="font-family:var(--mono);font-size:.78rem;font-weight:700;color:${info.col};min-width:28px">${count}</span>
+        </div>
+      </td>
+      <td style="font-family:var(--mono);font-size:.78rem;font-weight:600;text-align:right;color:${info.col}">${pct}%</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="card" style="margin-top:16px">
+    <div class="card-title">Ile obszarów wymaga doszkolenia — rozkład dla grupy ${role}</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:12px 14px;text-align:center">
+        <div style="font-family:var(--mono);font-size:1.5rem;font-weight:800;color:var(--green)">${noTraining}</div>
+        <div style="font-size:.7rem;font-weight:600;color:var(--green);margin-top:2px">Nie wymaga szkoleń</div>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:1px">${(noTraining/total*100).toFixed(0)}% grupy</div>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:12px 14px;text-align:center">
+        <div style="font-family:var(--mono);font-size:1.5rem;font-weight:800;color:var(--orange)">${needsAny}</div>
+        <div style="font-size:.7rem;font-weight:600;color:var(--orange);margin-top:2px">Wymaga szkoleń</div>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:1px">${(needsAny/total*100).toFixed(0)}% grupy</div>
+      </div>
+      <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;padding:12px 14px;text-align:center">
+        <div style="font-family:var(--mono);font-size:1.5rem;font-weight:800;color:var(--red)">${critical}</div>
+        <div style="font-size:.7rem;font-weight:600;color:var(--red);margin-top:2px">4–5 obszarów (krytyczne)</div>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:1px">${(critical/total*100).toFixed(0)}% grupy</div>
+      </div>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:var(--surface2);border-bottom:2px solid var(--border)">
+          <th style="padding:8px 10px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:36px"></th>
+          <th style="padding:8px 12px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left">Liczba obszarów</th>
+          <th style="padding:8px 12px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left">Co to oznacza</th>
+          <th style="padding:8px 12px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;min-width:160px">Osób</th>
+          <th style="padding:8px 12px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right">% grupy</th>
+        </tr>
+      </thead>
+      <tbody style="font-size:.8rem">
+        ${rows}
+        <tr style="background:var(--surface2);border-top:2px solid var(--border);font-weight:700">
+          <td style="padding:9px 10px"></td>
+          <td style="padding:9px 12px;color:var(--text)">Łącznie</td>
+          <td></td>
+          <td style="padding:9px 12px;font-family:var(--mono);color:var(--text)">${total}</td>
+          <td style="padding:9px 12px;font-family:var(--mono);color:var(--text);text-align:right">100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
 /* ═══ ROLES TAB ═══ */
 let activeRole = null;
 function buildRolesTab(){
@@ -557,6 +659,7 @@ function showRole(r){
     </tr>`;
   });
   html += '</tbody></table></div>';
+  html += buildAreasDistTable(r);
   document.getElementById('role-detail').innerHTML = html;
 }
 
