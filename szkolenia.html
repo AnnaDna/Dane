@@ -151,6 +151,32 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 /* Areas-needed distribution table (per role) */
 .areas-dist-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 
+/* ═══ EXECUTIVE SUMMARY ═══ */
+.exec-hero { display:grid; grid-template-columns: 1.05fr 0.95fr; gap:32px; align-items:center; margin-bottom:24px; }
+.exec-num { font-family:var(--mono); font-size:3.6rem; font-weight:800; line-height:.9; color:#7f1d1d; letter-spacing:-.03em; }
+.exec-num sup { font-size:2rem; font-weight:700; }
+.exec-label { font-size:.92rem; font-weight:700; color:var(--text2); margin-top:10px; max-width:400px; line-height:1.5; }
+.exec-sub { font-size:.85rem; color:var(--muted); margin-top:12px; max-width:440px; line-height:1.6; }
+.exec-sub strong { color:var(--text); }
+
+.exec-waffle-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; box-shadow:var(--shadow); }
+.exec-waffle-title { font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; display:flex; justify-content:space-between; }
+.exec-waffle-grid { display:grid; grid-template-columns:repeat(41,1fr); gap:2px; margin-bottom:12px; }
+.wcell { aspect-ratio:1; border-radius:1.5px; }
+.exec-legend { display:flex; gap:12px; flex-wrap:wrap; }
+.exec-leg-item { display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--text2); }
+.exec-leg-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.exec-leg-item b { font-family:var(--mono); color:var(--text); }
+
+.exec-bullets { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+.exec-bullet { display:flex; gap:10px; align-items:flex-start; font-size:.83rem; color:var(--text2); line-height:1.55; }
+.exec-bullet .eb-icon { flex-shrink:0; font-size:.95rem; margin-top:1px; }
+.exec-bullet strong { color:var(--text); }
+
+.exec-role-table th { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 9px 13px; background: var(--surface2); border-bottom: 2px solid var(--border); text-align: left; white-space: nowrap; }
+.exec-role-table td { padding: 9px 13px; border-bottom: 1px solid #f0f2f7; font-size: .8rem; }
+.exec-role-table tr:hover td { background: #f7f8fc; }
+
 @media (max-width:1100px) { .kpi-strip { grid-template-columns: repeat(3,1fr); } .grid-2 { grid-template-columns:1fr; } }
 @media (max-width:768px) { .page{padding:16px;} .tabs{padding:0 16px;} .header{padding:20px 16px;} .kpi-strip{grid-template-columns:1fr 1fr;} }
 </style>
@@ -176,7 +202,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <!-- TABS -->
 <div class="tabs-wrap">
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Przegląd ogólny</button>
+    <button class="tab-btn active" onclick="switchTab('exec', this)">🧭 Podsumowanie</button>
     <button class="tab-btn" onclick="switchTab('areas', this)">🎯 Obszary kompetencji</button>
     <button class="tab-btn" onclick="switchTab('roles', this)">👥 Profile ról</button>
   </div>
@@ -184,16 +210,39 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 
 <div class="page">
 
-<!-- ══════════════════════════ TAB: OVERVIEW ══════════════════════════ -->
-<div id="tab-overview" class="tab-panel active">
+<!-- ══════════════════════════ TAB: EXECUTIVE SUMMARY ══════════════════════════ -->
+<div id="tab-exec" class="tab-panel active">
 
-  <div class="summary-box">
-    <p><strong>Kluczowy wniosek:</strong> Spośród 822 osób objętych badaniem, <strong>niemal każda wymaga szkoleń w co najmniej jednym obszarze</strong>.
-    Największa luka dotyczy <strong>Optymalizacji kosztów AI</strong> (85,2% osób poniżej oczekiwanego poziomu) oraz <strong>Bezpieczeństwa</strong> (79,9%).
-    Najlepiej wypadają obszary <strong>MCP</strong> (61,3% wymaga szkoleń) i <strong>Narzędzia deweloperskie</strong> (67,5%).</p>
+  <div class="exec-hero">
+    <div>
+      <div class="exec-num">4,3<sup>%</sup></div>
+      <div class="exec-label">zespołu IT spełnia dziś oczekiwany poziom kompetencji AI <u>we wszystkich pięciu obszarach</u> jednocześnie — to 35 osób na 822 zbadanych.</div>
+      <div class="exec-sub">Na drugim biegunie: <strong>513 osób (62,4%)</strong> ma luki w co najmniej czterech z pięciu obszarów.</div>
+
+      <div class="exec-bullets">
+        <div class="exec-bullet"><span class="eb-icon">🎯</span><span>Najsłabszy obszar: <strong>Optymalizacja kosztów AI</strong> — 85,2% wymaga szkolenia (śr. P1,0 vs cel P2,6).</span></div>
+        <div class="exec-bullet"><span class="eb-icon">✅</span><span>Relatywnie najmocniejszy: <strong>MCP</strong> — 61,3% wymaga szkolenia, wciąż większość poniżej celu.</span></div>
+        <div class="exec-bullet"><span class="eb-icon">👥</span><span><strong>Developer</strong> to największa badana grupa (268 osób) — 94% wymaga szkolenia w min. 1 obszarze.</span></div>
+      </div>
+    </div>
+
+    <div class="exec-waffle-card">
+      <div class="exec-waffle-title">
+        <span>Gotowość każdej z 822 osób · 1 kwadrat = 1 osoba</span>
+      </div>
+      <div class="exec-waffle-grid" id="exec-waffle"></div>
+      <div class="exec-legend">
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#3f7d5c"></div>0 luk <b>· 35</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#7c9a4a"></div>1 luka <b>· 51</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c9a227"></div>2 luki <b>· 95</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c97a2e"></div>3 luki <b>· 128</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#b4472f"></div>4 luki <b>· 179</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#7a2626"></div>5 luk <b>· 334</b></div>
+      </div>
+    </div>
   </div>
 
-  <!-- KPI strip -->
+  <!-- Per-area KPI strip -->
   <div class="kpi-strip">
     <div class="kpi" style="--kc:#dc2626">
       <div class="kpi-label">Opt. kosztów AI</div>
@@ -241,8 +290,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     </div>
   </div>
 
-
-</div><!-- /overview -->
+</div><!-- /exec -->
 
 <!-- ══════════════════════════ TAB: AREAS ══════════════════════════ -->
 <div id="tab-areas" class="tab-panel">
@@ -628,6 +676,23 @@ function showRole(r){
   document.getElementById('role-detail').innerHTML = html;
 }
 
+/* ═══ EXECUTIVE SUMMARY ═══ */
+function buildExecSummary(){
+  // Waffle chart from global distribution
+  const DIST = [
+    { n:35,  col:'#3f7d5c' },
+    { n:51,  col:'#7c9a4a' },
+    { n:95,  col:'#c9a227' },
+    { n:128, col:'#c97a2e' },
+    { n:179, col:'#b4472f' },
+    { n:334, col:'#7a2626' },
+  ];
+  const cells = [];
+  DIST.forEach(d => { for(let i=0;i<d.n;i++) cells.push(d.col); });
+  document.getElementById('exec-waffle').innerHTML =
+    cells.map(c => `<div class="wcell" style="background:${c}"></div>`).join('');
+}
+
 /* ═══ TABS ═══ */
 function switchTab(id, btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -637,6 +702,7 @@ function switchTab(id, btn){
 }
 
 /* ═══ INIT ═══ */
+buildExecSummary();
 buildBarOverall();
 buildDualOverall();
 buildAreasTab();
