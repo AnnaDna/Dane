@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matryca Kompetencji AI – Dashboard Luk</title>
+<title>Matryca Kompetencji AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -91,11 +91,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .heatmap-wrap { overflow-x: auto; }
 .heatmap { border-collapse: collapse; width: 100%; font-size: .78rem; }
 .heatmap th { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; background: var(--surface2); border-bottom: 2px solid var(--border); text-align: center; white-space: nowrap; }
-.heatmap th:first-child { text-align: left; min-width: 180px; }
-.heatmap td { padding: 9px 12px; border-bottom: 1px solid #f0f2f7; text-align: center; font-family: var(--mono); font-size: .8rem; font-weight: 600; }
-.heatmap td:first-child { text-align: left; font-family: var(--font); font-weight: 600; color: var(--text); font-size: .8rem; }
+.heatmap th:first-child { text-align: left; min-width: 200px; }
+.heatmap td { padding: 7px 12px; border-bottom: 1px solid #f0f2f7; text-align: center; font-family: var(--mono); font-size: .78rem; font-weight: 600; }
+.heatmap td:first-child { text-align: left; font-family: var(--font); font-weight: 600; color: var(--text); font-size: .79rem; }
 .heatmap tr:hover td { background: #f7f8fc; }
-.cell-heat { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 30px; border-radius: 6px; font-size: .78rem; font-weight: 700; }
+.cell-heat { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 28px; border-radius: 6px; font-size: .76rem; font-weight: 700; }
 .heat-0 { background: var(--green-bg); color: var(--green); }
 .heat-1 { background: #fef9c3; color: #854d0e; }
 .heat-2 { background: var(--orange-bg); color: var(--orange); }
@@ -123,7 +123,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .gap-fill .gval { font-size: .7rem; font-weight: 700; color: #fff; }
 .gap-n { font-family: var(--mono); font-size: .72rem; color: var(--muted); width: 45px; text-align: right; }
 
-/* ROLE TABLE */
+/* ROLE SELECTOR / TABLE */
 .role-table { width: 100%; border-collapse: collapse; }
 .role-table th { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px 14px; background: var(--surface2); border-bottom: 2px solid var(--border); text-align: left; white-space: nowrap; }
 .role-table td { padding: 10px 14px; border-bottom: 1px solid #f0f2f7; font-size: .8rem; }
@@ -148,6 +148,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .summary-box p { font-size: .83rem; color: #1e40af; line-height: 1.65; }
 .summary-box strong { font-weight: 700; }
 
+/* Areas-needed distribution table (per role) */
+.areas-dist-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+
 @media (max-width:1100px) { .kpi-strip { grid-template-columns: repeat(3,1fr); } .grid-2 { grid-template-columns:1fr; } }
 @media (max-width:768px) { .page{padding:16px;} .tabs{padding:0 16px;} .header{padding:20px 16px;} .kpi-strip{grid-template-columns:1fr 1fr;} }
 </style>
@@ -158,12 +161,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <div class="header">
   <div class="header-inner">
     <div class="header-left">
-      <h1>Matryca Kompetencji <span>AI</span> — Dashboard Luk</h1>
+      <h1>Matryca Kompetencji <span>AI</span></h1>
       <div class="header-sub">Wyniki samooceny działu IT vs. oczekiwane poziomy kompetencji</div>
     </div>
     <div class="header-pills">
-      <span class="hpill hi">675 respondentów</span>
-      <span class="hpill">8 profili ról</span>
+      <span class="hpill hi">822 respondentów</span>
+      <span class="hpill">25 ról referencyjnych</span>
       <span class="hpill">5 obszarów</span>
       <span class="hpill">P0–P4</span>
     </div>
@@ -176,7 +179,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Przegląd ogólny</button>
     <button class="tab-btn" onclick="switchTab('areas', this)">🎯 Obszary kompetencji</button>
     <button class="tab-btn" onclick="switchTab('roles', this)">👥 Profile ról</button>
-    <button class="tab-btn" onclick="switchTab('gaps', this)">⚠️ Analiza luk</button>
   </div>
 </div>
 
@@ -186,42 +188,42 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <div id="tab-overview" class="tab-panel active">
 
   <div class="summary-box">
-    <p><strong>Kluczowy wniosek:</strong> Spośród 675 osób objętych badaniem, <strong>niemal każdy wymaga szkoleń w co najmniej jednym obszarze</strong>.
-    Największa luka dotyczy <strong>Optymalizacji kosztów AI</strong> (83,9% osób poniżej oczekiwanego poziomu) oraz <strong>Bezpieczeństwa</strong> (80,3%).
-    Najlepiej wypadają obszary <strong>MCP</strong> (61,6% wymaga szkoleń) i <strong>Narzędzia deweloperskie</strong> (67,4%).</p>
+    <p><strong>Kluczowy wniosek:</strong> Spośród 822 osób objętych badaniem, <strong>niemal każda wymaga szkoleń w co najmniej jednym obszarze</strong>.
+    Największa luka dotyczy <strong>Optymalizacji kosztów AI</strong> (85,2% osób poniżej oczekiwanego poziomu) oraz <strong>Bezpieczeństwa</strong> (79,9%).
+    Najlepiej wypadają obszary <strong>MCP</strong> (61,3% wymaga szkoleń) i <strong>Narzędzia deweloperskie</strong> (67,5%).</p>
   </div>
 
   <!-- KPI strip -->
   <div class="kpi-strip">
     <div class="kpi" style="--kc:#dc2626">
       <div class="kpi-label">Opt. kosztów AI</div>
-      <div class="kpi-value">566</div>
+      <div class="kpi-value">700</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fef2f2;color:#dc2626">83,9%</div>
+      <div class="kpi-pct" style="background:#fef2f2;color:#dc2626">85,2%</div>
     </div>
     <div class="kpi" style="--kc:#ea580c">
       <div class="kpi-label">Bezpieczeństwo</div>
-      <div class="kpi-value">542</div>
+      <div class="kpi-value">657</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fff7ed;color:#ea580c">80,3%</div>
+      <div class="kpi-pct" style="background:#fff7ed;color:#ea580c">79,9%</div>
     </div>
     <div class="kpi" style="--kc:#d97706">
       <div class="kpi-label">Budow. kontekstu</div>
-      <div class="kpi-value">490</div>
+      <div class="kpi-value">595</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fffbeb;color:#d97706">72,6%</div>
+      <div class="kpi-pct" style="background:#fffbeb;color:#d97706">72,4%</div>
     </div>
     <div class="kpi" style="--kc:#2563eb">
       <div class="kpi-label">Narzędzia (GIT/IDE)</div>
-      <div class="kpi-value">455</div>
+      <div class="kpi-value">555</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#eff6ff;color:#2563eb">67,4%</div>
+      <div class="kpi-pct" style="background:#eff6ff;color:#2563eb">67,5%</div>
     </div>
     <div class="kpi" style="--kc:#16a34a">
       <div class="kpi-label">MCP</div>
-      <div class="kpi-value">416</div>
+      <div class="kpi-value">504</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#f0fdf4;color:#16a34a">61,6%</div>
+      <div class="kpi-pct" style="background:#f0fdf4;color:#16a34a">61,3%</div>
     </div>
   </div>
 
@@ -239,21 +241,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     </div>
   </div>
 
-  <!-- Heatmap by role -->
-  <div class="sec-header" style="margin-top:28px">
-    <div><div class="sec-title">Macierz luk: profil roli × obszar kompetencji</div><div class="sec-sub">% osób poniżej oczekiwanego poziomu</div></div>
-  </div>
-  <div class="card" style="padding:0">
-    <div class="legend" style="padding:16px 20px 0">
-      <div class="leg-item"><div class="leg-dot" style="background:#f0fdf4;border:1px solid #86efac"></div>0–30% (OK)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#fef9c3;border:1px solid #fcd34d"></div>31–60% (uwaga)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#fff7ed;border:1px solid #fdba74"></div>61–80% (wysokie ryzyko)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#fef2f2;border:1px solid #fca5a5"></div>81–100% (krytyczne)</div>
-    </div>
-    <div class="heatmap-wrap" style="padding:8px 0 4px">
-      <table class="heatmap" id="heatmap-main"></table>
-    </div>
-  </div>
 
 </div><!-- /overview -->
 
@@ -268,35 +255,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <div id="tab-roles" class="tab-panel">
 
   <div class="sec-header">
-    <div><div class="sec-title">Szczegółowy widok per profil roli</div><div class="sec-sub">Kliknij profil aby zobaczyć szczegóły</div></div>
-    <div id="role-selector" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    <div><div class="sec-title">Szczegółowy widok per rola</div><div class="sec-sub">Kliknij rolę aby zobaczyć szczegóły · 25 ról referencyjnych</div></div>
   </div>
+  <div id="role-selector" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
   <div id="role-detail"></div>
-
-</div>
-
-<!-- ══════════════════════════ TAB: GAPS ══════════════════════════ -->
-<div id="tab-gaps" class="tab-panel">
-
-  <div class="sec-header">
-    <div><div class="sec-title">Rozkład wielkości luk kompetencyjnych</div><div class="sec-sub">Jak duże są luki? (różnica między oczekiwanym a deklarowanym poziomem)</div></div>
-  </div>
-
-  <div class="grid-2" id="gap-charts"></div>
-
-  <div class="sec-header" style="margin-top:28px">
-    <div><div class="sec-title">Ranking priorytetów szkoleń</div><div class="sec-sub">Obszary i profile z największym ryzykiem</div></div>
-  </div>
-  <div class="card" style="padding:0">
-    <table class="role-table" id="priority-table">
-      <thead><tr>
-        <th>Profil roli</th><th>Obszar kompetencji</th>
-        <th>Osób do szkolenia</th><th>% wymaga szkolenia</th>
-        <th>Śr. aktualny</th><th>Śr. oczekiwany</th><th>Śr. luka</th><th>Priorytet</th>
-      </tr></thead>
-      <tbody id="priority-tbody"></tbody>
-    </table>
-  </div>
 
 </div>
 
@@ -305,31 +267,48 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <script>
 /* ═══════════════════════ DATA ═══════════════════════ */
 const DATA = {
-  total: 675,
+  total: 822,
   areas: { CB:'Budowanie kontekstu', Cost:'Opt. kosztów AI', Sec:'Bezpieczeństwo', MCP:'MCP', Env:'Narzędzia (GIT/IDE)' },
   overall: {
-    CB:   { name:'Budowanie kontekstu', needs_training:490, pct:72.6, avg_gap:1.32, avg_actual:1.51, avg_target:2.83 },
-    Cost: { name:'Opt. kosztów AI',     needs_training:566, pct:83.9, avg_gap:1.55, avg_actual:1.03, avg_target:2.58 },
-    Sec:  { name:'Bezpieczeństwo',      needs_training:542, pct:80.3, avg_gap:1.30, avg_actual:1.22, avg_target:2.52 },
-    MCP:  { name:'MCP',                 needs_training:416, pct:61.6, avg_gap:0.89, avg_actual:1.22, avg_target:2.11 },
-    Env:  { name:'Narzędzia (GIT/IDE)', needs_training:455, pct:67.4, avg_gap:1.29, avg_actual:2.01, avg_target:3.30 },
+    CB:   { name:'Budowanie kontekstu', needs_training:595, pct:72.4, avg_gap:1.40, avg_actual:1.51, avg_target:2.82 },
+    Cost: { name:'Opt. kosztów AI',     needs_training:700, pct:85.2, avg_gap:1.59, avg_actual:1.00, avg_target:2.56 },
+    Sec:  { name:'Bezpieczeństwo',      needs_training:657, pct:79.9, avg_gap:1.31, avg_actual:1.22, avg_target:2.49 },
+    MCP:  { name:'MCP',                 needs_training:504, pct:61.3, avg_gap:0.99, avg_actual:1.22, avg_target:2.11 },
+    Env:  { name:'Narzędzia (GIT/IDE)', needs_training:555, pct:67.5, avg_gap:1.32, avg_actual:1.99, avg_target:3.27 },
   },
   by_role: {
-    'Analityk':              { n:129, areas:{ CB:{needs:116,pct:89.9,avg_actual:1.04,avg_target:3.0}, Cost:{needs:105,pct:81.4,avg_actual:0.66,avg_target:2.0}, Sec:{needs:86,pct:66.7,avg_actual:1.04,avg_target:2.0}, MCP:{needs:95,pct:73.6,avg_actual:0.92,avg_target:2.0}, Env:{needs:119,pct:92.2,avg_actual:0.93,avg_target:3.0} } },
-    'Architekt':             { n:78,  areas:{ CB:{needs:54,pct:69.2,avg_actual:1.60,avg_target:3.0}, Cost:{needs:66,pct:84.6,avg_actual:1.22,avg_target:3.0}, Sec:{needs:69,pct:88.5,avg_actual:1.35,avg_target:3.0}, MCP:{needs:63,pct:80.8,avg_actual:1.37,avg_target:3.0}, Env:{needs:41,pct:52.6,avg_actual:2.68,avg_target:4.0} } },
-    'Developer':             { n:229, areas:{ CB:{needs:128,pct:55.9,avg_actual:2.07,avg_target:3.0}, Cost:{needs:196,pct:85.6,avg_actual:1.48,avg_target:3.0}, Sec:{needs:204,pct:89.1,avg_actual:1.55,avg_target:3.0}, MCP:{needs:100,pct:43.7,avg_actual:1.62,avg_target:2.0}, Env:{needs:113,pct:49.3,avg_actual:3.27,avg_target:4.0} } },
-    'Koordynator operacyjny':{ n:33,  areas:{ CB:{needs:32,pct:97.0,avg_actual:0.30,avg_target:2.0}, Cost:{needs:33,pct:100.0,avg_actual:0.06,avg_target:2.0}, Sec:{needs:32,pct:97.0,avg_actual:0.21,avg_target:2.0}, MCP:{needs:31,pct:93.9,avg_actual:0.18,avg_target:2.0}, Env:{needs:33,pct:100.0,avg_actual:0.18,avg_target:3.0} } },
-    'Lider / Menedżer':      { n:42,  areas:{ CB:{needs:33,pct:78.6,avg_actual:1.12,avg_target:2.0}, Cost:{needs:41,pct:97.6,avg_actual:0.69,avg_target:3.0}, Sec:{needs:25,pct:59.5,avg_actual:1.05,avg_target:2.0}, MCP:{needs:12,pct:28.6,avg_actual:1.07,avg_target:1.0}, Env:{needs:16,pct:38.1,avg_actual:1.19,avg_target:1.0} } },
-    'Platforma / DevOps':    { n:41,  areas:{ CB:{needs:27,pct:65.9,avg_actual:1.34,avg_target:2.0}, Cost:{needs:39,pct:95.1,avg_actual:0.93,avg_target:3.0}, Sec:{needs:39,pct:95.1,avg_actual:1.34,avg_target:3.0}, MCP:{needs:37,pct:90.2,avg_actual:0.98,avg_target:3.0}, Env:{needs:30,pct:73.2,avg_actual:2.22,avg_target:4.0} } },
-    'Product Owner':         { n:64,  areas:{ CB:{needs:50,pct:78.1,avg_actual:1.42,avg_target:3.0}, Cost:{needs:52,pct:81.2,avg_actual:0.77,avg_target:2.0}, Sec:{needs:50,pct:78.1,avg_actual:0.92,avg_target:2.0}, MCP:{needs:38,pct:59.4,avg_actual:1.14,avg_target:2.0}, Env:{needs:55,pct:85.9,avg_actual:0.56,avg_target:2.0} } },
-    'Tester':                { n:59,  areas:{ CB:{needs:50,pct:84.7,avg_actual:1.42,avg_target:3.0}, Cost:{needs:34,pct:57.6,avg_actual:1.02,avg_target:2.0}, Sec:{needs:37,pct:62.7,avg_actual:1.08,avg_target:2.0}, MCP:{needs:40,pct:67.8,avg_actual:1.05,avg_target:2.0}, Env:{needs:48,pct:81.4,avg_actual:1.61,avg_target:3.0} } },
+    'Developer':                                { n:268, areas:{ CB:{needs:132,pct:49.3,avg_actual:2.08,avg_target:3.0}, Cost:{needs:200,pct:74.6,avg_actual:1.49,avg_target:3.0}, Sec:{needs:207,pct:77.2,avg_actual:1.56,avg_target:3.0}, MCP:{needs:101,pct:37.7,avg_actual:1.63,avg_target:2.0}, Env:{needs:114,pct:42.5,avg_actual:3.28,avg_target:4.0} } },
+    'Analityk':                                 { n:121, areas:{ CB:{needs:109,pct:90.1,avg_actual:1.04,avg_target:3.0}, Cost:{needs:99, pct:81.8,avg_actual:0.66,avg_target:2.0}, Sec:{needs:81, pct:66.9,avg_actual:1.05,avg_target:2.0}, MCP:{needs:90, pct:74.4,avg_actual:0.93,avg_target:2.0}, Env:{needs:112,pct:92.6,avg_actual:0.94,avg_target:3.0} } },
+    'Architekt':                                { n:66,  areas:{ CB:{needs:44, pct:66.7,avg_actual:1.65,avg_target:3.0}, Cost:{needs:56, pct:84.8,avg_actual:1.24,avg_target:3.0}, Sec:{needs:59, pct:89.4,avg_actual:1.35,avg_target:3.0}, MCP:{needs:53, pct:80.3,avg_actual:1.39,avg_target:3.0}, Env:{needs:34, pct:51.5,avg_actual:2.71,avg_target:4.0} } },
+    'Product Owner':                            { n:50,  areas:{ CB:{needs:39, pct:78.0,avg_actual:1.44,avg_target:3.0}, Cost:{needs:41, pct:82.0,avg_actual:0.76,avg_target:2.0}, Sec:{needs:39, pct:78.0,avg_actual:0.92,avg_target:2.0}, MCP:{needs:30, pct:60.0,avg_actual:1.16,avg_target:2.0}, Env:{needs:43, pct:86.0,avg_actual:0.56,avg_target:2.0} } },
+    'Kierownik zespołu':                        { n:43,  areas:{ CB:{needs:31, pct:72.1,avg_actual:1.19,avg_target:2.0}, Cost:{needs:41, pct:95.3,avg_actual:0.72,avg_target:3.0}, Sec:{needs:24, pct:55.8,avg_actual:1.09,avg_target:2.0}, MCP:{needs:12, pct:27.9,avg_actual:1.09,avg_target:1.0}, Env:{needs:17, pct:39.5,avg_actual:1.14,avg_target:1.0} } },
+    'Tester automat':                           { n:41,  areas:{ CB:{needs:29, pct:70.7,avg_actual:1.51,avg_target:3.0}, Cost:{needs:22, pct:53.7,avg_actual:1.10,avg_target:2.0}, Sec:{needs:23, pct:56.1,avg_actual:1.15,avg_target:2.0}, MCP:{needs:25, pct:61.0,avg_actual:1.10,avg_target:2.0}, Env:{needs:32, pct:78.0,avg_actual:1.63,avg_target:3.0} } },
+    'GAP':                                      { n:40,  areas:{ CB:{needs:33, pct:82.5,avg_actual:1.05,avg_target:2.0}, Cost:{needs:38, pct:95.0,avg_actual:0.60,avg_target:2.0}, Sec:{needs:33, pct:82.5,avg_actual:0.90,avg_target:2.0}, MCP:{needs:31, pct:77.5,avg_actual:0.85,avg_target:2.0}, Env:{needs:37, pct:92.5,avg_actual:1.05,avg_target:3.0} } },
+    'Tester':                                   { n:32,  areas:{ CB:{needs:26, pct:81.3,avg_actual:1.44,avg_target:3.0}, Cost:{needs:20, pct:62.5,avg_actual:1.09,avg_target:2.0}, Sec:{needs:20, pct:62.5,avg_actual:1.13,avg_target:2.0}, MCP:{needs:21, pct:65.6,avg_actual:1.09,avg_target:2.0}, Env:{needs:26, pct:81.3,avg_actual:1.53,avg_target:3.0} } },
+    'Koordynator wsparcia':                     { n:28,  areas:{ CB:{needs:24, pct:85.7,avg_actual:0.75,avg_target:2.0}, Cost:{needs:27, pct:96.4,avg_actual:0.32,avg_target:2.0}, Sec:{needs:24, pct:85.7,avg_actual:0.68,avg_target:2.0}, MCP:{needs:24, pct:85.7,avg_actual:0.61,avg_target:2.0}, Env:{needs:27, pct:96.4,avg_actual:0.71,avg_target:3.0} } },
+    'DevOps':                                   { n:21,  areas:{ CB:{needs:12, pct:57.1,avg_actual:1.48,avg_target:2.0}, Cost:{needs:19, pct:90.5,avg_actual:0.90,avg_target:3.0}, Sec:{needs:18, pct:85.7,avg_actual:1.29,avg_target:3.0}, MCP:{needs:17, pct:81.0,avg_actual:0.95,avg_target:3.0}, Env:{needs:14, pct:66.7,avg_actual:2.24,avg_target:4.0} } },
+    'Scrum Master':                             { n:17,  areas:{ CB:{needs:15, pct:88.2,avg_actual:0.71,avg_target:2.0}, Cost:{needs:17, pct:100.0,avg_actual:0.47,avg_target:3.0}, Sec:{needs:12, pct:70.6,avg_actual:0.94,avg_target:2.0}, MCP:{needs:5,  pct:29.4,avg_actual:1.00,avg_target:1.0}, Env:{needs:6,  pct:35.3,avg_actual:1.06,avg_target:1.0} } },
+    'Koordynator Testów wydajności':            { n:16,  areas:{ CB:{needs:14, pct:87.5,avg_actual:0.88,avg_target:2.0}, Cost:{needs:15, pct:93.8,avg_actual:0.75,avg_target:2.0}, Sec:{needs:13, pct:81.3,avg_actual:0.94,avg_target:2.0}, MCP:{needs:14, pct:87.5,avg_actual:0.81,avg_target:2.0}, Env:{needs:15, pct:93.8,avg_actual:1.13,avg_target:3.0} } },
+    'Administrator platformy':                  { n:15,  areas:{ CB:{needs:9,  pct:60.0,avg_actual:1.33,avg_target:2.0}, Cost:{needs:15, pct:100.0,avg_actual:0.60,avg_target:3.0}, Sec:{needs:14, pct:93.3,avg_actual:1.13,avg_target:3.0}, MCP:{needs:14, pct:93.3,avg_actual:0.87,avg_target:3.0}, Env:{needs:12, pct:80.0,avg_actual:1.87,avg_target:4.0} } },
+    'Architekt Infrastruktury':                 { n:11,  areas:{ CB:{needs:8,  pct:72.7,avg_actual:1.36,avg_target:3.0}, Cost:{needs:11, pct:100.0,avg_actual:1.00,avg_target:3.0}, Sec:{needs:10, pct:90.9,avg_actual:1.18,avg_target:3.0}, MCP:{needs:10, pct:90.9,avg_actual:1.09,avg_target:3.0}, Env:{needs:9,  pct:81.8,avg_actual:2.09,avg_target:4.0} } },
+    'Architekt Korporacyjny/Domenowy':          { n:9,   areas:{ CB:{needs:7,  pct:77.8,avg_actual:1.33,avg_target:3.0}, Cost:{needs:9,  pct:100.0,avg_actual:0.89,avg_target:3.0}, Sec:{needs:9,  pct:100.0,avg_actual:1.00,avg_target:3.0}, MCP:{needs:8,  pct:88.9,avg_actual:1.11,avg_target:3.0}, Env:{needs:7,  pct:77.8,avg_actual:2.11,avg_target:4.0} } },
+    'BNW - Administrator Platformy':            { n:9,   areas:{ CB:{needs:6,  pct:66.7,avg_actual:1.11,avg_target:2.0}, Cost:{needs:9,  pct:100.0,avg_actual:0.78,avg_target:3.0}, Sec:{needs:9,  pct:100.0,avg_actual:0.89,avg_target:3.0}, MCP:{needs:8,  pct:88.9,avg_actual:0.78,avg_target:3.0}, Env:{needs:8,  pct:88.9,avg_actual:1.78,avg_target:4.0} } },
+    'Problem manager':                          { n:7,   areas:{ CB:{needs:5,  pct:71.4,avg_actual:1.00,avg_target:2.0}, Cost:{needs:7,  pct:100.0,avg_actual:0.86,avg_target:3.0}, Sec:{needs:4,  pct:57.1,avg_actual:1.14,avg_target:2.0}, MCP:{needs:2,  pct:28.6,avg_actual:0.86,avg_target:1.0}, Env:{needs:3,  pct:42.9,avg_actual:0.86,avg_target:1.0} } },
+    'Architekt Platform Chmurowych':            { n:6,   areas:{ CB:{needs:5,  pct:83.3,avg_actual:1.17,avg_target:3.0}, Cost:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Sec:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, MCP:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Env:{needs:5,  pct:83.3,avg_actual:2.00,avg_target:4.0} } },
+    'Area Product Owner':                       { n:6,   areas:{ CB:{needs:4,  pct:66.7,avg_actual:1.50,avg_target:3.0}, Cost:{needs:5,  pct:83.3,avg_actual:0.83,avg_target:2.0}, Sec:{needs:4,  pct:66.7,avg_actual:1.00,avg_target:2.0}, MCP:{needs:3,  pct:50.0,avg_actual:1.17,avg_target:2.0}, Env:{needs:4,  pct:66.7,avg_actual:0.83,avg_target:2.0} } },
+    'Koordynator - Menedżer wdrożenia':         { n:5,   areas:{ CB:{needs:3,  pct:60.0,avg_actual:1.20,avg_target:2.0}, Cost:{needs:5,  pct:100.0,avg_actual:0.60,avg_target:2.0}, Sec:{needs:4,  pct:80.0,avg_actual:0.80,avg_target:2.0}, MCP:{needs:4,  pct:80.0,avg_actual:0.80,avg_target:2.0}, Env:{needs:5,  pct:100.0,avg_actual:0.80,avg_target:3.0} } },
+    'Koordynator zarządzania Procesami IT':     { n:3,   areas:{ CB:{needs:3,  pct:100.0,avg_actual:0.67,avg_target:2.0}, Cost:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:3.0}, Sec:{needs:3,  pct:100.0,avg_actual:0.67,avg_target:2.0}, MCP:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:1.0}, Env:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:1.0} } },
+    'UX Designer':                              { n:3,   areas:{ CB:{needs:2,  pct:66.7,avg_actual:1.67,avg_target:3.0}, Cost:{needs:1,  pct:33.3,avg_actual:1.33,avg_target:2.0}, Sec:{needs:2,  pct:66.7,avg_actual:1.00,avg_target:2.0}, MCP:{needs:1,  pct:33.3,avg_actual:1.33,avg_target:2.0}, Env:{needs:1,  pct:33.3,avg_actual:1.67,avg_target:2.0} } },
+    'Product Manager':                          { n:2,   areas:{ CB:{needs:1,  pct:50.0,avg_actual:2.00,avg_target:3.0}, Cost:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Sec:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, MCP:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Env:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0} } },
+    'Specjalista ds Testów ciągłości działania':{ n:2,   areas:{ CB:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, Cost:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, Sec:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, MCP:{needs:1,  pct:50.0,avg_actual:1.00,avg_target:2.0}, Env:{needs:2,  pct:100.0,avg_actual:1.00,avg_target:3.0} } },
+    'Koordynator środowisk':                    { n:1,   areas:{ CB:{needs:1,  pct:100.0,avg_actual:0,avg_target:2.0}, Cost:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, Sec:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, MCP:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, Env:{needs:1,  pct:100.0,avg_actual:0,avg_target:4.0} } },
   },
   gap_dist: {
-    CB:   { '-2':5, '-1':52, '0':128, '1':127, '2':266, '3':97 },
-    Cost: { '-2':2, '-1':25, '0':82,  '1':182, '2':262, '3':122 },
-    Sec:  { '-2':1, '-1':21, '0':111, '1':234, '2':259, '3':49 },
-    MCP:  { '-2':10,'-1':57, '0':192, '1':190, '2':187, '3':39 },
-    Env:  { '-3':3, '-2':5,  '-1':8,  '0':204, '1':185, '2':124,'3':120,'4':26 },
+    CB:   { '-2':6,  '-1':60, '0':161,'1':153,'2':331,'3':111 },
+    Cost: { '-2':2,  '-1':27, '0':93, '1':234,'2':323,'3':143 },
+    Sec:  { '-2':2,  '-1':22, '0':141,'1':295,'2':304,'3':58  },
+    MCP:  { '-2':12, '-1':67, '0':239,'1':235,'2':227,'3':42  },
+    Env:  { '-3':3,  '-2':5,  '-1':11,'0':248,'1':229,'2':153,'3':145,'4':28 },
   }
 };
 
@@ -341,12 +320,6 @@ function pctColor(p){
   if(p >= 61) return { bg:'#fff7ed', color:'#ea580c' };
   if(p >= 31) return { bg:'#fef9c3', color:'#854d0e' };
   return { bg:'#f0fdf4', color:'#15803d' };
-}
-
-function riskLevel(p){
-  if(p>=81) return '<span class="risk risk-high">⬆ Krytyczny</span>';
-  if(p>=61) return '<span class="risk risk-med">⚠ Wysoki</span>';
-  return '<span class="risk risk-low">✓ Umiarkowany</span>';
 }
 
 /* ═══ OVERVIEW: bar chart ═══ */
@@ -391,28 +364,6 @@ function buildDualOverall(){
       </div>
     </div>`;
   }).join('');
-}
-
-/* ═══ HEATMAP ═══ */
-function buildHeatmap(){
-  const el = document.getElementById('heatmap-main');
-  const roles = Object.keys(DATA.by_role);
-  const hdrCells = AREA_KEYS.map(k => `<th>${DATA.areas[k]}</th>`).join('');
-  let html = `<thead><tr><th>Profil roli (n)</th>${hdrCells}<th>Łącznie osób</th></tr></thead><tbody>`;
-  roles.forEach(r => {
-    const rd = DATA.by_role[r];
-    const cells = AREA_KEYS.map(k => {
-      const a = rd.areas[k];
-      const p = a.pct;
-      let cls = 'heat-0';
-      if(p>=81) cls='heat-3'; else if(p>=61) cls='heat-2'; else if(p>=31) cls='heat-1';
-      return `<td><span class="cell-heat ${cls}">${p.toFixed(0)}%</span></td>`;
-    }).join('');
-    const totalNeeds = AREA_KEYS.reduce((s,k) => s + rd.areas[k].needs, 0);
-    html += `<tr><td>${r} <span style="color:var(--muted);font-weight:400">(${rd.n})</span></td>${cells}<td style="font-family:var(--mono);font-weight:700;color:var(--text2)">${rd.n} ×</td></tr>`;
-  });
-  html += '</tbody>';
-  el.innerHTML = html;
 }
 
 /* ═══ AREAS TAB ═══ */
@@ -469,16 +420,33 @@ function buildAreasTab(){
   el.innerHTML = html;
 }
 
-/* ═══ AREAS-NEEDED DISTRIBUTION ═══ */
+/* ═══ AREAS-NEEDED DISTRIBUTION (per role, for role tab) ═══ */
 const AREAS_DIST = {
-  "Analityk":                {"0":5,"1":5,"2":7,"3":16,"4":26,"5":70},
-  "Architekt":               {"0":6,"1":5,"2":4,"3":8,"4":19,"5":36},
-  "Developer":               {"0":16,"1":17,"2":34,"3":48,"4":58,"5":56},
-  "Koordynator wsparcia":    {"3":2,"5":31},
-  "Lider / Menedżer":        {"0":1,"1":6,"2":12,"3":5,"4":8,"5":10},
-  "Platforma / DevOps":      {"0":2,"2":2,"3":5,"4":7,"5":25},
-  "Product Owner":           {"0":2,"1":5,"2":2,"3":9,"4":21,"5":25},
-  "Tester":                  {"0":3,"1":4,"2":9,"3":9,"4":10,"5":24},
+  "Developer":                                { "0":16,"1":18,"2":47,"3":59,"4":65,"5":63 },
+  "Analityk":                                  { "0":5, "1":6, "2":7, "3":20,"4":25,"5":58 },
+  "Architekt":                                 { "0":6, "1":6, "2":6, "3":9, "4":25,"5":14 },
+  "Product Owner":                             { "0":2, "1":3, "3":7, "4":21,"5":17 },
+  "Kierownik zespołu":                         { "0":1, "1":8, "2":13,"3":5, "4":8, "5":8 },
+  "Tester automat":                            { "0":2, "1":6, "2":10,"3":6, "4":8, "5":9 },
+  "GAP":                                       { "2":3, "3":2, "4":7, "5":28 },
+  "Tester":                                    { "0":1, "2":2, "3":6, "4":5, "5":18 },
+  "Koordynator wsparcia":                      { "3":1, "5":27 },
+  "DevOps":                                    { "0":2, "2":2, "3":5, "4":3, "5":9 },
+  "Scrum Master":                              { "1":1, "2":1, "3":1, "4":2, "5":12 },
+  "Koordynator Testów wydajności":             { "3":1, "5":15 },
+  "Administrator platformy":                   { "2":1, "3":1, "4":4, "5":9 },
+  "Architekt Infrastruktury":                  { "5":11 },
+  "Architekt Korporacyjny/Domenowy":           { "5":9 },
+  "BNW - Administrator Platformy":             { "4":1, "5":8 },
+  "Problem manager":                           { "2":1, "3":3, "4":1, "5":2 },
+  "Architekt Platform Chmurowych":             { "4":2, "5":4 },
+  "Area Product Owner":                        { "1":1, "3":2, "4":1, "5":2 },
+  "Koordynator - Menedżer wdrożenia":          { "2":1, "5":4 },
+  "Koordynator zarządzania Procesami IT":      { "5":3 },
+  "UX Designer":                               { "1":1, "2":1, "5":1 },
+  "Product Manager":                           { "1":1, "5":1 },
+  "Specjalista ds Testów ciągłości działania": { "4":1, "5":1 },
+  "Koordynator środowisk":                     { "5":1 },
 };
 
 const AREAS_LABEL = {
@@ -496,10 +464,9 @@ function buildAreasDistTable(role) {
   const total = Object.values(dist).reduce((s, v) => s + v, 0);
   const maxN = Math.max(...Object.values(dist));
 
-  // Summary numbers for mini-KPIs
   const noTraining = dist["0"] || 0;
   const needsAny   = total - noTraining;
-  const critical   = (dist["4"] || 0) + (dist["5"] || 0); // 4 or 5 areas
+  const critical   = (dist["4"] || 0) + (dist["5"] || 0);
 
   let rows = [0,1,2,3,4,5].map(n => {
     const key = String(n);
@@ -529,7 +496,7 @@ function buildAreasDistTable(role) {
   return `<div class="card" style="margin-top:16px">
     <div class="card-title">Ile obszarów wymaga doszkolenia — rozkład dla grupy ${role}</div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+    <div class="areas-dist-summary">
       <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:12px 14px;text-align:center">
         <div style="font-family:var(--mono);font-size:1.5rem;font-weight:800;color:var(--green)">${noTraining}</div>
         <div style="font-size:.7rem;font-weight:600;color:var(--green);margin-top:2px">Nie wymaga szkoleń</div>
@@ -593,7 +560,6 @@ function showRole(r){
   if(btn){ btn.style.background='#eff6ff'; btn.style.color='#1d4ed8'; btn.style.borderColor='#93c5fd'; }
 
   let html = `<div class="grid-2">`;
-  // Bar chart for this role
   const sorted = AREA_KEYS.slice().sort((a,b)=> rd.areas[b].pct - rd.areas[a].pct);
   let barsHtml = sorted.map(k => {
     const a = rd.areas[k];
@@ -608,7 +574,6 @@ function showRole(r){
     <div class="card-title">Osoby wymagające szkolenia — ${r} (n=${rd.n})</div>
     ${barsHtml}
   </div>`;
-  // Dual bar actual vs target
   let dualHtml = AREA_KEYS.map(k => {
     const a = rd.areas[k];
     const col = AREA_COLORS[k];
@@ -633,7 +598,6 @@ function showRole(r){
     <div class="dual-bar">${dualHtml}</div>
   </div></div>`;
 
-  // Summary table
   html += `<div class="card" style="margin-top:16px;padding:0">
     <table class="role-table">
       <thead><tr><th>Obszar</th><th>Osób do szkolenia</th><th>% grupy</th><th>Śr. aktualny</th><th>Śr. cel</th><th>Luka</th><th>Postęp</th></tr></thead>
@@ -643,6 +607,7 @@ function showRole(r){
     const col = AREA_COLORS[k];
     const gap = (a.avg_target - a.avg_actual);
     const { bg, color } = pctColor(a.pct);
+    const progress = a.avg_target > 0 ? (a.avg_actual/a.avg_target*100) : 100;
     html += `<tr>
       <td style="font-weight:600;color:${col}">${DATA.areas[k]}</td>
       <td style="font-family:var(--mono);font-weight:700">${a.needs}</td>
@@ -652,8 +617,8 @@ function showRole(r){
       <td style="font-family:var(--mono);color:${gap>1?'#dc2626':gap>0?'#ea580c':'#16a34a'}">−${gap.toFixed(1)}</td>
       <td>
         <div class="progress-mini">
-          <div class="pm-track"><div class="pm-fill" style="width:${(a.avg_actual/a.avg_target*100).toFixed(0)}%;background:${col}"></div></div>
-          <span style="font-size:.7rem;color:var(--muted)">${(a.avg_actual/a.avg_target*100).toFixed(0)}%</span>
+          <div class="pm-track"><div class="pm-fill" style="width:${progress.toFixed(0)}%;background:${col}"></div></div>
+          <span style="font-size:.7rem;color:var(--muted)">${progress.toFixed(0)}%</span>
         </div>
       </td>
     </tr>`;
@@ -661,64 +626,6 @@ function showRole(r){
   html += '</tbody></table></div>';
   html += buildAreasDistTable(r);
   document.getElementById('role-detail').innerHTML = html;
-}
-
-/* ═══ GAPS TAB ═══ */
-function buildGapsTab(){
-  // Gap distribution charts
-  const gcEl = document.getElementById('gap-charts');
-  gcEl.innerHTML = AREA_KEYS.map(k => {
-    const gd = DATA.gap_dist[k];
-    const col = AREA_COLORS[k];
-    const maxN = Math.max(...Object.values(gd));
-    const rows = Object.entries(gd).map(([g,n]) => {
-      const gNum = parseInt(g);
-      const w = (n/maxN)*100;
-      let fc = gNum<0?'#16a34a':gNum===0?'#9ca3af':gNum===1?'#d97706':gNum===2?'#ea580c':'#dc2626';
-      const lbl = gNum>0?`+${g}`:g;
-      const desc = gNum<0?'Powyżej celu':gNum===0?'Na poziomie celu':`${g} poz. poniżej celu`;
-      return `<div class="gap-bar-row" title="${n} osób: ${desc}">
-        <div class="gap-lbl" style="font-weight:${gNum>0?700:400}">${lbl}</div>
-        <div class="gap-track"><div class="gap-fill" style="width:${w}%;background:${fc}"><span class="gval">${n}</span></div></div>
-        <div class="gap-n">${((n/DATA.total)*100).toFixed(0)}%</div>
-      </div>`;
-    }).join('');
-    return `<div class="card">
-      <div class="card-title" style="color:${col}">${DATA.areas[k]}</div>
-      <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:8px">
-        <span style="color:#16a34a">← powyżej celu</span>
-        <span>na poziomie</span>
-        <span style="color:#dc2626">poniżej celu →</span>
-      </div>
-      <div class="gap-bars">${rows}</div>
-    </div>`;
-  }).join('');
-
-  // Priority table
-  const tbody = document.getElementById('priority-tbody');
-  let rows = [];
-  Object.entries(DATA.by_role).forEach(([role, rd]) => {
-    AREA_KEYS.forEach(k => {
-      const a = rd.areas[k];
-      const gap = a.avg_target - a.avg_actual;
-      rows.push({ role, area:k, areaName:DATA.areas[k], needs:a.needs, pct:a.pct, actual:a.avg_actual, target:a.avg_target, gap, n:rd.n });
-    });
-  });
-  rows.sort((a,b) => (b.pct - a.pct) || (b.gap - a.gap));
-  tbody.innerHTML = rows.slice(0,20).map(r => {
-    const col = AREA_COLORS[r.area];
-    const {bg,color} = pctColor(r.pct);
-    return `<tr>
-      <td style="font-weight:600">${r.role} <span style="color:var(--muted);font-weight:400">(${r.n})</span></td>
-      <td><span style="color:${col};font-weight:600">${r.areaName}</span></td>
-      <td style="font-family:var(--mono);font-weight:700">${r.needs}</td>
-      <td><span style="background:${bg};color:${color};padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700">${r.pct.toFixed(1)}%</span></td>
-      <td style="font-family:var(--mono)">P${r.actual.toFixed(1)}</td>
-      <td style="font-family:var(--mono)">P${r.target.toFixed(1)}</td>
-      <td style="font-family:var(--mono);font-weight:700;color:${r.gap>=2?'#dc2626':r.gap>=1?'#ea580c':'#d97706'}">−${r.gap.toFixed(1)}</td>
-      <td>${riskLevel(r.pct)}</td>
-    </tr>`;
-  }).join('');
 }
 
 /* ═══ TABS ═══ */
@@ -732,10 +639,8 @@ function switchTab(id, btn){
 /* ═══ INIT ═══ */
 buildBarOverall();
 buildDualOverall();
-buildHeatmap();
 buildAreasTab();
 buildRolesTab();
-buildGapsTab();
 </script>
 </body>
 </html>
