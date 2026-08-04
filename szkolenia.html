@@ -153,7 +153,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 
 /* ═══ EXECUTIVE SUMMARY ═══ */
 .exec-hero { display:grid; grid-template-columns: 1.05fr 0.95fr; gap:32px; align-items:center; margin-bottom:24px; }
-.exec-num { font-family:var(--mono); font-size:3.6rem; font-weight:800; line-height:.9; color:#7f1d1d; letter-spacing:-.03em; }
+.exec-num { font-family:var(--mono); font-size:3.6rem; font-weight:800; line-height:.9; color:#374151; letter-spacing:-.03em; }
 .exec-num sup { font-size:2rem; font-weight:700; }
 .exec-label { font-size:.92rem; font-weight:700; color:var(--text2); margin-top:10px; max-width:400px; line-height:1.5; }
 .exec-sub { font-size:.85rem; color:var(--muted); margin-top:12px; max-width:440px; line-height:1.6; }
@@ -162,7 +162,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .exec-waffle-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; box-shadow:var(--shadow); }
 .exec-waffle-title { font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; display:flex; justify-content:space-between; }
 .exec-waffle-grid { display:grid; grid-template-columns:repeat(41,1fr); gap:2px; margin-bottom:12px; }
-.wcell { aspect-ratio:1; border-radius:1.5px; }
+.wcell { aspect-ratio:1; border-radius:1.5px; border:1px solid rgba(15,23,42,.08); }
 .exec-legend { display:flex; gap:12px; flex-wrap:wrap; }
 .exec-leg-item { display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--text2); }
 .exec-leg-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
@@ -191,7 +191,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
       <div class="header-sub">Wyniki samooceny działu IT vs. oczekiwane poziomy kompetencji</div>
     </div>
     <div class="header-pills">
-      <span class="hpill hi">822 respondentów</span>
+      <span class="hpill hi">843 respondentów</span>
       <span class="hpill">25 ról referencyjnych</span>
       <span class="hpill">5 obszarów</span>
       <span class="hpill">P0–P4</span>
@@ -216,28 +216,28 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   <div class="exec-hero">
     <div>
       <div class="exec-num">4,3<sup>%</sup></div>
-      <div class="exec-label">zespołu IT spełnia dziś oczekiwany poziom kompetencji AI <u>we wszystkich pięciu obszarach</u> jednocześnie — to 35 osób na 822 zbadanych.</div>
-      <div class="exec-sub">Na drugim biegunie: <strong>513 osób (62,4%)</strong> ma luki w co najmniej czterech z pięciu obszarów.</div>
+      <div class="exec-label">zespołu IT spełnia dziś oczekiwany poziom kompetencji AI <u>we wszystkich pięciu obszarach</u> jednocześnie — to 36 osób na 843 zbadanych.</div>
+      <div class="exec-sub">Na drugim biegunie: <strong>530 osób (62,9%)</strong> ma luki w co najmniej czterech z pięciu obszarów.</div>
 
       <div class="exec-bullets">
-        <div class="exec-bullet"><span class="eb-icon">🎯</span><span>Najsłabszy obszar: <strong>Optymalizacja kosztów AI</strong> — 85,2% wymaga szkolenia (śr. P1,0 vs cel P2,6).</span></div>
-        <div class="exec-bullet"><span class="eb-icon">✅</span><span>Relatywnie najmocniejszy: <strong>MCP</strong> — 61,3% wymaga szkolenia, wciąż większość poniżej celu.</span></div>
-        <div class="exec-bullet"><span class="eb-icon">👥</span><span><strong>Developer</strong> to największa badana grupa (268 osób) — 94% wymaga szkolenia w min. 1 obszarze.</span></div>
+        <div class="exec-bullet"><span class="eb-icon">🎯</span><span>Najsłabszy obszar: <strong>Optymalizacja kosztów AI</strong> — 85,4% wymaga szkolenia (śr. P1,0 vs cel P2,6).</span></div>
+        <div class="exec-bullet"><span class="eb-icon">✅</span><span>Relatywnie najmocniejszy: <strong>MCP</strong> — 61,2% wymaga szkolenia, wciąż większość poniżej celu.</span></div>
+        <div class="exec-bullet"><span class="eb-icon">👥</span><span><strong>Developer</strong> to największa badana grupa (269 osób) — 94% wymaga szkolenia w min. 1 obszarze.</span></div>
       </div>
     </div>
 
     <div class="exec-waffle-card">
       <div class="exec-waffle-title">
-        <span>Gotowość każdej z 822 osób · 1 kwadrat = 1 osoba</span>
+        <span>Gotowość każdej z 843 osób · 1 kwadrat = 1 osoba</span>
       </div>
       <div class="exec-waffle-grid" id="exec-waffle"></div>
       <div class="exec-legend">
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#3f7d5c"></div>0 luk <b>· 35</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#7c9a4a"></div>1 luka <b>· 51</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c9a227"></div>2 luki <b>· 95</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c97a2e"></div>3 luki <b>· 128</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#b4472f"></div>4 luki <b>· 179</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#7a2626"></div>5 luk <b>· 334</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c7d2e0"></div>0 luk <b>· 36</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#a9b8cc"></div>1 luka <b>· 51</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#8b9fb8"></div>2 luki <b>· 96</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#6d86a3"></div>3 luki <b>· 130</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#506d8f"></div>4 luki <b>· 186</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#33547a"></div>5 luk <b>· 344</b></div>
       </div>
     </div>
   </div>
@@ -246,33 +246,33 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   <div class="kpi-strip">
     <div class="kpi" style="--kc:#dc2626">
       <div class="kpi-label">Opt. kosztów AI</div>
-      <div class="kpi-value">700</div>
+      <div class="kpi-value">720</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fef2f2;color:#dc2626">85,2%</div>
+      <div class="kpi-pct" style="background:#fef2f2;color:#dc2626">85,4%</div>
     </div>
     <div class="kpi" style="--kc:#ea580c">
       <div class="kpi-label">Bezpieczeństwo</div>
-      <div class="kpi-value">657</div>
+      <div class="kpi-value">675</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fff7ed;color:#ea580c">79,9%</div>
+      <div class="kpi-pct" style="background:#fff7ed;color:#ea580c">80,1%</div>
     </div>
     <div class="kpi" style="--kc:#d97706">
       <div class="kpi-label">Budow. kontekstu</div>
-      <div class="kpi-value">595</div>
+      <div class="kpi-value">615</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#fffbeb;color:#d97706">72,4%</div>
+      <div class="kpi-pct" style="background:#fffbeb;color:#d97706">73,0%</div>
     </div>
     <div class="kpi" style="--kc:#2563eb">
       <div class="kpi-label">Narzędzia (GIT/IDE)</div>
-      <div class="kpi-value">555</div>
+      <div class="kpi-value">571</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#eff6ff;color:#2563eb">67,5%</div>
+      <div class="kpi-pct" style="background:#eff6ff;color:#2563eb">67,7%</div>
     </div>
     <div class="kpi" style="--kc:#16a34a">
       <div class="kpi-label">MCP</div>
-      <div class="kpi-value">504</div>
+      <div class="kpi-value">516</div>
       <div class="kpi-sub">osób wymaga szkolenia</div>
-      <div class="kpi-pct" style="background:#f0fdf4;color:#16a34a">61,3%</div>
+      <div class="kpi-pct" style="background:#f0fdf4;color:#16a34a">61,2%</div>
     </div>
   </div>
 
@@ -315,48 +315,48 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 <script>
 /* ═══════════════════════ DATA ═══════════════════════ */
 const DATA = {
-  total: 822,
+  total: 843,
   areas: { CB:'Budowanie kontekstu', Cost:'Opt. kosztów AI', Sec:'Bezpieczeństwo', MCP:'MCP', Env:'Narzędzia (GIT/IDE)' },
   overall: {
-    CB:   { name:'Budowanie kontekstu', needs_training:595, pct:72.4, avg_gap:1.40, avg_actual:1.51, avg_target:2.82 },
-    Cost: { name:'Opt. kosztów AI',     needs_training:700, pct:85.2, avg_gap:1.59, avg_actual:1.00, avg_target:2.56 },
-    Sec:  { name:'Bezpieczeństwo',      needs_training:657, pct:79.9, avg_gap:1.31, avg_actual:1.22, avg_target:2.49 },
-    MCP:  { name:'MCP',                 needs_training:504, pct:61.3, avg_gap:0.99, avg_actual:1.22, avg_target:2.11 },
-    Env:  { name:'Narzędzia (GIT/IDE)', needs_training:555, pct:67.5, avg_gap:1.32, avg_actual:1.99, avg_target:3.27 },
+    CB:   { name:'Budowanie kontekstu', needs_training:615, pct:73.0, avg_gap:1.40, avg_actual:1.50, avg_target:2.81 },
+    Cost: { name:'Opt. kosztów AI',     needs_training:720, pct:85.4, avg_gap:1.60, avg_actual:1.00, avg_target:2.56 },
+    Sec:  { name:'Bezpieczeństwo',      needs_training:675, pct:80.1, avg_gap:1.31, avg_actual:1.21, avg_target:2.49 },
+    MCP:  { name:'MCP',                 needs_training:516, pct:61.2, avg_gap:0.99, avg_actual:1.21, avg_target:2.09 },
+    Env:  { name:'Narzędzia (GIT/IDE)', needs_training:571, pct:67.7, avg_gap:1.31, avg_actual:1.97, avg_target:3.25 },
   },
   by_role: {
-    'Developer':                                { n:268, areas:{ CB:{needs:132,pct:49.3,avg_actual:2.08,avg_target:3.0}, Cost:{needs:200,pct:74.6,avg_actual:1.49,avg_target:3.0}, Sec:{needs:207,pct:77.2,avg_actual:1.56,avg_target:3.0}, MCP:{needs:101,pct:37.7,avg_actual:1.63,avg_target:2.0}, Env:{needs:114,pct:42.5,avg_actual:3.28,avg_target:4.0} } },
-    'Analityk':                                 { n:121, areas:{ CB:{needs:109,pct:90.1,avg_actual:1.04,avg_target:3.0}, Cost:{needs:99, pct:81.8,avg_actual:0.66,avg_target:2.0}, Sec:{needs:81, pct:66.9,avg_actual:1.05,avg_target:2.0}, MCP:{needs:90, pct:74.4,avg_actual:0.93,avg_target:2.0}, Env:{needs:112,pct:92.6,avg_actual:0.94,avg_target:3.0} } },
-    'Architekt':                                { n:66,  areas:{ CB:{needs:44, pct:66.7,avg_actual:1.65,avg_target:3.0}, Cost:{needs:56, pct:84.8,avg_actual:1.24,avg_target:3.0}, Sec:{needs:59, pct:89.4,avg_actual:1.35,avg_target:3.0}, MCP:{needs:53, pct:80.3,avg_actual:1.39,avg_target:3.0}, Env:{needs:34, pct:51.5,avg_actual:2.71,avg_target:4.0} } },
-    'Product Owner':                            { n:50,  areas:{ CB:{needs:39, pct:78.0,avg_actual:1.44,avg_target:3.0}, Cost:{needs:41, pct:82.0,avg_actual:0.76,avg_target:2.0}, Sec:{needs:39, pct:78.0,avg_actual:0.92,avg_target:2.0}, MCP:{needs:30, pct:60.0,avg_actual:1.16,avg_target:2.0}, Env:{needs:43, pct:86.0,avg_actual:0.56,avg_target:2.0} } },
-    'Kierownik zespołu':                        { n:43,  areas:{ CB:{needs:31, pct:72.1,avg_actual:1.19,avg_target:2.0}, Cost:{needs:41, pct:95.3,avg_actual:0.72,avg_target:3.0}, Sec:{needs:24, pct:55.8,avg_actual:1.09,avg_target:2.0}, MCP:{needs:12, pct:27.9,avg_actual:1.09,avg_target:1.0}, Env:{needs:17, pct:39.5,avg_actual:1.14,avg_target:1.0} } },
-    'Tester automat':                           { n:41,  areas:{ CB:{needs:29, pct:70.7,avg_actual:1.51,avg_target:3.0}, Cost:{needs:22, pct:53.7,avg_actual:1.10,avg_target:2.0}, Sec:{needs:23, pct:56.1,avg_actual:1.15,avg_target:2.0}, MCP:{needs:25, pct:61.0,avg_actual:1.10,avg_target:2.0}, Env:{needs:32, pct:78.0,avg_actual:1.63,avg_target:3.0} } },
-    'GAP':                                      { n:40,  areas:{ CB:{needs:33, pct:82.5,avg_actual:1.05,avg_target:2.0}, Cost:{needs:38, pct:95.0,avg_actual:0.60,avg_target:2.0}, Sec:{needs:33, pct:82.5,avg_actual:0.90,avg_target:2.0}, MCP:{needs:31, pct:77.5,avg_actual:0.85,avg_target:2.0}, Env:{needs:37, pct:92.5,avg_actual:1.05,avg_target:3.0} } },
-    'Tester':                                   { n:32,  areas:{ CB:{needs:26, pct:81.3,avg_actual:1.44,avg_target:3.0}, Cost:{needs:20, pct:62.5,avg_actual:1.09,avg_target:2.0}, Sec:{needs:20, pct:62.5,avg_actual:1.13,avg_target:2.0}, MCP:{needs:21, pct:65.6,avg_actual:1.09,avg_target:2.0}, Env:{needs:26, pct:81.3,avg_actual:1.53,avg_target:3.0} } },
-    'Koordynator wsparcia':                     { n:28,  areas:{ CB:{needs:24, pct:85.7,avg_actual:0.75,avg_target:2.0}, Cost:{needs:27, pct:96.4,avg_actual:0.32,avg_target:2.0}, Sec:{needs:24, pct:85.7,avg_actual:0.68,avg_target:2.0}, MCP:{needs:24, pct:85.7,avg_actual:0.61,avg_target:2.0}, Env:{needs:27, pct:96.4,avg_actual:0.71,avg_target:3.0} } },
-    'DevOps':                                   { n:21,  areas:{ CB:{needs:12, pct:57.1,avg_actual:1.48,avg_target:2.0}, Cost:{needs:19, pct:90.5,avg_actual:0.90,avg_target:3.0}, Sec:{needs:18, pct:85.7,avg_actual:1.29,avg_target:3.0}, MCP:{needs:17, pct:81.0,avg_actual:0.95,avg_target:3.0}, Env:{needs:14, pct:66.7,avg_actual:2.24,avg_target:4.0} } },
-    'Scrum Master':                             { n:17,  areas:{ CB:{needs:15, pct:88.2,avg_actual:0.71,avg_target:2.0}, Cost:{needs:17, pct:100.0,avg_actual:0.47,avg_target:3.0}, Sec:{needs:12, pct:70.6,avg_actual:0.94,avg_target:2.0}, MCP:{needs:5,  pct:29.4,avg_actual:1.00,avg_target:1.0}, Env:{needs:6,  pct:35.3,avg_actual:1.06,avg_target:1.0} } },
-    'Koordynator Testów wydajności':            { n:16,  areas:{ CB:{needs:14, pct:87.5,avg_actual:0.88,avg_target:2.0}, Cost:{needs:15, pct:93.8,avg_actual:0.75,avg_target:2.0}, Sec:{needs:13, pct:81.3,avg_actual:0.94,avg_target:2.0}, MCP:{needs:14, pct:87.5,avg_actual:0.81,avg_target:2.0}, Env:{needs:15, pct:93.8,avg_actual:1.13,avg_target:3.0} } },
-    'Administrator platformy':                  { n:15,  areas:{ CB:{needs:9,  pct:60.0,avg_actual:1.33,avg_target:2.0}, Cost:{needs:15, pct:100.0,avg_actual:0.60,avg_target:3.0}, Sec:{needs:14, pct:93.3,avg_actual:1.13,avg_target:3.0}, MCP:{needs:14, pct:93.3,avg_actual:0.87,avg_target:3.0}, Env:{needs:12, pct:80.0,avg_actual:1.87,avg_target:4.0} } },
-    'Architekt Infrastruktury':                 { n:11,  areas:{ CB:{needs:8,  pct:72.7,avg_actual:1.36,avg_target:3.0}, Cost:{needs:11, pct:100.0,avg_actual:1.00,avg_target:3.0}, Sec:{needs:10, pct:90.9,avg_actual:1.18,avg_target:3.0}, MCP:{needs:10, pct:90.9,avg_actual:1.09,avg_target:3.0}, Env:{needs:9,  pct:81.8,avg_actual:2.09,avg_target:4.0} } },
-    'Architekt Korporacyjny/Domenowy':          { n:9,   areas:{ CB:{needs:7,  pct:77.8,avg_actual:1.33,avg_target:3.0}, Cost:{needs:9,  pct:100.0,avg_actual:0.89,avg_target:3.0}, Sec:{needs:9,  pct:100.0,avg_actual:1.00,avg_target:3.0}, MCP:{needs:8,  pct:88.9,avg_actual:1.11,avg_target:3.0}, Env:{needs:7,  pct:77.8,avg_actual:2.11,avg_target:4.0} } },
-    'BNW - Administrator Platformy':            { n:9,   areas:{ CB:{needs:6,  pct:66.7,avg_actual:1.11,avg_target:2.0}, Cost:{needs:9,  pct:100.0,avg_actual:0.78,avg_target:3.0}, Sec:{needs:9,  pct:100.0,avg_actual:0.89,avg_target:3.0}, MCP:{needs:8,  pct:88.9,avg_actual:0.78,avg_target:3.0}, Env:{needs:8,  pct:88.9,avg_actual:1.78,avg_target:4.0} } },
-    'Problem manager':                          { n:7,   areas:{ CB:{needs:5,  pct:71.4,avg_actual:1.00,avg_target:2.0}, Cost:{needs:7,  pct:100.0,avg_actual:0.86,avg_target:3.0}, Sec:{needs:4,  pct:57.1,avg_actual:1.14,avg_target:2.0}, MCP:{needs:2,  pct:28.6,avg_actual:0.86,avg_target:1.0}, Env:{needs:3,  pct:42.9,avg_actual:0.86,avg_target:1.0} } },
-    'Architekt Platform Chmurowych':            { n:6,   areas:{ CB:{needs:5,  pct:83.3,avg_actual:1.17,avg_target:3.0}, Cost:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Sec:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, MCP:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Env:{needs:5,  pct:83.3,avg_actual:2.00,avg_target:4.0} } },
-    'Area Product Owner':                       { n:6,   areas:{ CB:{needs:4,  pct:66.7,avg_actual:1.50,avg_target:3.0}, Cost:{needs:5,  pct:83.3,avg_actual:0.83,avg_target:2.0}, Sec:{needs:4,  pct:66.7,avg_actual:1.00,avg_target:2.0}, MCP:{needs:3,  pct:50.0,avg_actual:1.17,avg_target:2.0}, Env:{needs:4,  pct:66.7,avg_actual:0.83,avg_target:2.0} } },
-    'Koordynator - Menedżer wdrożenia':         { n:5,   areas:{ CB:{needs:3,  pct:60.0,avg_actual:1.20,avg_target:2.0}, Cost:{needs:5,  pct:100.0,avg_actual:0.60,avg_target:2.0}, Sec:{needs:4,  pct:80.0,avg_actual:0.80,avg_target:2.0}, MCP:{needs:4,  pct:80.0,avg_actual:0.80,avg_target:2.0}, Env:{needs:5,  pct:100.0,avg_actual:0.80,avg_target:3.0} } },
-    'Koordynator zarządzania Procesami IT':     { n:3,   areas:{ CB:{needs:3,  pct:100.0,avg_actual:0.67,avg_target:2.0}, Cost:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:3.0}, Sec:{needs:3,  pct:100.0,avg_actual:0.67,avg_target:2.0}, MCP:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:1.0}, Env:{needs:3,  pct:100.0,avg_actual:0.33,avg_target:1.0} } },
-    'UX Designer':                              { n:3,   areas:{ CB:{needs:2,  pct:66.7,avg_actual:1.67,avg_target:3.0}, Cost:{needs:1,  pct:33.3,avg_actual:1.33,avg_target:2.0}, Sec:{needs:2,  pct:66.7,avg_actual:1.00,avg_target:2.0}, MCP:{needs:1,  pct:33.3,avg_actual:1.33,avg_target:2.0}, Env:{needs:1,  pct:33.3,avg_actual:1.67,avg_target:2.0} } },
-    'Product Manager':                          { n:2,   areas:{ CB:{needs:1,  pct:50.0,avg_actual:2.00,avg_target:3.0}, Cost:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Sec:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, MCP:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Env:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0} } },
-    'Specjalista ds Testów ciągłości działania':{ n:2,   areas:{ CB:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, Cost:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, Sec:{needs:2,  pct:100.0,avg_actual:0.50,avg_target:2.0}, MCP:{needs:1,  pct:50.0,avg_actual:1.00,avg_target:2.0}, Env:{needs:2,  pct:100.0,avg_actual:1.00,avg_target:3.0} } },
+    'Developer':                                { n:269, areas:{ CB:{needs:148,pct:55.0,avg_actual:2.10,avg_target:3.0}, Cost:{needs:236,pct:87.7,avg_actual:1.46,avg_target:3.0}, Sec:{needs:243,pct:90.3,avg_actual:1.54,avg_target:3.0}, MCP:{needs:112,pct:41.6,avg_actual:1.66,avg_target:2.0}, Env:{needs:128,pct:47.6,avg_actual:3.31,avg_target:4.0} } },
+    'Analityk':                                 { n:125, areas:{ CB:{needs:108,pct:86.4,avg_actual:1.18,avg_target:3.0}, Cost:{needs:97, pct:77.6,avg_actual:0.74,avg_target:2.0}, Sec:{needs:84, pct:67.2,avg_actual:1.06,avg_target:2.0}, MCP:{needs:83, pct:66.4,avg_actual:1.09,avg_target:2.0}, Env:{needs:116,pct:92.8,avg_actual:0.94,avg_target:3.0} } },
+    'Architekt':                                { n:68,  areas:{ CB:{needs:38, pct:55.9,avg_actual:2.07,avg_target:3.0}, Cost:{needs:56, pct:82.4,avg_actual:1.47,avg_target:3.0}, Sec:{needs:58, pct:85.3,avg_actual:1.60,avg_target:3.0}, MCP:{needs:50, pct:73.5,avg_actual:1.71,avg_target:3.0}, Env:{needs:23, pct:33.8,avg_actual:3.35,avg_target:4.0} } },
+    'Kierownik zespołu':                        { n:51,  areas:{ CB:{needs:39, pct:76.5,avg_actual:1.25,avg_target:2.0}, Cost:{needs:49, pct:96.1,avg_actual:0.84,avg_target:3.0}, Sec:{needs:30, pct:58.8,avg_actual:1.14,avg_target:2.0}, MCP:{needs:12, pct:23.5,avg_actual:1.14,avg_target:1.0}, Env:{needs:21, pct:41.2,avg_actual:1.08,avg_target:1.0} } },
+    'Product Owner':                            { n:51,  areas:{ CB:{needs:41, pct:80.4,avg_actual:1.39,avg_target:3.0}, Cost:{needs:43, pct:84.3,avg_actual:0.67,avg_target:2.0}, Sec:{needs:40, pct:78.4,avg_actual:0.92,avg_target:2.0}, MCP:{needs:29, pct:56.9,avg_actual:1.22,avg_target:2.0}, Env:{needs:44, pct:86.3,avg_actual:0.61,avg_target:2.0} } },
+    'Tester automat':                           { n:42,  areas:{ CB:{needs:32, pct:76.2,avg_actual:1.79,avg_target:3.0}, Cost:{needs:20, pct:47.6,avg_actual:1.29,avg_target:2.0}, Sec:{needs:22, pct:52.4,avg_actual:1.31,avg_target:2.0}, MCP:{needs:23, pct:54.8,avg_actual:1.31,avg_target:2.0}, Env:{needs:26, pct:61.9,avg_actual:2.26,avg_target:3.0} } },
+    'GAP':                                      { n:40,  areas:{ CB:{needs:40, pct:100.0,avg_actual:0.68,avg_target:3.0}, Cost:{needs:38, pct:95.0,avg_actual:0.33,avg_target:2.0}, Sec:{needs:28, pct:70.0,avg_actual:0.90,avg_target:2.0}, MCP:{needs:36, pct:90.0,avg_actual:0.50,avg_target:2.0}, Env:{needs:38, pct:95.0,avg_actual:0.97,avg_target:3.0} } },
+    'Tester':                                   { n:33,  areas:{ CB:{needs:31, pct:93.9,avg_actual:1.03,avg_target:3.0}, Cost:{needs:26, pct:78.8,avg_actual:0.64,avg_target:2.0}, Sec:{needs:22, pct:66.7,avg_actual:0.97,avg_target:2.0}, MCP:{needs:26, pct:78.8,avg_actual:0.85,avg_target:2.0}, Env:{needs:32, pct:97.0,avg_actual:1.09,avg_target:3.0} } },
+    'Koordynator wsparcia':                     { n:30,  areas:{ CB:{needs:30, pct:100.0,avg_actual:0.20,avg_target:2.0}, Cost:{needs:30, pct:100.0,avg_actual:0.07,avg_target:2.0}, Sec:{needs:29, pct:96.7,avg_actual:0.20,avg_target:2.0}, MCP:{needs:29, pct:96.7,avg_actual:0.10,avg_target:2.0}, Env:{needs:30, pct:100.0,avg_actual:0.13,avg_target:3.0} } },
+    'DevOps':                                   { n:21,  areas:{ CB:{needs:11, pct:52.4,avg_actual:1.95,avg_target:2.0}, Cost:{needs:19, pct:90.5,avg_actual:1.24,avg_target:3.0}, Sec:{needs:19, pct:90.5,avg_actual:1.67,avg_target:3.0}, MCP:{needs:17, pct:81.0,avg_actual:1.43,avg_target:3.0}, Env:{needs:10, pct:47.6,avg_actual:3.33,avg_target:4.0} } },
+    'Administrator platformy':                  { n:18,  areas:{ CB:{needs:12, pct:66.7,avg_actual:1.00,avg_target:2.0}, Cost:{needs:18, pct:100.0,avg_actual:0.83,avg_target:3.0}, Sec:{needs:17, pct:94.4,avg_actual:1.11,avg_target:3.0}, MCP:{needs:17, pct:94.4,avg_actual:0.89,avg_target:3.0}, Env:{needs:17, pct:94.4,avg_actual:1.61,avg_target:4.0} } },
+    'Scrum Master':                             { n:17,  areas:{ CB:{needs:15, pct:88.2,avg_actual:1.06,avg_target:3.0}, Cost:{needs:15, pct:88.2,avg_actual:0.71,avg_target:2.0}, Sec:{needs:13, pct:76.5,avg_actual:0.76,avg_target:2.0}, MCP:{needs:14, pct:82.4,avg_actual:0.71,avg_target:2.0}, Env:{needs:17, pct:100.0,avg_actual:0.18,avg_target:2.0} } },
+    'Koordynator Testów wydajności':            { n:16,  areas:{ CB:{needs:15, pct:93.8,avg_actual:0.38,avg_target:2.0}, Cost:{needs:16, pct:100.0,avg_actual:0.00,avg_target:2.0}, Sec:{needs:16, pct:100.0,avg_actual:0.12,avg_target:2.0}, MCP:{needs:15, pct:93.8,avg_actual:0.19,avg_target:2.0}, Env:{needs:16, pct:100.0,avg_actual:0.12,avg_target:3.0} } },
+    'Architekt Infrastruktury':                 { n:11,  areas:{ CB:{needs:11, pct:100.0,avg_actual:0.18,avg_target:3.0}, Cost:{needs:11, pct:100.0,avg_actual:0.27,avg_target:3.0}, Sec:{needs:11, pct:100.0,avg_actual:0.45,avg_target:3.0}, MCP:{needs:11, pct:100.0,avg_actual:0.27,avg_target:3.0}, Env:{needs:11, pct:100.0,avg_actual:0.64,avg_target:4.0} } },
+    'Architekt Korporacyjny/Domenowy':          { n:9,   areas:{ CB:{needs:9,  pct:100.0,avg_actual:0.44,avg_target:3.0}, Cost:{needs:9,  pct:100.0,avg_actual:0.33,avg_target:3.0}, Sec:{needs:9,  pct:100.0,avg_actual:0.67,avg_target:3.0}, MCP:{needs:9,  pct:100.0,avg_actual:0.56,avg_target:3.0}, Env:{needs:9,  pct:100.0,avg_actual:0.89,avg_target:4.0} } },
+    'Problem manager':                          { n:7,   areas:{ CB:{needs:5,  pct:71.4,avg_actual:1.14,avg_target:2.0}, Cost:{needs:7,  pct:100.0,avg_actual:0.14,avg_target:3.0}, Sec:{needs:5,  pct:71.4,avg_actual:1.00,avg_target:2.0}, MCP:{needs:4,  pct:57.1,avg_actual:0.57,avg_target:1.0}, Env:{needs:4,  pct:57.1,avg_actual:1.00,avg_target:1.0} } },
+    'Architekt Platform Chmurowych':            { n:6,   areas:{ CB:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Cost:{needs:5,  pct:83.3,avg_actual:1.33,avg_target:3.0}, Sec:{needs:6,  pct:100.0,avg_actual:1.33,avg_target:3.0}, MCP:{needs:6,  pct:100.0,avg_actual:0.83,avg_target:3.0}, Env:{needs:5,  pct:83.3,avg_actual:2.83,avg_target:4.0} } },
+    'Area Product Owner':                       { n:6,   areas:{ CB:{needs:4,  pct:66.7,avg_actual:1.83,avg_target:3.0}, Cost:{needs:5,  pct:83.3,avg_actual:0.83,avg_target:2.0}, Sec:{needs:5,  pct:83.3,avg_actual:0.83,avg_target:2.0}, MCP:{needs:3,  pct:50.0,avg_actual:1.33,avg_target:2.0}, Env:{needs:4,  pct:66.7,avg_actual:0.83,avg_target:2.0} } },
+    'BNW - Administrator Platformy':            { n:6,   areas:{ CB:{needs:6,  pct:100.0,avg_actual:0.50,avg_target:2.0}, Cost:{needs:6,  pct:100.0,avg_actual:0.33,avg_target:3.0}, Sec:{needs:6,  pct:100.0,avg_actual:1.33,avg_target:3.0}, MCP:{needs:6,  pct:100.0,avg_actual:0.17,avg_target:3.0}, Env:{needs:5,  pct:83.3,avg_actual:1.17,avg_target:4.0} } },
+    'Koordynator - Menedżer wdrożenia':         { n:5,   areas:{ CB:{needs:4,  pct:80.0,avg_actual:0.80,avg_target:2.0}, Cost:{needs:4,  pct:80.0,avg_actual:0.60,avg_target:2.0}, Sec:{needs:5,  pct:100.0,avg_actual:0.80,avg_target:2.0}, MCP:{needs:4,  pct:80.0,avg_actual:0.60,avg_target:2.0}, Env:{needs:5,  pct:100.0,avg_actual:0.80,avg_target:3.0} } },
+    'UX Designer':                              { n:4,   areas:{ CB:{needs:2,  pct:50.0,avg_actual:2.25,avg_target:3.0}, Cost:{needs:3,  pct:75.0,avg_actual:1.00,avg_target:2.0}, Sec:{needs:1,  pct:25.0,avg_actual:1.75,avg_target:2.0}, MCP:{needs:3,  pct:75.0,avg_actual:0.75,avg_target:2.0}, Env:{needs:3,  pct:75.0,avg_actual:1.00,avg_target:2.0} } },
+    'Koordynator zarządzania Procesami IT':     { n:3,   areas:{ CB:{needs:3,  pct:100.0,avg_actual:0.00,avg_target:2.0}, Cost:{needs:3,  pct:100.0,avg_actual:0.00,avg_target:3.0}, Sec:{needs:3,  pct:100.0,avg_actual:0.00,avg_target:2.0}, MCP:{needs:3,  pct:100.0,avg_actual:0.00,avg_target:1.0}, Env:{needs:3,  pct:100.0,avg_actual:0.00,avg_target:1.0} } },
+    'Product Manager':                          { n:2,   areas:{ CB:{needs:2,  pct:100.0,avg_actual:1.50,avg_target:3.0}, Cost:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Sec:{needs:1,  pct:50.0,avg_actual:2.00,avg_target:2.0}, MCP:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, Env:{needs:1,  pct:50.0,avg_actual:1.00,avg_target:2.0} } },
+    'Specjalista ds Testów ciągłości działania':{ n:2,   areas:{ CB:{needs:2,  pct:100.0,avg_actual:0.00,avg_target:2.0}, Cost:{needs:2,  pct:100.0,avg_actual:0.00,avg_target:2.0}, Sec:{needs:1,  pct:50.0,avg_actual:1.50,avg_target:2.0}, MCP:{needs:2,  pct:100.0,avg_actual:0.00,avg_target:2.0}, Env:{needs:2,  pct:100.0,avg_actual:0.00,avg_target:3.0} } },
     'Koordynator środowisk':                    { n:1,   areas:{ CB:{needs:1,  pct:100.0,avg_actual:0,avg_target:2.0}, Cost:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, Sec:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, MCP:{needs:1,  pct:100.0,avg_actual:0,avg_target:3.0}, Env:{needs:1,  pct:100.0,avg_actual:0,avg_target:4.0} } },
   },
   gap_dist: {
-    CB:   { '-2':6,  '-1':60, '0':161,'1':153,'2':331,'3':111 },
-    Cost: { '-2':2,  '-1':27, '0':93, '1':234,'2':323,'3':143 },
-    Sec:  { '-2':2,  '-1':22, '0':141,'1':295,'2':304,'3':58  },
-    MCP:  { '-2':12, '-1':67, '0':239,'1':235,'2':227,'3':42  },
-    Env:  { '-3':3,  '-2':5,  '-1':11,'0':248,'1':229,'2':153,'3':145,'4':28 },
+    CB:   { '-2':7,  '-1':60, '0':161,'1':164,'2':339,'3':112 },
+    Cost: { '-2':2,  '-1':27, '0':94, '1':236,'2':340,'3':144 },
+    Sec:  { '-2':2,  '-1':22, '0':144,'1':303,'2':314,'3':58  },
+    MCP:  { '-2':12, '-1':68, '0':247,'1':240,'2':232,'3':44  },
+    Env:  { '-3':4,  '-2':5,  '-1':11,'0':252,'1':240,'2':153,'3':150,'4':28 },
   }
 };
 
@@ -470,28 +470,28 @@ function buildAreasTab(){
 
 /* ═══ AREAS-NEEDED DISTRIBUTION (per role, for role tab) ═══ */
 const AREAS_DIST = {
-  "Developer":                                { "0":16,"1":18,"2":47,"3":59,"4":65,"5":63 },
-  "Analityk":                                  { "0":5, "1":6, "2":7, "3":20,"4":25,"5":58 },
-  "Architekt":                                 { "0":6, "1":6, "2":6, "3":9, "4":25,"5":14 },
-  "Product Owner":                             { "0":2, "1":3, "3":7, "4":21,"5":17 },
-  "Kierownik zespołu":                         { "0":1, "1":8, "2":13,"3":5, "4":8, "5":8 },
-  "Tester automat":                            { "0":2, "1":6, "2":10,"3":6, "4":8, "5":9 },
+  "Developer":                                { "0":16,"1":18,"2":47,"3":60,"4":65,"5":63 },
+  "Analityk":                                  { "0":5, "1":6, "2":7, "3":20,"4":27,"5":60 },
+  "Architekt":                                 { "0":6, "1":6, "2":6, "3":9, "4":25,"5":16 },
+  "Kierownik zespołu":                         { "0":2, "1":8, "2":13,"3":6, "4":11,"5":11 },
+  "Product Owner":                             { "0":2, "1":3, "3":7, "4":22,"5":17 },
+  "Tester automat":                            { "0":2, "1":6, "2":11,"3":6, "4":8, "5":9 },
   "GAP":                                       { "2":3, "3":2, "4":7, "5":28 },
-  "Tester":                                    { "0":1, "2":2, "3":6, "4":5, "5":18 },
-  "Koordynator wsparcia":                      { "3":1, "5":27 },
+  "Tester":                                    { "0":1, "2":2, "3":6, "4":5, "5":19 },
+  "Koordynator wsparcia":                      { "3":1, "5":29 },
   "DevOps":                                    { "0":2, "2":2, "3":5, "4":3, "5":9 },
+  "Administrator platformy":                   { "2":1, "3":1, "4":4, "5":12 },
   "Scrum Master":                              { "1":1, "2":1, "3":1, "4":2, "5":12 },
   "Koordynator Testów wydajności":             { "3":1, "5":15 },
-  "Administrator platformy":                   { "2":1, "3":1, "4":4, "5":9 },
   "Architekt Infrastruktury":                  { "5":11 },
   "Architekt Korporacyjny/Domenowy":           { "5":9 },
-  "BNW - Administrator Platformy":             { "4":1, "5":8 },
   "Problem manager":                           { "2":1, "3":3, "4":1, "5":2 },
   "Architekt Platform Chmurowych":             { "4":2, "5":4 },
   "Area Product Owner":                        { "1":1, "3":2, "4":1, "5":2 },
+  "BNW - Administrator Platformy":             { "4":1, "5":5 },
   "Koordynator - Menedżer wdrożenia":          { "2":1, "5":4 },
+  "UX Designer":                               { "1":1, "2":1, "4":1, "5":1 },
   "Koordynator zarządzania Procesami IT":      { "5":3 },
-  "UX Designer":                               { "1":1, "2":1, "5":1 },
   "Product Manager":                           { "1":1, "5":1 },
   "Specjalista ds Testów ciągłości działania": { "4":1, "5":1 },
   "Koordynator środowisk":                     { "5":1 },
@@ -678,14 +678,14 @@ function showRole(r){
 
 /* ═══ EXECUTIVE SUMMARY ═══ */
 function buildExecSummary(){
-  // Waffle chart from global distribution
+  // Waffle chart from global distribution — neutral blue-gray severity ramp (no red/green)
   const DIST = [
-    { n:35,  col:'#3f7d5c' },
-    { n:51,  col:'#7c9a4a' },
-    { n:95,  col:'#c9a227' },
-    { n:128, col:'#c97a2e' },
-    { n:179, col:'#b4472f' },
-    { n:334, col:'#7a2626' },
+    { n:36,  col:'#c7d2e0' },
+    { n:51,  col:'#a9b8cc' },
+    { n:96,  col:'#8b9fb8' },
+    { n:130, col:'#6d86a3' },
+    { n:186, col:'#506d8f' },
+    { n:344, col:'#33547a' },
   ];
   const cells = [];
   DIST.forEach(d => { for(let i=0;i<d.n;i++) cells.push(d.col); });
