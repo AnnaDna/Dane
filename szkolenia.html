@@ -232,12 +232,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
       </div>
       <div class="exec-waffle-grid" id="exec-waffle"></div>
       <div class="exec-legend">
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#c7d2e0"></div>0 luk <b>· 36</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#a9b8cc"></div>1 luka <b>· 51</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#8b9fb8"></div>2 luki <b>· 96</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#6d86a3"></div>3 luki <b>· 130</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#506d8f"></div>4 luki <b>· 186</b></div>
-        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#33547a"></div>5 luk <b>· 344</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#94a3b8"></div>0 luk <b>· 36</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#0d9488"></div>1 luka <b>· 51</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#2563eb"></div>2 luki <b>· 96</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#7c3aed"></div>3 luki <b>· 130</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#b45309"></div>4 luki <b>· 186</b></div>
+        <div class="exec-leg-item"><div class="exec-leg-dot" style="background:#1e293b"></div>5 luk <b>· 344</b></div>
       </div>
     </div>
   </div>
@@ -680,12 +680,12 @@ function showRole(r){
 function buildExecSummary(){
   // Waffle chart from global distribution — neutral blue-gray severity ramp (no red/green)
   const DIST = [
-    { n:36,  col:'#c7d2e0' },
-    { n:51,  col:'#a9b8cc' },
-    { n:96,  col:'#8b9fb8' },
-    { n:130, col:'#6d86a3' },
-    { n:186, col:'#506d8f' },
-    { n:344, col:'#33547a' },
+    { n:36,  col:'#94a3b8' },
+    { n:51,  col:'#0d9488' },
+    { n:96,  col:'#2563eb' },
+    { n:130, col:'#7c3aed' },
+    { n:186, col:'#b45309' },
+    { n:344, col:'#1e293b' },
   ];
   const cells = [];
   DIST.forEach(d => { for(let i=0;i<d.n;i++) cells.push(d.col); });
